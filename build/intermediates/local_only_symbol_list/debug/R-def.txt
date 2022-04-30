@@ -1,0 +1,10 @@
+R_DEF: Internal format may change without notice
+local
+drawable ic_kimbap
+drawable ic_sushi
+drawable ic_worldwide
+id container
+id map
+layout activity_map_test
+layout fragment_maps
+string google_maps_key

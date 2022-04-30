@@ -35,7 +35,7 @@ import javax.inject.Inject
  * [FragmentMapsBinding]
  */
 @AndroidEntryPoint
-class MapsFragment : Fragment(), OnMapReadyCallback {
+class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     @Inject
     lateinit var locationManager: ITorangLocationManager
 
@@ -51,18 +51,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     /** 반경 변경 시 마지막 그려진 원을 지우기 위한 변수 */
     private var lastCircle: Circle? = null
 
-    /** 마커 클릭 리스너 */
-    private val onMarkerClickListener = OnMarkerClickListener {
-        if (mapSharedViewModel.isExpended.value != null && mapSharedViewModel.isExpended.value!!) {
-            mapSharedViewModel.mapExpand(
-                false
-            )
-        }
-        //선택한 마커의 포지션을 공유 뷰모델로 전달
-        mapSharedViewModel.selectPosition(markers.indexOf(it))
-        false
-    }
-
     private var isMoving = false
 
     override fun onCreateView(
@@ -72,34 +60,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     ): View {
         val binding = FragmentMapsBinding.inflate(layoutInflater, container, false)
         val fragment = childFragmentManager.findFragmentById(R.id.map)
-        val mapFragment = fragment as SupportMapFragment?
-        mapFragment!!.getMapAsync(this)
-        return binding.root
-    }
-
-    private fun getRestaurantIcon(restaurantType: String?): String {
-        if ("한식" == restaurantType) {
-            return "ic_kimbap"
-        } else if ("양식" == restaurantType) {
-            return "ic_worldwide"
+        (fragment as SupportMapFragment).getMapAsync() {
+            onMapReady(it)
         }
-        return "ic_sushi"
-    }
-
-    private fun resizeBitmap(drawableName: String?, width: Int, height: Int): Bitmap? {
-        val imageBitmap = BitmapFactory.decodeResource(
-            resources,
-            resources.getIdentifier(drawableName, "drawable", requireContext().getPackageName())
-        )
-        return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
-    }
-
-    private fun getRestaurantIcon1(restaurantType: String?): BitmapDescriptor {
-        return BitmapDescriptorFactory.fromBitmap(
-            resizeBitmap(
-                getRestaurantIcon(restaurantType), 100, 100
-            )
-        )
+        return binding.root
     }
 
     @SuppressLint("MissingPermission")
@@ -181,28 +145,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 }
             }
         }
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        //지도에 줌 화면 추가하기
-        googleMap.uiSettings.isZoomControlsEnabled = true
-
-        googleMap.setOnMarkerClickListener(onMarkerClickListener)
-        googleMap.setOnMapClickListener {
-            mapSharedViewModel.mapClick()
-        }
-        /*googleMap.setOnCameraIdleListener {
-            filterViewModel.northEastLatitude =
-                googleMap.projection.visibleRegion.latLngBounds.northeast.latitude
-            filterViewModel.northEastLongitude =
-                googleMap.projection.visibleRegion.latLngBounds.northeast.longitude
-            filterViewModel.southWestLatitude =
-                googleMap.projection.visibleRegion.latLngBounds.southwest.latitude
-            filterViewModel.southWestLongitude =
-                googleMap.projection.visibleRegion.latLngBounds.southwest.longitude
-
-            mapSharedViewModel.isMoved = true
-        }*/
 
         mapSharedViewModel.requestLocation.observe(viewLifecycleOwner) {
             if (it) {
@@ -211,8 +153,37 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 mapSharedViewModel.confirmRequestLocation()
             }
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                mViewModel.clickMap.collect {
+                    Logger.d(it.toString())
+                }
+            }
+        }
+    }
+
+
+    fun onMapReady(googleMap: GoogleMap) {
+        //지도에 줌 화면 추가하기
+        googleMap.uiSettings.isZoomControlsEnabled = true
+
+        googleMap.setOnMarkerClickListener(onMarkerClickListener)
+        googleMap.setOnMapClickListener {
+            mViewModel.clickMap()
+        }
+
+        googleMap.setOnCameraIdleListener {
+            mViewModel.setNorthEastLatitude(googleMap.projection.visibleRegion.latLngBounds.northeast.latitude)
+            mViewModel.setNorthEastLongitude(googleMap.projection.visibleRegion.latLngBounds.northeast.longitude)
+            mViewModel.setSouthWestLatitude(googleMap.projection.visibleRegion.latLngBounds.southwest.latitude)
+            mViewModel.setSouthWestLongitude(googleMap.projection.visibleRegion.latLngBounds.southwest.longitude)
+            mapSharedViewModel.isMoved = true
+        }
+
         subScribeUI(googleMap)
     }
+
 
     private fun renewLocation(googleMap: GoogleMap) {
         moveCamera(
@@ -225,9 +196,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             latitude = locationManager.getLastLatitude()
             longitude = locationManager.getLastLongitude()
         })
-
-//        filterViewModel.latitudeMyLocation = locationManager.getLastLatitude()
-//        filterViewModel.longitudeMyLocation = locationManager.getLastLongitude()
     }
 
     private fun requestPermission() {
@@ -323,5 +291,42 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 }
             }
         }
+    }
+
+    /** 마커 클릭 리스너 */
+    private val onMarkerClickListener = OnMarkerClickListener {
+        if (mapSharedViewModel.isExpended.value != null && mapSharedViewModel.isExpended.value!!) {
+            mapSharedViewModel.mapExpand(
+                false
+            )
+        }
+        //선택한 마커의 포지션을 공유 뷰모델로 전달
+        mapSharedViewModel.selectPosition(markers.indexOf(it))
+        false
+    }
+
+    private fun getRestaurantIcon(restaurantType: String?): String {
+        if ("한식" == restaurantType) {
+            return "ic_kimbap"
+        } else if ("양식" == restaurantType) {
+            return "ic_worldwide"
+        }
+        return "ic_sushi"
+    }
+
+    private fun resizeBitmap(drawableName: String?, width: Int, height: Int): Bitmap? {
+        val imageBitmap = BitmapFactory.decodeResource(
+            resources,
+            resources.getIdentifier(drawableName, "drawable", requireContext().getPackageName())
+        )
+        return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
+    }
+
+    private fun getRestaurantIcon1(restaurantType: String?): BitmapDescriptor {
+        return BitmapDescriptorFactory.fromBitmap(
+            resizeBitmap(
+                getRestaurantIcon(restaurantType), 100, 100
+            )
+        )
     }
 }

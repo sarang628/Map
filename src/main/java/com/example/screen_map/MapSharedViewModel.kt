@@ -11,7 +11,6 @@ import com.example.torang_core.util.Event
 import com.example.torang_core.util.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.ArrayList
 import javax.inject.Inject
 
 /**

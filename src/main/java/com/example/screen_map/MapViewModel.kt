@@ -18,12 +18,14 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val mapRepository: MapRepository,
     private val nationRepository: NationRepository
-    ) : ViewModel() {
+) : ViewModel() {
 
     private val _cameraUpdate = MutableLiveData<CameraUpdate>()
     val cameraUpdate: LiveData<CameraUpdate> = _cameraUpdate
 
     val selectdNationItem get() = nationRepository.getSelectNationItem()
+
+    val clickMap = mapRepository.getClickMap()
 
     fun loadRestaurant() {
         viewModelScope.launch {
@@ -36,6 +38,33 @@ class MapViewModel @Inject constructor(
     }
 
     fun setLocation(latitude: Double, longitude: Double, zoom: Float = 16f) {
-        _cameraUpdate.postValue(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoom))
+        _cameraUpdate.postValue(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(latitude, longitude),
+                zoom
+            )
+        )
+    }
+
+    fun clickMap() {
+        viewModelScope.launch {
+            mapRepository.clickMap()
+        }
+    }
+
+    fun setNorthEastLatitude(latitude: Double) {
+        mapRepository.setNorthEastLatitude(latitude)
+    }
+
+    fun setNorthEastLongitude(longitude: Double) {
+        mapRepository.setNorthEastLongitude(longitude)
+    }
+
+    fun setSouthWestLatitude(latitude: Double) {
+        mapRepository.setSouthWestLatitude(latitude)
+    }
+
+    fun setSouthWestLongitude(longitude: Double) {
+        mapRepository.setSouthWestLongitude(longitude)
     }
 }
