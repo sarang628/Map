@@ -140,7 +140,10 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
                 mViewModel.selectdNationItem.collect {
                     Logger.d(it.toString())
                     it.nationLocation?.let {
-                        moveCamera(googleMap, it.lat, it.lon)
+                        moveCamera(
+                            googleMap,
+                            CameraUpdateFactory.newLatLngZoom(LatLng(it.lat, it.lon), 11f)
+                        )
                     }
                 }
             }
