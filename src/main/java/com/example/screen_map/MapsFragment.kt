@@ -149,14 +149,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             }
         }
 
-        mapSharedViewModel.requestLocation.observe(viewLifecycleOwner) {
-            if (it) {
-                Logger.d("init request my location")
-                mapSharedViewModel.clickMyLocation()
-                mapSharedViewModel.confirmRequestLocation()
-            }
-        }
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 mViewModel.clickMap.collect {

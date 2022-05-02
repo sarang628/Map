@@ -70,7 +70,6 @@ class MapSharedViewModel @Inject constructor(val repository: MapSharedRepository
     val errorMsg: LiveData<String> = _errorMsg
 
 
-
     /**
      * 맛집 검색
      *
@@ -127,7 +126,6 @@ class MapSharedViewModel @Inject constructor(val repository: MapSharedRepository
      * 위치 검색
      */
     private fun searchRestaurant(latitude: Double, longitude: Double) {
-        Logger.v("")
         searchFilterRestaurant(
             distances = Distances._300M,
             latitude = latitude,
@@ -196,18 +194,6 @@ class MapSharedViewModel @Inject constructor(val repository: MapSharedRepository
         southWestLongitude: Double = 0.0,
         searchType: Filter.SearchType
     ) {
-        Logger.v(
-            "${distances.toString()}" +
-                    "${restaurantType.toString()}" +
-                    "${prices.toString()}" +
-                    "${ratings.toString()}" +
-                    "$latitude" +
-                    "$longitude\n" +
-                    "latitudeNorthEast = $northEastLatitude,\n" +
-                    "latitudeSouthWest = $southWestLatitude,\n" +
-                    "longitudeNorthEast = $northEastLongitude,\n" +
-                    "longitudeSouthWest = $southWestLongitude\n"
-        )
         viewModelScope.launch {
             try {
                 val filter = Filter().apply {
