@@ -94,24 +94,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             }
         }
 
-        //내위치 클릭 시
-        mapSharedViewModel.clickMyLocation.observe(viewLifecycleOwner, EventObserver {
-            if (hasLocationPermission()) {
-                googleMap.isMyLocationEnabled = true
-                googleMap.uiSettings.isMyLocationButtonEnabled = false
-
-                if (locationManager.getLastLatitude() == 0.0) {
-                    locationManager.requestLocation()
-
-                    locationManager.setOnLocationListener {
-                        renewLocation(googleMap)
-                    }
-                } else {
-                    renewLocation(googleMap)
-                }
-            }
-        })
-
         //맛집 포커스 변경 시
         mapSharedViewModel.currentRestaurantPosition.observe(viewLifecycleOwner) {
             try {
@@ -156,6 +138,38 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
                 }
             }
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                mViewModel.uiState.collect {
+                    Logger.d("requestMyLocation:" + it)
+                    if (it.requestMyLocation) {
+                        requestMyLocation(googleMap)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 내 위치 요청하기
+     */
+    fun requestMyLocation(googleMap: GoogleMap) {
+        Logger.d("permission: " + hasLocationPermission())
+        if (hasLocationPermission()) {
+            googleMap.isMyLocationEnabled = true
+            googleMap.uiSettings.isMyLocationButtonEnabled = false
+
+            if (locationManager.getLastLatitude() == 0.0) {
+                locationManager.requestLocation()
+
+                locationManager.setOnLocationListener {
+                    renewLocation(googleMap)
+                }
+            } else {
+                renewLocation(googleMap)
+            }
+        }
     }
 
 
@@ -181,6 +195,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
 
     private fun renewLocation(googleMap: GoogleMap) {
+        mViewModel.onReceiveLocation()
         moveCamera(
             googleMap,
             locationManager.getLastLatitude(),
