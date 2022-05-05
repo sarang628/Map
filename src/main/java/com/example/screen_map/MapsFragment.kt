@@ -195,7 +195,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
 
     private fun renewLocation(googleMap: GoogleMap) {
-        mViewModel.onReceiveLocation()
+        mViewModel.onReceiveLocation() // 위치를 받으면 뷰모델에 위치 받았다고 전달
         moveCamera(
             googleMap,
             locationManager.getLastLatitude(),

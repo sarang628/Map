@@ -130,7 +130,7 @@ class MapSharedViewModel @Inject constructor(val repository: MapSharedRepository
             distances = Distances._300M,
             latitude = latitude,
             longitude = longitude,
-            searchType = Filter.SearchType.AROUND
+            searchType = SearchType.AROUND
         )
 
         viewModelScope.launch {
@@ -192,7 +192,7 @@ class MapSharedViewModel @Inject constructor(val repository: MapSharedRepository
         northEastLongitude: Double = 0.0,
         southWestLatitude: Double = 0.0,
         southWestLongitude: Double = 0.0,
-        searchType: Filter.SearchType
+        searchType: SearchType
     ) {
         viewModelScope.launch {
             try {

@@ -39,6 +39,7 @@ class MapViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            //내 위치 요청 시 처리
             findRepository.isRequestingLocation().collect { b ->
                 _uiState.update {
                     it.copy(requestMyLocation = b)
