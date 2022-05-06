@@ -18,7 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.screen_map.databinding.FragmentMapsBinding
-import com.example.torang_core.util.EventObserver
+import com.example.torang_core.data.model.Restaurant
 import com.example.torang_core.util.ITorangLocationManager
 import com.example.torang_core.util.Logger
 import com.google.android.gms.maps.*
@@ -40,7 +40,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     lateinit var locationManager: ITorangLocationManager
 
     /** 뷰모델 */
-    private val mViewModel: MapViewModel by activityViewModels()
+    private val viewModel: MapViewModel by activityViewModels()
 
     /** 공유 뷰모델 */
     private val mapSharedViewModel: MapSharedViewModel by activityViewModels()
@@ -74,35 +74,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             lastCircle = googleMap.drawCircle(mapSharedViewModel.myLocation.value, it)
         }*/
 
-        //레스토링 리스트 변경 시
-        mapSharedViewModel.restaurants.observe(viewLifecycleOwner) {
-            //googleMap.clear()
-            for (marker in markers) {
-                Logger.v(marker)
-                marker.remove()
-            }
-            markers.removeAll(markers)
-            for (restaurantData in it) {
-                try {
-                    val markerOption = MarkerOptions().title(restaurantData.restaurant_name)
-                        .position(LatLng(restaurantData.lat!!, restaurantData.lon!!))
-                        .icon(getRestaurantIcon1(restaurantData.restaurant_type))
-                    markers.add(googleMap.addMarker(markerOption))
-                } catch (e: Exception) {
-
-                }
-            }
-        }
-
-        //맛집 포커스 변경 시
-        mapSharedViewModel.currentRestaurantPosition.observe(viewLifecycleOwner) {
-            try {
-                if (!mapSharedViewModel.isMoved)
-                    moveCamera(googleMap, markers[it])
-            } catch (e: Exception) {
-            }
-        }
-
         mapSharedViewModel.checkPermission.observe(viewLifecycleOwner) {
             if (it && !hasLocationPermission()) {
                 showLocationDialog()
@@ -113,13 +84,13 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             }
         }
 
-        mViewModel.cameraUpdate.observe(viewLifecycleOwner) {
+        viewModel.cameraUpdate.observe(viewLifecycleOwner) {
             moveCamera(googleMap, it)
         }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                mViewModel.selectdNationItem.collect {
+                viewModel.selectdNationItem.collect {
                     Logger.d(it.toString())
                     it.nationLocation?.let {
                         moveCamera(
@@ -133,7 +104,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                mViewModel.clickMap.collect {
+                viewModel.clickMap.collect {
                     Logger.d(it.toString())
                 }
             }
@@ -141,11 +112,13 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                mViewModel.uiState.collect {
+                viewModel.uiState.collect {
                     Logger.d("requestMyLocation:" + it)
                     if (it.requestMyLocation) {
                         requestMyLocation(googleMap)
                     }
+                    markRestaurnats(googleMap, it.searchedRestaurants)
+                    moveMarker(googleMap, it.position)
                 }
             }
         }
@@ -179,14 +152,14 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
         googleMap.setOnMarkerClickListener(onMarkerClickListener)
         googleMap.setOnMapClickListener {
-            mViewModel.clickMap()
+            viewModel.clickMap()
         }
 
         googleMap.setOnCameraIdleListener {
-            mViewModel.setNorthEastLatitude(googleMap.projection.visibleRegion.latLngBounds.northeast.latitude)
-            mViewModel.setNorthEastLongitude(googleMap.projection.visibleRegion.latLngBounds.northeast.longitude)
-            mViewModel.setSouthWestLatitude(googleMap.projection.visibleRegion.latLngBounds.southwest.latitude)
-            mViewModel.setSouthWestLongitude(googleMap.projection.visibleRegion.latLngBounds.southwest.longitude)
+            viewModel.setNorthEastLatitude(googleMap.projection.visibleRegion.latLngBounds.northeast.latitude)
+            viewModel.setNorthEastLongitude(googleMap.projection.visibleRegion.latLngBounds.northeast.longitude)
+            viewModel.setSouthWestLatitude(googleMap.projection.visibleRegion.latLngBounds.southwest.latitude)
+            viewModel.setSouthWestLongitude(googleMap.projection.visibleRegion.latLngBounds.southwest.longitude)
             mapSharedViewModel.isMoved = true
         }
 
@@ -195,7 +168,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
 
     private fun renewLocation(googleMap: GoogleMap) {
-        mViewModel.onReceiveLocation() // 위치를 받으면 뷰모델에 위치 받았다고 전달
+        viewModel.onReceiveLocation() // 위치를 받으면 뷰모델에 위치 받았다고 전달
         moveCamera(
             googleMap,
             locationManager.getLastLatitude(),
@@ -338,5 +311,28 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
                 getRestaurantIcon(restaurantType), 100, 100
             )
         )
+    }
+
+    private fun markRestaurnats(googleMap: GoogleMap, restaurants: List<Restaurant>) {
+        for (marker in markers) {
+            Logger.v(marker)
+            marker.remove()
+        }
+        markers.removeAll(markers)
+        for (restaurant in restaurants) {
+            try {
+                val markerOption = MarkerOptions().title(restaurant.restaurant_name)
+                    .position(LatLng(restaurant.lat, restaurant.lon))
+                    .icon(getRestaurantIcon1(restaurant.restaurant_type.name))
+                markers.add(googleMap.addMarker(markerOption))
+            } catch (e: Exception) {
+
+            }
+        }
+    }
+
+    private fun moveMarker(googleMap: GoogleMap, position: Int) {
+        if (position < markers.size)
+            moveCamera(googleMap, markers[position])
     }
 }

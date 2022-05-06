@@ -46,6 +46,26 @@ class MapViewModel @Inject constructor(
                 }
             }
         }
+
+        viewModelScope.launch {
+            findRepository.getSearchedRestaurant().collect { restaurants ->
+                _uiState.update {
+                    it.copy(
+                        searchedRestaurants = restaurants
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            findRepository.getCurrentPosition().collect { position ->
+                _uiState.update {
+                    it.copy(
+                        position = position
+                    )
+                }
+            }
+        }
     }
 
     fun loadRestaurant() {
