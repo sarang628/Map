@@ -113,7 +113,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiState.collect {
-                    Logger.d("requestMyLocation:" + it)
+                    Logger.d("requestMyLocation:" + it.requestMyLocation)
                     if (it.requestMyLocation) {
                         requestMyLocation(googleMap)
                     }
@@ -284,7 +284,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             )
         }
         //선택한 마커의 포지션을 공유 뷰모델로 전달
-        mapSharedViewModel.selectPosition(markers.indexOf(it))
+        viewModel.selectPosition(markers.indexOf(it))
         false
     }
 
@@ -315,7 +315,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
     private fun markRestaurnats(googleMap: GoogleMap, restaurants: List<Restaurant>) {
         for (marker in markers) {
-            Logger.v(marker)
             marker.remove()
         }
         markers.removeAll(markers)

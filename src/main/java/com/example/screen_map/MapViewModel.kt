@@ -115,4 +115,10 @@ class MapViewModel @Inject constructor(
             findRepository.notifyReceiveLocation()
         }
     }
+
+    fun selectPosition(indexOf: Int) {
+        viewModelScope.launch {
+            findRepository.setCurrentPosition(indexOf)
+        }
+    }
 }
