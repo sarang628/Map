@@ -25,7 +25,6 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
 import com.google.android.gms.maps.model.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,16 +73,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             lastCircle = googleMap.drawCircle(mapSharedViewModel.myLocation.value, it)
         }*/
 
-        mapSharedViewModel.checkPermission.observe(viewLifecycleOwner) {
-            if (it && !hasLocationPermission()) {
-                showLocationDialog()
-            }
-
-            if (it) {
-                mapSharedViewModel.confirmCheckPermission()
-            }
-        }
-
         viewModel.cameraUpdate.observe(viewLifecycleOwner) {
             moveCamera(googleMap, it)
         }
@@ -91,7 +80,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.selectdNationItem.collect {
-                    Logger.d(it.toString())
                     it.nationLocation?.let {
                         moveCamera(
                             googleMap,
@@ -105,7 +93,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.clickMap.collect {
-                    Logger.d(it.toString())
                 }
             }
         }
@@ -113,7 +100,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiState.collect {
-                    Logger.d("requestMyLocation:" + it.requestMyLocation)
                     if (it.requestMyLocation) {
                         requestMyLocation(googleMap)
                     }
@@ -128,7 +114,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
      * 내 위치 요청하기
      */
     fun requestMyLocation(googleMap: GoogleMap) {
-        Logger.d("permission: " + hasLocationPermission())
+        Logger.d("requestMyLocation")
         if (hasLocationPermission()) {
             googleMap.isMyLocationEnabled = true
             googleMap.uiSettings.isMyLocationButtonEnabled = false
@@ -240,40 +226,13 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     }
 
     private fun hasLocationPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
+        val b = ActivityCompat.checkSelfPermission(
             requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
             requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun showLocationDialog() {
-        AlertDialog.Builder(requireContext())
-            .setMessage("지도 검색 기능을 사용하기위해서는 위치권한을 필요로 합니다. 위치권한을 허용하시겠습니까?")
-            .setPositiveButton("예") { _, _ ->
-                requestPermission()
-            }
-            .setNegativeButton("아니오", null)
-            .show()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1) {
-            for (i in permissions.indices) {
-                if (permissions[i] == Manifest.permission.ACCESS_COARSE_LOCATION
-                    &&
-                    grantResults[i] == PackageManager.PERMISSION_GRANTED
-                ) {
-                    Logger.d("permission granted! request my location")
-                    mapSharedViewModel.clickMyLocation()
-                }
-            }
-        }
+        Logger.d("hasLocationPermission : $b")
+        return b
     }
 
     /** 마커 클릭 리스너 */
