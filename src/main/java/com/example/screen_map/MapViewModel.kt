@@ -7,19 +7,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.torang_core.repository.FindRepository
 import com.example.torang_core.repository.MapRepository
 import com.example.torang_core.repository.NationRepository
-import com.example.torang_core.util.Logger
 import com.google.android.gms.maps.CameraUpdate
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(InternalCoroutinesApi::class)
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val mapRepository: MapRepository,
@@ -40,51 +39,32 @@ class MapViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             //내 위치 요청 시 처리
-            findRepository.isRequestingLocation().collect { b ->
+            findRepository.isRequestingLocation().collect(FlowCollector { b ->
                 _uiState.update {
                     it.copy(requestMyLocation = b)
                 }
-            }
+            })
         }
 
         viewModelScope.launch {
-            findRepository.getSearchedRestaurant().collect { restaurants ->
+            findRepository.getSearchedRestaurant().collect(FlowCollector { restaurants ->
                 _uiState.update {
                     it.copy(
                         searchedRestaurants = restaurants
                     )
                 }
-            }
+            })
         }
 
         viewModelScope.launch {
-            findRepository.getCurrentPosition().collect { position ->
+            findRepository.getCurrentPosition().collect(FlowCollector { position ->
                 _uiState.update {
                     it.copy(
                         position = position
                     )
                 }
-            }
+            })
         }
-    }
-
-    fun loadRestaurant() {
-        viewModelScope.launch {
-            try {
-                mapRepository.loadRestaurant()
-            } catch (e: Exception) {
-                Logger.e(e.toString())
-            }
-        }
-    }
-
-    fun setLocation(latitude: Double, longitude: Double, zoom: Float = 16f) {
-        _cameraUpdate.postValue(
-            CameraUpdateFactory.newLatLngZoom(
-                LatLng(latitude, longitude),
-                zoom
-            )
-        )
     }
 
     fun clickMap() {
