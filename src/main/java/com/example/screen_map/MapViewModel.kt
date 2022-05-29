@@ -69,7 +69,7 @@ class MapViewModel @Inject constructor(
 
     fun clickMap() {
         viewModelScope.launch {
-            mapRepository.clickMap()
+            findRepository.clickMap()
         }
     }
 

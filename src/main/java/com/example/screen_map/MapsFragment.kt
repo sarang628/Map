@@ -2,7 +2,6 @@ package com.example.screen_map
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -21,10 +20,15 @@ import com.example.screen_map.databinding.FragmentMapsBinding
 import com.example.torang_core.data.model.Restaurant
 import com.example.torang_core.util.ITorangLocationManager
 import com.example.torang_core.util.Logger
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdate
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -59,12 +63,13 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     ): View {
         val binding = FragmentMapsBinding.inflate(layoutInflater, container, false)
         val fragment = childFragmentManager.findFragmentById(R.id.map)
-        (fragment as SupportMapFragment).getMapAsync() {
+        (fragment as SupportMapFragment).getMapAsync {
             onMapReady(it)
         }
         return binding.root
     }
 
+    @OptIn(InternalCoroutinesApi::class)
     @SuppressLint("MissingPermission")
     private fun subScribeUI(googleMap: GoogleMap) {
         //검색 반경 변경 시
@@ -78,22 +83,15 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         }
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.selectdNationItem.collect {
-                    it.nationLocation?.let {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.selectdNationItem.collect(FlowCollector { nationItem ->
+                    nationItem.nationLocation?.let {
                         moveCamera(
                             googleMap,
                             CameraUpdateFactory.newLatLngZoom(LatLng(it.lat, it.lon), 11f)
                         )
                     }
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.clickMap.collect {
-                }
+                })
             }
         }
 
@@ -113,7 +111,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     /**
      * 내 위치 요청하기
      */
-    fun requestMyLocation(googleMap: GoogleMap) {
+    private fun requestMyLocation(googleMap: GoogleMap) {
         Logger.d("requestMyLocation")
         if (hasLocationPermission()) {
             googleMap.isMyLocationEnabled = true
@@ -132,7 +130,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     }
 
 
-    fun onMapReady(googleMap: GoogleMap) {
+    private fun onMapReady(googleMap: GoogleMap) {
         //지도에 줌 화면 추가하기
         googleMap.uiSettings.isZoomControlsEnabled = true
 
@@ -165,16 +163,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             latitude = locationManager.getLastLatitude()
             longitude = locationManager.getLastLongitude()
         })
-    }
-
-    private fun requestPermission() {
-        requestPermissions(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ),
-            1
-        )
     }
 
     private fun moveCamera(map: GoogleMap?, latitute: Double, longituge: Double) {
@@ -259,7 +247,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     private fun resizeBitmap(drawableName: String?, width: Int, height: Int): Bitmap? {
         val imageBitmap = BitmapFactory.decodeResource(
             resources,
-            resources.getIdentifier(drawableName, "drawable", requireContext().getPackageName())
+            resources.getIdentifier(drawableName, "drawable", requireContext().packageName)
         )
         return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
     }
