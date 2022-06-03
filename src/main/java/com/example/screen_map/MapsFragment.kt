@@ -25,6 +25,11 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
 import com.google.android.gms.maps.model.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -65,6 +70,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         return binding.root
     }
 
+    @OptIn(InternalCoroutinesApi::class)
     @SuppressLint("MissingPermission")
     private fun subScribeUI(googleMap: GoogleMap) {
         //검색 반경 변경 시
@@ -79,21 +85,14 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.selectdNationItem.collect {
+                viewModel.selectdNationItem.collect(FlowCollector{
                     it.nationLocation?.let {
                         moveCamera(
                             googleMap,
                             CameraUpdateFactory.newLatLngZoom(LatLng(it.lat, it.lon), 11f)
                         )
                     }
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.clickMap.collect {
-                }
+                })
             }
         }
 
@@ -103,9 +102,17 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
                     if (it.requestMyLocation) {
                         requestMyLocation(googleMap)
                     }
-                    markRestaurnats(googleMap, it.searchedRestaurants)
+                    //markRestaurnats(googleMap, it.searchedRestaurants)
                     moveMarker(googleMap, it.position)
                 }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.uiState.map { it.searchedRestaurants }
+                    .distinctUntilChanged()
+                    .collect {markRestaurnats(googleMap, it)}
             }
         }
     }
