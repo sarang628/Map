@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.torang_core.data.NationItem
 import com.example.torang_core.repository.FindRepository
 import com.example.torang_core.repository.MapRepository
 import com.example.torang_core.repository.NationRepository
@@ -11,10 +12,7 @@ import com.google.android.gms.maps.CameraUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,8 +30,6 @@ class MapViewModel @Inject constructor(
     private val _cameraUpdate = MutableLiveData<CameraUpdate>()
     val cameraUpdate: LiveData<CameraUpdate> = _cameraUpdate
 
-    val selectdNationItem get() = nationRepository.getSelectNationItem()
-
     val clickMap = mapRepository.getClickMap()
 
     init {
@@ -42,6 +38,14 @@ class MapViewModel @Inject constructor(
             findRepository.isRequestingLocation().collect(FlowCollector { b ->
                 _uiState.update {
                     it.copy(requestMyLocation = b)
+                }
+            })
+        }
+
+        viewModelScope.launch {
+            nationRepository.getSelectNationItem().collect(FlowCollector {nationItem->
+                _uiState.update {
+                    it.copy(selectedNationItem = nationItem)
                 }
             })
         }

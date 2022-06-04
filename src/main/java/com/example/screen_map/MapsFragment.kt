@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -83,14 +82,14 @@ class MapsFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.selectdNationItem
-                    .map { it.nationLocation }
-                    .distinctUntilChanged()
+                viewModel.uiState.map {
+                    it.currentLocation
+                }.distinctUntilChanged()
                     .collect(FlowCollector {
-                    it?.let {
-                        moveCamera(googleMap, it.lat, it.lon, 12f)
-                    }
-                })
+                        it?.let {
+                            moveCamera(googleMap, it.latitude, it.longitude, 12f)
+                        }
+                    })
             }
         }
 
@@ -179,7 +178,7 @@ class MapsFragment : Fragment() {
         map: GoogleMap?,
         latitute: Double,
         longituge: Double,
-        zoomLevel : Float = 16f
+        zoomLevel: Float = 16f
     ) {
         map?.let {
             isMoving = true
