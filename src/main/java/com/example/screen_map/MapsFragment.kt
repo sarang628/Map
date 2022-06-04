@@ -41,7 +41,7 @@ import javax.inject.Inject
  * [FragmentMapsBinding]
  */
 @AndroidEntryPoint
-class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
+class MapsFragment : Fragment() {
     @Inject
     lateinit var locationManager: ITorangLocationManager
 
@@ -87,15 +87,10 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.selectdNationItem.collect(FlowCollector{
+                viewModel.selectdNationItem.collect(FlowCollector {
                     it.nationLocation?.let {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.selectdNationItem.collect(FlowCollector { nationItem ->
-                    nationItem.nationLocation?.let {
-                        moveCamera(
-                            googleMap,
-                            CameraUpdateFactory.newLatLngZoom(LatLng(it.lat, it.lon), 11f)
-                        )
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                        }
                     }
                 })
             }
@@ -107,7 +102,6 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
                     if (it.requestMyLocation) {
                         requestMyLocation(googleMap)
                     }
-                    //markRestaurnats(googleMap, it.searchedRestaurants)
                     moveMarker(googleMap, it.position)
                 }
             }
@@ -117,7 +111,7 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiState.map { it.searchedRestaurants }
                     .distinctUntilChanged()
-                    .collect {markRestaurnats(googleMap, it)}
+                    .collect { markRestaurnats(googleMap, it) }
             }
         }
     }
@@ -179,10 +173,19 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         })
     }
 
-    private fun moveCamera(map: GoogleMap?, latitute: Double, longituge: Double) {
+    private fun moveCamera(
+        map: GoogleMap?,
+        latitute: Double,
+        longituge: Double
+    ) {
         map?.let {
             isMoving = true
-            it.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitute, longituge), 16f),
+            it.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                LatLng(
+                    latitute,
+                    longituge
+                ), 16f
+            ),
                 object : GoogleMap.CancelableCallback {
                     override fun onFinish() {
                         isMoving = false
@@ -238,7 +241,8 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
     }
 
     /** 마커 클릭 리스너 */
-    private val onMarkerClickListener = OnMarkerClickListener {
+    private
+    val onMarkerClickListener = OnMarkerClickListener {
         if (mapSharedViewModel.isExpended.value != null && mapSharedViewModel.isExpended.value!!) {
             mapSharedViewModel.mapExpand(
                 false
@@ -258,10 +262,18 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         return "ic_sushi"
     }
 
-    private fun resizeBitmap(drawableName: String?, width: Int, height: Int): Bitmap? {
+    private fun resizeBitmap(
+        drawableName: String?,
+        width: Int,
+        height: Int
+    ): Bitmap? {
         val imageBitmap = BitmapFactory.decodeResource(
             resources,
-            resources.getIdentifier(drawableName, "drawable", requireContext().packageName)
+            resources.getIdentifier(
+                drawableName,
+                "drawable",
+                requireContext().packageName
+            )
         )
         return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
     }
@@ -274,16 +286,20 @@ class MapsFragment : Fragment()/*, OnMapReadyCallback*/ {
         )
     }
 
-    private fun markRestaurnats(googleMap: GoogleMap, restaurants: List<Restaurant>) {
+    private fun markRestaurnats(
+        googleMap: GoogleMap,
+        restaurants: List<Restaurant>
+    ) {
         for (marker in markers) {
             marker.remove()
         }
         markers.removeAll(markers)
         for (restaurant in restaurants) {
             try {
-                val markerOption = MarkerOptions().title(restaurant.restaurant_name)
-                    .position(LatLng(restaurant.lat, restaurant.lon))
-                    .icon(getRestaurantIcon1(restaurant.restaurant_type.name))
+                val markerOption =
+                    MarkerOptions().title(restaurant.restaurant_name)
+                        .position(LatLng(restaurant.lat, restaurant.lon))
+                        .icon(getRestaurantIcon1(restaurant.restaurant_type.name))
                 markers.add(googleMap.addMarker(markerOption))
             } catch (e: Exception) {
 
