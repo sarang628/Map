@@ -97,7 +97,6 @@ class MapsFragment : Fragment() {
                     if (it.requestMyLocation) {
                         requestMyLocation(googleMap)
                     }
-                    moveMarker(googleMap, it.position)
                 }
             }
         }
@@ -106,7 +105,18 @@ class MapsFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiState.map { it.searchedRestaurants }
                     .distinctUntilChanged()
-                    .collect { markRestaurnats(googleMap, it) }
+                    .collect {
+                        markRestaurnats(googleMap, it)
+                        moveMarker(googleMap, 0)
+                    }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.uiState.map { it.position }
+                    .distinctUntilChanged()
+                    .collect { moveMarker(googleMap, it) }
             }
         }
     }
@@ -208,6 +218,8 @@ class MapsFragment : Fragment() {
             Logger.d("camera is moving")
             return
         }
+
+        Logger.d("move ${marker.title}")
 
         map.animateCamera(
             CameraUpdateFactory.newLatLng(
