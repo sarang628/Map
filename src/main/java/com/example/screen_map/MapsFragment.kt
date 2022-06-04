@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -114,11 +115,15 @@ class MapsFragment : Fragment() {
             }
         }
 
+        //포커스된 맛집으로 위치이동
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.uiState.map { it.position }
                     .distinctUntilChanged()
-                    .collect { moveMarker(googleMap, it) }
+                    .collect {
+                        Logger.d("move position: ${it}")
+                        moveMarker(googleMap, it)
+                    }
             }
         }
     }
