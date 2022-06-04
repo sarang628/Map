@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +12,7 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -29,7 +29,6 @@ import com.google.android.gms.maps.model.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -46,10 +45,7 @@ class MapsFragment : Fragment() {
     lateinit var locationManager: ITorangLocationManager
 
     /** 뷰모델 */
-    private val viewModel: MapViewModel by activityViewModels()
-
-    /** 공유 뷰모델 */
-    private val mapSharedViewModel: MapSharedViewModel by activityViewModels()
+    private val viewModel: MapViewModel by viewModels()
 
     /** 마커 리스트 */
     private val markers = ArrayList<Marker>()
@@ -89,8 +85,7 @@ class MapsFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.selectdNationItem.collect(FlowCollector {
                     it.nationLocation?.let {
-                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                        }
+                        moveCamera(googleMap, it.lat, it.lon)
                     }
                 })
             }
@@ -152,7 +147,6 @@ class MapsFragment : Fragment() {
             viewModel.setNorthEastLongitude(googleMap.projection.visibleRegion.latLngBounds.northeast.longitude)
             viewModel.setSouthWestLatitude(googleMap.projection.visibleRegion.latLngBounds.southwest.latitude)
             viewModel.setSouthWestLongitude(googleMap.projection.visibleRegion.latLngBounds.southwest.longitude)
-            mapSharedViewModel.isMoved = true
         }
 
         subScribeUI(googleMap)
@@ -166,11 +160,6 @@ class MapsFragment : Fragment() {
             locationManager.getLastLatitude(),
             locationManager.getLastLongitude(),
         )
-
-        mapSharedViewModel.setLocation(Location("").apply {
-            latitude = locationManager.getLastLatitude()
-            longitude = locationManager.getLastLongitude()
-        })
     }
 
     private fun moveCamera(
@@ -243,11 +232,6 @@ class MapsFragment : Fragment() {
     /** 마커 클릭 리스너 */
     private
     val onMarkerClickListener = OnMarkerClickListener {
-        if (mapSharedViewModel.isExpended.value != null && mapSharedViewModel.isExpended.value!!) {
-            mapSharedViewModel.mapExpand(
-                false
-            )
-        }
         //선택한 마커의 포지션을 공유 뷰모델로 전달
         viewModel.selectPosition(markers.indexOf(it))
         false
