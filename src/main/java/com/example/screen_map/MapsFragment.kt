@@ -83,8 +83,11 @@ class MapsFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.selectdNationItem.collect(FlowCollector {
-                    it.nationLocation?.let {
+                viewModel.selectdNationItem
+                    .map { it.nationLocation }
+                    .distinctUntilChanged()
+                    .collect(FlowCollector {
+                    it?.let {
                         moveCamera(googleMap, it.lat, it.lon, 12f)
                     }
                 })
