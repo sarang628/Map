@@ -85,7 +85,7 @@ class MapsFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.selectdNationItem.collect(FlowCollector {
                     it.nationLocation?.let {
-                        moveCamera(googleMap, it.lat, it.lon)
+                        moveCamera(googleMap, it.lat, it.lon, 12f)
                     }
                 })
             }
@@ -165,7 +165,8 @@ class MapsFragment : Fragment() {
     private fun moveCamera(
         map: GoogleMap?,
         latitute: Double,
-        longituge: Double
+        longituge: Double,
+        zoomLevel : Float = 16f
     ) {
         map?.let {
             isMoving = true
@@ -173,7 +174,7 @@ class MapsFragment : Fragment() {
                 LatLng(
                     latitute,
                     longituge
-                ), 16f
+                ), zoomLevel
             ),
                 object : GoogleMap.CancelableCallback {
                     override fun onFinish() {
