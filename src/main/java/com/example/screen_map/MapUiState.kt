@@ -1,7 +1,8 @@
 package com.example.screen_map
 
-import android.location.Location
+
 import com.example.torang_core.data.NationItem
+import com.example.torang_core.data.data.Location
 import com.example.torang_core.data.model.Restaurant
 
 data class MapUiState(

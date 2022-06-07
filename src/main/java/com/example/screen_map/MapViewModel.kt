@@ -43,6 +43,14 @@ class MapViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            mapRepository.getCurrentLocationFlow().collect(FlowCollector {location ->
+                _uiState.update {
+                    it.copy(currentLocation = location)
+                }
+            })
+        }
+
+        viewModelScope.launch {
             nationRepository.getSelectNationItem().collect(FlowCollector {nationItem->
                 _uiState.update {
                     it.copy(selectedNationItem = nationItem)
