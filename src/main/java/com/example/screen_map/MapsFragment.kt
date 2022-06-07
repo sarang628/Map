@@ -105,7 +105,7 @@ class MapsFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.uiState.map { it.searchedRestaurants }
                     .distinctUntilChanged()
                     .collect {
