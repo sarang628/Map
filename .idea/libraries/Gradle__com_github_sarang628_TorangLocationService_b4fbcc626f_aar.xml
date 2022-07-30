@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.sarang628:TorangLocationService:b4fbcc626f@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/b2d6ae90447da610fb22a71c47d056d2/transformed/jetified-TorangLocationService-b4fbcc626f/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/b2d6ae90447da610fb22a71c47d056d2/transformed/jetified-TorangLocationService-b4fbcc626f/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/b2d6ae90447da610fb22a71c47d056d2/transformed/jetified-TorangLocationService-b4fbcc626f/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.sarang628/TorangLocationService/b4fbcc626f/5c00770776755963abc8fa6639fda9a03e6f3368/TorangLocationService-b4fbcc626f-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

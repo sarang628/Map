@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.sarang628:TorangCore:5dd8950a5a@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/95dc0e0d1f62e681652dde2dd013d3fc/transformed/jetified-TorangCore-5dd8950a5a/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/95dc0e0d1f62e681652dde2dd013d3fc/transformed/jetified-TorangCore-5dd8950a5a/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/95dc0e0d1f62e681652dde2dd013d3fc/transformed/jetified-TorangCore-5dd8950a5a/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.sarang628/TorangCore/5dd8950a5a/6dfc617f280c4dc172896ac291e2a296aea82a4c/TorangCore-5dd8950a5a-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
