@@ -35,82 +35,82 @@ class MapViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             //내 위치 요청 시 처리
-            findRepository.isRequestingLocation().collect(FlowCollector { b ->
+            /*findRepository.isRequestingLocation().collect(FlowCollector { b ->
                 _uiState.update {
                     it.copy(requestMyLocation = b)
                 }
-            })
+            })*/
         }
 
         viewModelScope.launch {
-            mapRepository.getCurrentLocationFlow().collect(FlowCollector {location ->
+            /*mapRepository.getCurrentLocationFlow().collect(FlowCollector {location ->
                 _uiState.update {
                     it.copy(currentLocation = location)
                 }
-            })
+            })*/
         }
 
         viewModelScope.launch {
-            nationRepository.getSelectNationItem().collect(FlowCollector {nationItem->
+            /*nationRepository.getSelectNationItem().collect(FlowCollector {nationItem->
                 _uiState.update {
                     it.copy(selectedNationItem = nationItem)
                 }
-            })
+            })*/
         }
 
         viewModelScope.launch {
-            findRepository.getSearchedRestaurant().collect(FlowCollector { restaurants ->
+            /*findRepository.getSearchedRestaurant().collect(FlowCollector { restaurants ->
                 _uiState.update {
                     it.copy(
                         searchedRestaurants = restaurants
                     )
                 }
-            })
+            })*/
         }
 
         viewModelScope.launch {
-            findRepository.getCurrentPosition().collect(FlowCollector { position ->
+            /*findRepository.getCurrentPosition().collect(FlowCollector { position ->
                 _uiState.update {
                     it.copy(
                         position = position
                     )
                 }
-            })
+            })*/
         }
     }
 
     fun clickMap() {
-        viewModelScope.launch {
+        /*viewModelScope.launch {
             findRepository.clickMap()
-        }
+        }*/
     }
 
     fun setNorthEastLatitude(latitude: Double) {
-        mapRepository.setNorthEastLatitude(latitude)
+//        mapRepository.setNorthEastLatitude(latitude)
     }
 
     fun setNorthEastLongitude(longitude: Double) {
-        mapRepository.setNorthEastLongitude(longitude)
+//        mapRepository.setNorthEastLongitude(longitude)
     }
 
     fun setSouthWestLatitude(latitude: Double) {
-        mapRepository.setSouthWestLatitude(latitude)
+//        mapRepository.setSouthWestLatitude(latitude)
     }
 
     fun setSouthWestLongitude(longitude: Double) {
-        mapRepository.setSouthWestLongitude(longitude)
+//        mapRepository.setSouthWestLongitude(longitude)
     }
 
     fun onReceiveLocation() {
-        viewModelScope.launch {
+        /*viewModelScope.launch {
             delay(1000)
             findRepository.notifyReceiveLocation()
-        }
+        }*/
     }
 
     fun selectPosition(indexOf: Int) {
-        viewModelScope.launch {
+        /*viewModelScope.launch {
             findRepository.setCurrentPosition(indexOf)
-        }
+        }*/
     }
 }

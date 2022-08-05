@@ -1,10 +1,12 @@
 package com.example.testapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.testapp.databinding.ActivityMainBinding
 import com.example.torang_core.repository.FindRepository
 import com.example.torang_core.repository.MapRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +27,20 @@ class MainActivity : AppCompatActivity() {
     @OptIn(InternalCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.btnTestMapFragment.setOnClickListener {
+            startActivity(Intent(this, TestMapActivity::class.java))
+        }
+
+        binding.btnTestMapUiState.setOnClickListener {
+
+        }
+
+        binding.btnTestMapViewModel.setOnClickListener {
+
+        }
 
         val textView = findViewById<TextView>(R.id.tv_show)
 
@@ -36,9 +51,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            findRepository.showRestaurantCardAndFilter().collect(FlowCollector {
+            /*findRepository.showRestaurantCardAndFilter().collect(FlowCollector {
                 textView.text = if(it) "카드보이기" else "카드가리기"
-            })
+            })*/
         }
     }
 }
