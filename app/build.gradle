@@ -41,8 +41,8 @@ android {
 dependencies {
 
     implementation project(path: ':library')
-    implementation 'com.github.sarang628:TorangRepository:5cdb45b76e'
-    implementation 'com.github.sarang628:TorangCore:5dd8950a5a'
+    implementation "com.github.sarang628:TorangCore:$coreVersion"
+    implementation "com.github.sarang628:TorangRepository:$torangRepositoryVersion"
 
     /** google map */
     implementation 'com.google.maps.android:android-maps-utils:0.6.1'
