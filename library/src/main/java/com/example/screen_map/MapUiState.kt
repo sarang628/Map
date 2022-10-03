@@ -1,9 +1,9 @@
 package com.example.screen_map
 
+import com.sryang.torang_core.data.NationItem
+import com.sryang.torang_core.data.entity.Location
+import com.sryang.torang_core.data.entity.Restaurant
 
-import com.example.torang_core.data.NationItem
-import com.example.torang_core.data.data.Location
-import com.example.torang_core.data.model.Restaurant
 
 data class MapUiState(
     val requestMyLocation: Boolean = false,

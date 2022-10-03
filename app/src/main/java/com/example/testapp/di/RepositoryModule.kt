@@ -1,7 +1,7 @@
-package com.sarang.torang.di
+package com.example.testapp.di
 
-import com.example.torang_core.repository.*
-import com.example.torangrepository.*
+import com.sryang.torang_repository.repository.*
+import com.sryang.torang_repository.repository.impl.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

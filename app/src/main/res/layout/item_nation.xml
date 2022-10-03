@@ -5,7 +5,7 @@
 
         <variable
             name="nationItem"
-            type="com.example.torang_core.data.NationItem" />
+            type="com.sryang.torang_core.data.NationItem" />
 
         <variable
             name="viewModel"

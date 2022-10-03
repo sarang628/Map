@@ -22,12 +22,12 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import androidx.core.app.ActivityCompat
-import com.example.torang_core.data.model.Distances
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
+import com.sryang.torang_core.data.entity.Distances
 
 /**
  * Helper functions to simplify permission checks/requests.

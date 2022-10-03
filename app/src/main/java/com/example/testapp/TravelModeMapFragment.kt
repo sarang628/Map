@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.screen_map.MapViewModel
 import com.example.testapp.databinding.FragmentTravelModeMapBinding
-import com.example.torang_core.data.model.Filter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

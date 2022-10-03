@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,15 +16,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.screen_map.databinding.FragmentMapsBinding
-import com.example.torang_core.data.model.Restaurant
-import com.example.torang_core.util.ITorangLocationManager
-import com.example.torang_core.util.Logger
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.sryang.torang_core.data.entity.Restaurant
+import com.sryang.torang_core.util.ITorangLocationManager
+import com.sryang.torang_core.util.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.FlowCollector
@@ -301,9 +300,9 @@ class MapsFragment : Fragment() {
         for (restaurant in restaurants) {
             try {
                 val markerOption =
-                    MarkerOptions().title(restaurant.restaurant_name)
+                    MarkerOptions().title(restaurant.restaurantName)
                         .position(LatLng(restaurant.lat, restaurant.lon))
-                        .icon(getRestaurantIcon1(restaurant.restaurant_type.name))
+                        .icon(getRestaurantIcon1(restaurant.restaurantType.name))
                 markers.add(googleMap.addMarker(markerOption))
             } catch (e: Exception) {
 

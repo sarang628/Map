@@ -4,12 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.torang_core.data.NationItem
-import com.example.torang_core.data.NationLocation
-import com.example.torang_core.data.model.Filter
-import com.example.torang_core.data.model.RestaurantData
-import com.example.torang_core.data.model.SearchType
-import com.example.torang_core.repository.NationRepository
+import com.sryang.torang_core.data.NationItem
+import com.sryang.torang_core.data.NationLocation
+import com.sryang.torang_repository.data.entity.RestaurantEntity
+import com.sryang.torang_repository.repository.NationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,8 +20,8 @@ class SelectNationViewModel @Inject constructor(val nationRepository: NationRepo
     val selected: LiveData<NationItem> = _selectdNation
 
     /** 현재 맛집 리스트 */
-    private val _restaurants = MutableLiveData<List<RestaurantData>>()
-    val restaurants: LiveData<List<RestaurantData>> = _restaurants
+    private val _restaurants = MutableLiveData<List<RestaurantEntity>>()
+    val restaurants: LiveData<List<RestaurantEntity>> = _restaurants
 
     fun select(nationItem: NationItem) {
         _selectdNation.postValue(nationItem)
@@ -38,10 +36,10 @@ class SelectNationViewModel @Inject constructor(val nationRepository: NationRepo
         viewModelScope.launch {
             delay(7000)
             try {
-                val filter = Filter().apply {
+                /*val filter = Filter().apply {
                     searchType = SearchType.BOUND
-                }
-                _restaurants.postValue(nationRepository.getFilterRestaurant(filter))
+                }*/
+                //_restaurants.postValue(nationRepository.getFilterRestaurant(filter))
 
             } catch (e: Exception) {
 

@@ -27,6 +27,7 @@ android {
         dataBinding true
         viewBinding true
     }
+    namespace 'com.example.screen_map'
 }
 
 dependencies {
@@ -60,7 +61,6 @@ dependencies {
     /** HILT */
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hiltViewModelVersion"
     kapt "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
     annotationProcessor "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
 }

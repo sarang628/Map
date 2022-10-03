@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.testapp"
         minSdk 23
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -36,6 +36,7 @@ android {
         viewBinding true
         dataBinding true
     }
+    namespace 'com.example.testapp'
 }
 
 dependencies {
@@ -43,6 +44,7 @@ dependencies {
     implementation project(path: ':library')
     implementation "com.github.sarang628:TorangCore:$coreVersion"
     implementation "com.github.sarang628:TorangRepository:$torangRepositoryVersion"
+    implementation "com.github.sarang628:TorangLocationService:$torangLocationServiceVersion"
 
     /** google map */
     implementation 'com.google.maps.android:android-maps-utils:0.6.1'
@@ -71,7 +73,6 @@ dependencies {
     /** HILT */
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hiltViewModelVersion"
     kapt "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
     annotationProcessor "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
 }

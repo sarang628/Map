@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.testapp.databinding.ItemNationBinding
-import com.example.torang_core.data.NationItem
+import com.sryang.torang_core.data.NationItem
 
 class NationRvAdapter(val selectNationViewModel: SelectNationViewModel) :
     RecyclerView.Adapter<NationRvHolder>() {

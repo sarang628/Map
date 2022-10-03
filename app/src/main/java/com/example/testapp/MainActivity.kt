@@ -7,11 +7,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.testapp.databinding.ActivityMainBinding
-import com.example.torang_core.repository.FindRepository
-import com.example.torang_core.repository.MapRepository
+import com.sryang.torang_repository.repository.FindRepository
+import com.sryang.torang_repository.repository.MapRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
