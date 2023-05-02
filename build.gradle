@@ -47,6 +47,8 @@ ext {
     torangRepositoryVersion = 'ef039cf1d2'
     coreVersion = '00558d1524'
     torangLocationServiceVersion = '83d7409e6a'
+    themeVersion = '6f8e2a7a08'
+
 }
 
 buildscript {
