@@ -22,16 +22,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.sryang.torang_core.data.entity.Restaurant
-import com.sryang.torang_core.util.ITorangLocationManager
-import com.sryang.torang_core.util.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
 /**
@@ -40,8 +33,8 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MapsFragment : Fragment() {
-    @Inject
-    lateinit var locationManager: ITorangLocationManager
+//    @Inject
+//    lateinit var locationManager: ITorangLocationManager
 
     /** 뷰모델 */
     private val viewModel: MapViewModel by viewModels()
@@ -80,7 +73,7 @@ class MapsFragment : Fragment() {
             moveCamera(googleMap, it)
         }
 
-        lifecycleScope.launch {
+        /*lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiState.map {
                     it.currentLocation
@@ -91,7 +84,7 @@ class MapsFragment : Fragment() {
                         }
                     })
             }
-        }
+        }*/
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -103,7 +96,7 @@ class MapsFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
+        /*lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.uiState.map { it.searchedRestaurants }
                     .distinctUntilChanged()
@@ -112,9 +105,9 @@ class MapsFragment : Fragment() {
                         moveMarker(googleMap, 0)
                     }
             }
-        }
+        }*/
 
-        //포커스된 맛집으로 위치이동
+        /*//포커스된 맛집으로 위치이동
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.uiState.map { it.position }
@@ -124,14 +117,14 @@ class MapsFragment : Fragment() {
                         moveMarker(googleMap, it)
                     }
             }
-        }
+        }*/
     }
 
     /**
      * 내 위치 요청하기
      */
     private fun requestMyLocation(googleMap: GoogleMap) {
-        Logger.d("requestMyLocation")
+        /*Logger.d("requestMyLocation")
         if (hasLocationPermission()) {
             googleMap.isMyLocationEnabled = true
             googleMap.uiSettings.isMyLocationButtonEnabled = false
@@ -145,7 +138,7 @@ class MapsFragment : Fragment() {
             } else {
                 renewLocation(googleMap)
             }
-        }
+        }*/
     }
 
 
@@ -171,11 +164,11 @@ class MapsFragment : Fragment() {
 
     private fun renewLocation(googleMap: GoogleMap) {
         viewModel.onReceiveLocation() // 위치를 받으면 뷰모델에 위치 받았다고 전달
-        moveCamera(
+        /*moveCamera(
             googleMap,
             locationManager.getLastLatitude(),
             locationManager.getLastLongitude(),
-        )
+        )*/
     }
 
     private fun moveCamera(
@@ -221,11 +214,11 @@ class MapsFragment : Fragment() {
 
     private fun moveCamera(map: GoogleMap, marker: Marker) {
         if (isMoving) {
-            Logger.d("camera is moving")
+//            Logger.d("camera is moving")
             return
         }
 
-        Logger.d("move ${marker.title}")
+//        Logger.d("move ${marker.title}")
 
         map.animateCamera(
             CameraUpdateFactory.newLatLng(
@@ -244,7 +237,7 @@ class MapsFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
             requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-        Logger.d("hasLocationPermission : $b")
+//        Logger.d("hasLocationPermission : $b")
         return b
     }
 
@@ -290,24 +283,24 @@ class MapsFragment : Fragment() {
     }
 
     private fun markRestaurnats(
-        googleMap: GoogleMap,
-        restaurants: List<Restaurant>
+//        googleMap: GoogleMap,
+//        restaurants: List<Restaurant>
     ) {
         for (marker in markers) {
             marker.remove()
         }
         markers.removeAll(markers)
-        for (restaurant in restaurants) {
+        /*for (restaurant in restaurants) {
             try {
                 val markerOption =
                     MarkerOptions().title(restaurant.restaurantName)
                         .position(LatLng(restaurant.lat, restaurant.lon))
                         .icon(getRestaurantIcon1(restaurant.restaurantType.name))
-                markers.add(googleMap.addMarker(markerOption))
+//                markers.add(googleMap.addMarker(markerOption))
             } catch (e: Exception) {
 
             }
-        }
+        }*/
     }
 
     private fun moveMarker(googleMap: GoogleMap, position: Int) {

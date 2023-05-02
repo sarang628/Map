@@ -4,11 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.testapp.databinding.ItemNationBinding
-import com.sryang.torang_core.data.NationItem
 
 class NationRvAdapter(val selectNationViewModel: SelectNationViewModel) :
     RecyclerView.Adapter<NationRvHolder>() {
-    private var nationItems = ArrayList<NationItem>()
+//    private var nationItems = ArrayList<NationItem>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NationRvHolder {
         return NationRvHolder(
             ItemNationBinding.inflate(
@@ -22,22 +21,26 @@ class NationRvAdapter(val selectNationViewModel: SelectNationViewModel) :
     }
 
     override fun onBindViewHolder(holder: NationRvHolder, position: Int) {
-        holder.setUiState(nationItems[position])
+//        holder.setUiState(nationItems[position])
     }
 
     override fun getItemCount(): Int {
-        return nationItems.size
+        return 0
     }
 
-    fun setNationList(nationItems: ArrayList<NationItem>) {
-        this.nationItems = nationItems
+    fun setNationList(
+//        nationItems: ArrayList<NationItem>
+    ) {
+//        this.nationItems = nationItems
         notifyDataSetChanged()
     }
 }
 
 class NationRvHolder(val binding: ItemNationBinding) :
     RecyclerView.ViewHolder(binding.root) {
-    fun setUiState(nationUiState: NationItem) {
-        binding.nationItem = nationUiState
+    fun setUiState(
+//        nationUiState: NationItem
+    ) {
+//        binding.nationItem = nationUiState
     }
 }

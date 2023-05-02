@@ -4,28 +4,26 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sryang.torang_core.data.NationItem
-import com.sryang.torang_core.data.NationLocation
-import com.sryang.torang_repository.data.entity.RestaurantEntity
-import com.sryang.torang_repository.repository.NationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SelectNationViewModel @Inject constructor(val nationRepository: NationRepository) :
+class SelectNationViewModel @Inject constructor(
+//    val nationRepository: NationRepository
+    ) :
     ViewModel() {
-    private val _selectdNation = MutableLiveData<NationItem>()
-    val selected: LiveData<NationItem> = _selectdNation
+//    private val _selectdNation = MutableLiveData<NationItem>()
+//    val selected: LiveData<NationItem> = _selectdNation
 
     /** 현재 맛집 리스트 */
-    private val _restaurants = MutableLiveData<List<RestaurantEntity>>()
-    val restaurants: LiveData<List<RestaurantEntity>> = _restaurants
+//    private val _restaurants = MutableLiveData<List<RestaurantEntity>>()
+//    val restaurants: LiveData<List<RestaurantEntity>> = _restaurants
 
-    fun select(nationItem: NationItem) {
-        _selectdNation.postValue(nationItem)
-    }
+//    fun select(nationItem: NationItem) {
+//        _selectdNation.postValue(nationItem)
+//    }
 
     fun findRestaurant(
         latitudeNorthWest: Double,
@@ -47,7 +45,7 @@ class SelectNationViewModel @Inject constructor(val nationRepository: NationRepo
         }
     }
 
-    private val _nationItems = MutableLiveData<ArrayList<NationItem>>().apply {
+/*    private val _nationItems = MutableLiveData<ArrayList<NationItem>>().apply {
         value = ArrayList()
         value.apply {
             this?.add(
@@ -247,6 +245,6 @@ class SelectNationViewModel @Inject constructor(val nationRepository: NationRepo
                 )
             )
         }
-    }
-    val nationItems: LiveData<ArrayList<NationItem>> = _nationItems
+    }*/
+//    val nationItems: LiveData<ArrayList<NationItem>> = _nationItems
 }

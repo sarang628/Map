@@ -5,9 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdate
-import com.sryang.torang_repository.repository.FindRepository
-import com.sryang.torang_repository.repository.MapRepository
-import com.sryang.torang_repository.repository.NationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,9 +15,6 @@ import javax.inject.Inject
 @OptIn(InternalCoroutinesApi::class)
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val mapRepository: MapRepository,
-    private val nationRepository: NationRepository,
-    private val findRepository: FindRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUiState())
@@ -29,7 +23,7 @@ class MapViewModel @Inject constructor(
     private val _cameraUpdate = MutableLiveData<CameraUpdate>()
     val cameraUpdate: LiveData<CameraUpdate> = _cameraUpdate
 
-    val clickMap = mapRepository.getClickMap()
+    //val clickMap = mapRepository.getClickMap()
 
     init {
         viewModelScope.launch {

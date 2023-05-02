@@ -21,10 +21,9 @@ class SelectNationFragment : BottomSheetDialogFragment() {
         val binding = FragmentSelectNationBinding.inflate(layoutInflater, container, false)
         binding.nationRecyclerView.adapter = NationRvAdapter(selectNationViewModel)
 
-        selectNationViewModel.nationItems.observe(viewLifecycleOwner) {
-            it?.let { (binding.nationRecyclerView.adapter as NationRvAdapter).setNationList(it) }
-
-        }
+//        selectNationViewModel.nationItems.observe(viewLifecycleOwner) {
+//            it?.let { (binding.nationRecyclerView.adapter as NationRvAdapter).setNationList(it) }
+//        }
 
         return binding.root
     }

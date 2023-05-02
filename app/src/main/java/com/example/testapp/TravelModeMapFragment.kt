@@ -30,14 +30,14 @@ class TravelModeMapFragment : Fragment() {
             nationFragment.show(childFragmentManager, "dialog")
         }
 
-        selectNationViewModel.selected.observe(viewLifecycleOwner) {
+        /*selectNationViewModel.selected.observe(viewLifecycleOwner) {
             if (nationFragment.isVisible)
                 nationFragment.dismiss()
-        }
+        }*/
 
-        selectNationViewModel.restaurants.observe(viewLifecycleOwner) {
+        /*selectNationViewModel.restaurants.observe(viewLifecycleOwner) {
 
-        }
+        }*/
 
         binding.viewModel = selectNationViewModel
         return binding.root

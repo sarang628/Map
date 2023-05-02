@@ -43,14 +43,12 @@
                 android:layout_height="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:src="@{viewModel.selected.res}" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:text="@{viewModel.selected.name}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toTopOf="@+id/imageView" />

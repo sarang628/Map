@@ -27,7 +27,6 @@ import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.sryang.torang_core.data.entity.Distances
 
 /**
  * Helper functions to simplify permission checks/requests.
@@ -65,6 +64,7 @@ fun Activity.requestPermissionWithRationale(
     }
 }
 
+/*
 fun GoogleMap.drawCircle(location: Location?, distances: Distances?): Circle? {
     if (location == null || distances == null)
         return null;
@@ -77,3 +77,4 @@ fun GoogleMap.drawCircle(location: Location?, distances: Distances?): Circle? {
     )
 
 }
+*/

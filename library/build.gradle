@@ -6,12 +6,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
+    compileSdk rootProject.compileSdk
 
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
-        targetSdkVersion rootProject.targetSdkVersion
+        minSdk rootProject.minSdk
+        targetSdk rootProject.targetSdk
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -31,10 +30,6 @@ android {
 }
 
 dependencies {
-
-    implementation "com.github.sarang628:TorangCore:$coreVersion"
-    implementation "com.github.sarang628:TorangRepository:$torangRepositoryVersion"
-
     /** google map */
     implementation 'com.google.maps.android:android-maps-utils:0.6.1'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'

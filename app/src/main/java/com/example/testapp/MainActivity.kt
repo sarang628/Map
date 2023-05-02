@@ -7,8 +7,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.testapp.databinding.ActivityMainBinding
-import com.sryang.torang_repository.repository.FindRepository
-import com.sryang.torang_repository.repository.MapRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -17,11 +15,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var mapRepository: MapRepository
+//    @Inject
+//    lateinit var mapRepository: MapRepository
 
-    @Inject
-    lateinit var findRepository: FindRepository
+//    @Inject
+//    lateinit var findRepository: FindRepository
 
     @OptIn(InternalCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btn).setOnClickListener {
             lifecycleScope.launch {
-                findRepository.notifyRequestLocation()
+//                findRepository.notifyRequestLocation()
             }
         }
 

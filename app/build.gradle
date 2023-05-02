@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk rootProject.compileSdk
 
     defaultConfig {
         applicationId "com.example.testapp"
-        minSdk 23
-        targetSdk 33
+        minSdk rootProject.minSdk
+        targetSdk rootProject.targetSdk
         versionCode 1
         versionName "1.0"
 
@@ -40,12 +40,6 @@ android {
 }
 
 dependencies {
-
-    implementation project(path: ':library')
-    implementation "com.github.sarang628:TorangCore:$coreVersion"
-    implementation "com.github.sarang628:TorangRepository:$torangRepositoryVersion"
-    implementation "com.github.sarang628:TorangLocationService:$torangLocationServiceVersion"
-
     /** google map */
     implementation 'com.google.maps.android:android-maps-utils:0.6.1'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
@@ -75,4 +69,7 @@ dependencies {
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
     kapt "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
     annotationProcessor "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
+
+    implementation project(path: ':library')
+    implementation "com.github.sarang628:TorangLocationService:$torangLocationServiceVersion"
 }
