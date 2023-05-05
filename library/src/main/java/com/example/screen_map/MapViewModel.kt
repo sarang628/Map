@@ -5,16 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdate
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @OptIn(InternalCoroutinesApi::class)
-@HiltViewModel
-class MapViewModel @Inject constructor(
+//@HiltViewModel
+class MapViewModel
+//@Inject
+constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUiState())

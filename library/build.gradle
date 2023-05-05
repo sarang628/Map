@@ -22,6 +22,11 @@ android {
         }
     }
 
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17
+    }
+
     buildFeatures {
         dataBinding true
         viewBinding true
@@ -29,11 +34,16 @@ android {
     namespace 'com.example.screen_map'
 }
 
+// Allow references to generated code
+kapt {
+    correctErrorTypes true
+}
+
 dependencies {
     /** google map */
-    implementation 'com.google.maps.android:android-maps-utils:0.6.1'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.google.android.gms:play-services-location:17.1.0'
+    implementation 'com.google.maps.android:android-maps-utils:3.4.0'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
@@ -44,20 +54,15 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "androidx.core:core-ktx:$ktxVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
-    implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+    implementation 'com.google.android.material:material:1.9.0'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$junitTestVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoCoreVersion"
 
-    /** by viewmodes */
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
-
     /** HILT */
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
-    kapt "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
-    annotationProcessor "androidx.hilt:hilt-compiler:$hiltViewModelVersion"
 
     implementation "com.github.sarang628:Theme:$themeVersion"
 }

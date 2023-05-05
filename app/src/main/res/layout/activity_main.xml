@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
+<!--    <Button
         android:id="@+id/btn_test_map_fragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,18 +28,6 @@
         android:text="TestMapUiState"
         />
 
-    <!--<fragment
-        android:id="@+id/fragment"
-        class="com.example.testapp.TravelModeMapFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />-->
 
     <Button
         android:id="@+id/btn"
@@ -59,6 +47,6 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/btn"
         app:layout_constraintStart_toEndOf="@+id/btn"
-        app:layout_constraintTop_toTopOf="@+id/btn" />
+        app:layout_constraintTop_toTopOf="@+id/btn" />-->
 
 </LinearLayout>

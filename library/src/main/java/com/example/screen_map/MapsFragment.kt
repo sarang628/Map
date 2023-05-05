@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -31,13 +30,13 @@ import kotlinx.coroutines.launch
  * @See MapViewModel
  * [FragmentMapsBinding]
  */
-@AndroidEntryPoint
+//@AndroidEntryPoint
 class MapsFragment : Fragment() {
 //    @Inject
 //    lateinit var locationManager: ITorangLocationManager
 
     /** 뷰모델 */
-    private val viewModel: MapViewModel by viewModels()
+    //private val viewModel: MapViewModel by viewModels()
 
     /** 마커 리스트 */
     private val markers = ArrayList<Marker>()
@@ -69,9 +68,9 @@ class MapsFragment : Fragment() {
             lastCircle = googleMap.drawCircle(mapSharedViewModel.myLocation.value, it)
         }*/
 
-        viewModel.cameraUpdate.observe(viewLifecycleOwner) {
-            moveCamera(googleMap, it)
-        }
+//        viewModel.cameraUpdate.observe(viewLifecycleOwner) {
+//            moveCamera(googleMap, it)
+//        }
 
         /*lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -88,11 +87,11 @@ class MapsFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.uiState.collect {
-                    if (it.requestMyLocation) {
-                        requestMyLocation(googleMap)
-                    }
-                }
+//                viewModel.uiState.collect {
+//                    if (it.requestMyLocation) {
+//                        requestMyLocation(googleMap)
+//                    }
+//                }
             }
         }
 
@@ -148,14 +147,14 @@ class MapsFragment : Fragment() {
 
         googleMap.setOnMarkerClickListener(onMarkerClickListener)
         googleMap.setOnMapClickListener {
-            viewModel.clickMap()
+//            viewModel.clickMap()
         }
 
         googleMap.setOnCameraIdleListener {
-            viewModel.setNorthEastLatitude(googleMap.projection.visibleRegion.latLngBounds.northeast.latitude)
-            viewModel.setNorthEastLongitude(googleMap.projection.visibleRegion.latLngBounds.northeast.longitude)
-            viewModel.setSouthWestLatitude(googleMap.projection.visibleRegion.latLngBounds.southwest.latitude)
-            viewModel.setSouthWestLongitude(googleMap.projection.visibleRegion.latLngBounds.southwest.longitude)
+//            viewModel.setNorthEastLatitude(googleMap.projection.visibleRegion.latLngBounds.northeast.latitude)
+//            viewModel.setNorthEastLongitude(googleMap.projection.visibleRegion.latLngBounds.northeast.longitude)
+//            viewModel.setSouthWestLatitude(googleMap.projection.visibleRegion.latLngBounds.southwest.latitude)
+//            viewModel.setSouthWestLongitude(googleMap.projection.visibleRegion.latLngBounds.southwest.longitude)
         }
 
         subScribeUI(googleMap)
@@ -163,7 +162,7 @@ class MapsFragment : Fragment() {
 
 
     private fun renewLocation(googleMap: GoogleMap) {
-        viewModel.onReceiveLocation() // 위치를 받으면 뷰모델에 위치 받았다고 전달
+//        viewModel.onReceiveLocation() // 위치를 받으면 뷰모델에 위치 받았다고 전달
         /*moveCamera(
             googleMap,
             locationManager.getLastLatitude(),
@@ -245,7 +244,7 @@ class MapsFragment : Fragment() {
     private
     val onMarkerClickListener = OnMarkerClickListener {
         //선택한 마커의 포지션을 공유 뷰모델로 전달
-        viewModel.selectPosition(markers.indexOf(it))
+//        viewModel.selectPosition(markers.indexOf(it))
         false
     }
 
@@ -274,13 +273,13 @@ class MapsFragment : Fragment() {
         return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
     }
 
-    private fun getRestaurantIcon1(restaurantType: String?): BitmapDescriptor {
+    /*private fun getRestaurantIcon1(restaurantType: String?): BitmapDescriptor {
         return BitmapDescriptorFactory.fromBitmap(
             resizeBitmap(
                 getRestaurantIcon(restaurantType), 100, 100
             )
         )
-    }
+    }*/
 
     private fun markRestaurnats(
 //        googleMap: GoogleMap,
