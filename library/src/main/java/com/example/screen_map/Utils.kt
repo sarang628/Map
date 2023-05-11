@@ -19,14 +19,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.location.Location
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.Circle
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.snackbar.Snackbar
 
 /**
  * Helper functions to simplify permission checks/requests.
@@ -52,13 +45,11 @@ fun Context.hasPermission(permission: String): Boolean {
  */
 fun Activity.requestPermissionWithRationale(
     permission: String,
-    requestCode: Int,
-    snackbar: Snackbar
+    requestCode: Int
 ) {
     val provideRationale = shouldShowRequestPermissionRationale(permission)
 
     if (provideRationale) {
-        snackbar.show()
     } else {
         requestPermissions(arrayOf(permission), requestCode)
     }
