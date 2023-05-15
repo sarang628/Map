@@ -42,10 +42,13 @@ class MapViewModel(context: Context) : ViewModel() {
     }
 
     fun selectRestaurant(restaurant: Restaurant) {
+        val r = list.find {
+            it.restaurant_id == restaurant.restaurant_id
+        }
         viewModelScope.launch {
             mapUiStateFlow.emit(
                 mapUiStateFlow.value.copy(
-                    move = restaurant.toMarkerData()
+                    move = r?.toMarkerData()
                 )
             )
         }
