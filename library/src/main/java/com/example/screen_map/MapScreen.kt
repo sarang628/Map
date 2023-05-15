@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import kotlin.streams.toList
 
 @Composable
-private fun MapScreen(
+fun MapScreen(
     uiStateFlow: StateFlow<MapUiState>
 ) {
 
@@ -64,7 +64,7 @@ private fun MapScreen(
 
 @Preview
 @Composable
-fun MarkTest1() {
+private fun MapScreen1() {
     val viewModel = MapViewModel(LocalContext.current)
     MapScreen(uiStateFlow = viewModel.mapUiStateFlow)
 }
