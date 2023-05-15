@@ -22,4 +22,5 @@ ext {
     navigationVersion = '2.4.0-alpha06'
 
     themeVersion = '6f8e2a7a08'
+    dataVersion = '5e905f6f1f'
 }

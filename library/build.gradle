@@ -28,8 +28,6 @@ android {
     }
 
     buildFeatures {
-        dataBinding true
-        viewBinding true
         compose true
     }
 
@@ -77,5 +75,8 @@ dependencies {
     // Optionally, you can include the widgets library for ScaleBar, etc.
     implementation 'com.google.maps.android:maps-compose-widgets:2.11.2'
 
+    implementation 'com.github.sarang628:JsonToObjectGenerator:960fe9fece'
+
     implementation "com.github.sarang628:Theme:$themeVersion"
+    implementation "com.github.sarang628:Data:$dataVersion"
 }

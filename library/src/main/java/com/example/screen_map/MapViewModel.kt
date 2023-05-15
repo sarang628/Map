@@ -1,109 +1,62 @@
 package com.example.screen_map
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.CameraUpdate
-import kotlinx.coroutines.InternalCoroutinesApi
+import com.example.library.JsonToObjectGenerator
+import com.example.library.data.Restaurant
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Marker
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.streams.toList
 
-@OptIn(InternalCoroutinesApi::class)
-//@HiltViewModel
-class MapViewModel
-//@Inject
-constructor(
-) : ViewModel() {
+data class MapUiState(
+    val list: List<MarkerData>? = null,
+    val currentPosition: Int = 0,
+    val move: MarkerData? = null
+) {
+    fun currentLatLng(): LatLng {
+        return list?.get(currentPosition)?.getLatLng() ?: LatLng(0.0, 0.0)
+    }
+}
 
-    private val _uiState = MutableStateFlow(MapUiState())
-    val uiState: StateFlow<MapUiState> = _uiState
+class MapViewModel(context: Context) : ViewModel() {
+    val list = JsonToObjectGenerator<Restaurant>().getListByFile(
+        context,
+        "restaurants.json",
+        Restaurant::class.java
+    )
 
-    private val _cameraUpdate = MutableLiveData<CameraUpdate>()
-    val cameraUpdate: LiveData<CameraUpdate> = _cameraUpdate
-
-    //val clickMap = mapRepository.getClickMap()
+    val mapUiStateFlow = MutableStateFlow(MapUiState())
 
     init {
         viewModelScope.launch {
-            //내 위치 요청 시 처리
-            /*findRepository.isRequestingLocation().collect(FlowCollector { b ->
-                _uiState.update {
-                    it.copy(requestMyLocation = b)
-                }
-            })*/
+            mapUiStateFlow.emit(
+                mapUiStateFlow.value.copy(
+                    list = list.stream().map { it.toMarkerData() }.toList()
+                )
+            )
         }
+    }
 
+    fun selectRestaurant(restaurant: Restaurant) {
         viewModelScope.launch {
-            /*mapRepository.getCurrentLocationFlow().collect(FlowCollector {location ->
-                _uiState.update {
-                    it.copy(currentLocation = location)
-                }
-            })*/
-        }
-
-        viewModelScope.launch {
-            /*nationRepository.getSelectNationItem().collect(FlowCollector {nationItem->
-                _uiState.update {
-                    it.copy(selectedNationItem = nationItem)
-                }
-            })*/
-        }
-
-        viewModelScope.launch {
-            /*findRepository.getSearchedRestaurant().collect(FlowCollector { restaurants ->
-                _uiState.update {
-                    it.copy(
-                        searchedRestaurants = restaurants
-                    )
-                }
-            })*/
-        }
-
-        viewModelScope.launch {
-            /*findRepository.getCurrentPosition().collect(FlowCollector { position ->
-                _uiState.update {
-                    it.copy(
-                        position = position
-                    )
-                }
-            })*/
+            mapUiStateFlow.emit(
+                mapUiStateFlow.value.copy(
+                    move = restaurant.toMarkerData()
+                )
+            )
         }
     }
 
-    fun clickMap() {
-        /*viewModelScope.launch {
-            findRepository.clickMap()
-        }*/
-    }
+}
 
-    fun setNorthEastLatitude(latitude: Double) {
-//        mapRepository.setNorthEastLatitude(latitude)
-    }
-
-    fun setNorthEastLongitude(longitude: Double) {
-//        mapRepository.setNorthEastLongitude(longitude)
-    }
-
-    fun setSouthWestLatitude(latitude: Double) {
-//        mapRepository.setSouthWestLatitude(latitude)
-    }
-
-    fun setSouthWestLongitude(longitude: Double) {
-//        mapRepository.setSouthWestLongitude(longitude)
-    }
-
-    fun onReceiveLocation() {
-        /*viewModelScope.launch {
-            delay(1000)
-            findRepository.notifyReceiveLocation()
-        }*/
-    }
-
-    fun selectPosition(indexOf: Int) {
-        /*viewModelScope.launch {
-            findRepository.setCurrentPosition(indexOf)
-        }*/
-    }
+fun Restaurant.toMarkerData(): MarkerData {
+    return MarkerData(
+        lat = lat ?: 0.0,
+        lon = lon ?: 0.0,
+        title = restaurant_name ?: ""
+    )
 }
