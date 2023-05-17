@@ -58,6 +58,7 @@ class MapViewModel(context: Context) : ViewModel() {
 
 fun Restaurant.toMarkerData(): MarkerData {
     return MarkerData(
+        id = restaurant_id ?: 0,
         lat = lat ?: 0.0,
         lon = lon ?: 0.0,
         title = restaurant_name ?: ""

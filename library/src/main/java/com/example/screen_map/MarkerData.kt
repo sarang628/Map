@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MarkerState
 
 data class MarkerData(
+    val id : Int,
     val lat: Double = 0.0,
     val lon: Double = 0.0,
     val title: String = "",

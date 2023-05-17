@@ -9,21 +9,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.library.JsonToObjectGenerator
-import com.example.library.data.Restaurant
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlin.streams.toList
 
 @Composable
 fun MapScreen(
-    uiStateFlow: StateFlow<MapUiState>
+    uiStateFlow: StateFlow<MapUiState>,
+    onMark: ((Int) -> Unit)? = null
 ) {
 
     val uiState by uiStateFlow.collectAsState()
@@ -47,14 +44,20 @@ fun MapScreen(
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
     ) {
         uiState.list?.let {
             for (data: MarkerData in it) {
                 Marker(
                     state = data.markState(),
                     title = data.title,
-                    snippet = data.snippet
+                    snippet = data.snippet,
+                    onClick = {
+                        onMark?.invoke(Integer.parseInt(it.tag.toString()))
+                        Log.d("sryang123", it.tag.toString())
+                        false
+                    },
+                    tag = data.id
                 )
             }
         }
@@ -64,7 +67,7 @@ fun MapScreen(
 
 @Preview
 @Composable
-private fun MapScreen1() {
+private fun TestMapScreen() {
     val viewModel = MapViewModel(LocalContext.current)
     MapScreen(uiStateFlow = viewModel.mapUiStateFlow)
 }
