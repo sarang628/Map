@@ -19,25 +19,26 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(
+    mapViewModel: MapViewModel,
     uiStateFlow: StateFlow<MapUiState>,
     onMark: ((Int) -> Unit)? = null
 ) {
 
-    val uiState by uiStateFlow.collectAsState()
+    val uiState by mapViewModel.mapUiStateFlow.collectAsState()
 
     val cameraPositionState = rememberCameraPositionState {
-        uiState.list?.let {
+        /*uiState.list.let {
             position = CameraPosition.fromLatLngZoom(
                 it[0].getLatLng(), 15f
             )
-        }
+        }*/
     }
     val scope = rememberCoroutineScope()
 
-    uiState.move?.let {
+    uiState.move.let {
         scope.launch {
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLng(uiState.move!!.getLatLng())
+                update = CameraUpdateFactory.newLatLng(uiState.move.getLatLng())
             )
         }
     }
@@ -46,7 +47,7 @@ fun MapScreen(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
     ) {
-        uiState.list?.let {
+        uiState.list.let {
             for (data: MarkerData in it) {
                 Marker(
                     state = data.markState(),
@@ -54,7 +55,6 @@ fun MapScreen(
                     snippet = data.snippet,
                     onClick = {
                         onMark?.invoke(Integer.parseInt(it.tag.toString()))
-                        Log.d("sryang123", it.tag.toString())
                         false
                     },
                     tag = data.id
@@ -68,6 +68,5 @@ fun MapScreen(
 @Preview
 @Composable
 private fun TestMapScreen() {
-    val viewModel = MapViewModel(LocalContext.current)
-    MapScreen(uiStateFlow = viewModel.mapUiStateFlow)
+
 }

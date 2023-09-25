@@ -27,19 +27,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
     }
 
-    buildFeatures {
-        compose true
-    }
+    buildFeatures { compose true }
+
+    composeOptions { kotlinCompilerExtensionVersion = "1.4.6" }
 
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.6"
     }
     namespace 'com.example.screen_map'
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes true
 }
 
 dependencies {
@@ -57,8 +52,7 @@ dependencies {
     //JetNews Main 따라하기
     implementation 'androidx.compose.material3:material3'
     implementation "androidx.compose.material3:material3-window-size-class"
-//    implementation "androidx.navigation:navigation-compose"
-    implementation 'androidx.activity:activity-compose:1.7.1'
+    implementation "androidx.lifecycle:lifecycle-runtime-compose"
 
     /** HILT */
     implementation "com.google.dagger:hilt-android:$hiltVersion"
@@ -78,5 +72,4 @@ dependencies {
     implementation 'com.github.sarang628:JsonToObjectGenerator:960fe9fece'
 
     implementation "com.github.sarang628:Theme:$themeVersion"
-    implementation "com.github.sarang628:Data:$dataVersion"
 }
