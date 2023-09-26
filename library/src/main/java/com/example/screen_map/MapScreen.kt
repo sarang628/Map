@@ -1,14 +1,11 @@
 package com.example.screen_map
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.GoogleMap
@@ -27,11 +24,13 @@ fun MapScreen(
     val uiState by mapViewModel.mapUiStateFlow.collectAsState()
 
     val cameraPositionState = rememberCameraPositionState {
-        /*uiState.list.let {
-            position = CameraPosition.fromLatLngZoom(
-                it[0].getLatLng(), 15f
-            )
-        }*/
+        uiState.list.let {
+            if (it.isNotEmpty()) {
+                position = CameraPosition.fromLatLngZoom(
+                    it[0].getLatLng(), 15f
+                )
+            }
+        }
     }
     val scope = rememberCoroutineScope()
 
@@ -62,11 +61,4 @@ fun MapScreen(
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-private fun TestMapScreen() {
-
 }

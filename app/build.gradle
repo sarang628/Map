@@ -49,10 +49,8 @@ dependencies {
     //JetNews Main 따라하기
     implementation 'androidx.compose.material3:material3'
     implementation "androidx.compose.material3:material3-window-size-class"
-    def nav_version = "2.5.3"
 
     /** Room */
-    def room_version = "2.5.1"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     // To use Kotlin annotation processing tool (kapt)
@@ -69,6 +67,11 @@ dependencies {
     implementation "androidx.room:room-paging:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
+    /** Retrofit */
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+
 
     /** Retrofit 리뷰 추가 시 multipart 때문에 추가 뷰모델 작업해야 함. */
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -79,4 +82,5 @@ dependencies {
 
 
     implementation project(path: ':library')
+    implementation "com.github.sarang628:TorangRepository:$torangRepositoryVersion"
 }

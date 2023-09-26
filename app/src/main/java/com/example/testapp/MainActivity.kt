@@ -4,20 +4,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.screen_map.MapScreen
+import com.example.screen_map.MapService
 import com.example.screen_map.MapUiState
 import com.example.screen_map.MapViewModel
 import com.example.screen_map.MarkerData
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val mapViewModel: MapViewModel by viewModels()
+    private val mapViewModel: MapViewModel by viewModels()
+
+    @Inject
+    lateinit var mapService: MapService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             MapScreen(
                 mapViewModel = mapViewModel,

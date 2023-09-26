@@ -1,13 +1,18 @@
 package com.example.screen_map
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MapViewModel : ViewModel() {
+@HiltViewModel
+class MapViewModel @Inject constructor(
+    private val mapService: MapService
+) : ViewModel() {
 
-    @Inject
-    lateinit var mapService: MapService
 
     val mapUiStateFlow = MutableStateFlow(
         MapUiState(
@@ -24,36 +29,31 @@ class MapViewModel : ViewModel() {
     )
 
     init {
-        /*viewModelScope.launch {
+        Log.d("_MapViewModel", "init")
+        viewModelScope.launch {
+            val list = mapService.restaurantMarkerList()
+            Log.d("_MapViewModel", list.toString())
             mapUiStateFlow.emit(
                 mapUiStateFlow.value.copy(
-                    list = list.stream().map { it.toMarkerData() }.toList()
+                    list = list
                 )
             )
-        }*/
+        }
     }
 
-    /*fun selectRestaurant(restaurant: Restaurant) {
-        val r = list.find {
-            it.restaurant_id == restaurant.restaurant_id
+    fun selectRestaurant(restaurant: MarkerData) {
+        val r = mapUiStateFlow.value.list.find {
+            it.id == restaurant.id
         }
         viewModelScope.launch {
-            mapUiStateFlow.emit(
-                mapUiStateFlow.value.copy(
-                    move = r?.toMarkerData()
+            r?.let {
+                mapUiStateFlow.emit(
+                    mapUiStateFlow.value.copy(
+                        move = it
+                    )
                 )
-            )
+            }
         }
-    }*/
+    }
 
 }
-
-/*
-fun Restaurant.toMarkerData(): MarkerData {
-    return MarkerData(
-        id = restaurant_id ?: 0,
-        lat = lat ?: 0.0,
-        lon = lon ?: 0.0,
-        title = restaurant_name ?: ""
-    )
-}*/
