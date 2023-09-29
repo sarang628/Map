@@ -1,6 +1,7 @@
 package com.example.screen_map
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -8,9 +9,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerInfoWindow
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -22,6 +28,11 @@ fun MapScreen(
 ) {
 
     val uiState by mapViewModel.mapUiStateFlow.collectAsState()
+    val list = ArrayList<MarkerState>()
+
+    val markerState = rememberMarkerState().apply {
+        showInfoWindow()
+    }
 
     val cameraPositionState = rememberCameraPositionState {
         uiState.list.let {
@@ -36,9 +47,12 @@ fun MapScreen(
 
     uiState.move.let {
         scope.launch {
+            markerState.position = it.getLatLng()
+            markerState.hideInfoWindow()
             cameraPositionState.animate(
                 update = CameraUpdateFactory.newLatLng(uiState.move.getLatLng())
             )
+            markerState.showInfoWindow()
         }
     }
 
@@ -56,9 +70,20 @@ fun MapScreen(
                         onMark?.invoke(Integer.parseInt(it.tag.toString()))
                         false
                     },
-                    tag = data.id
+                    tag = data.id,
                 )
             }
         }
+
+        if (markerState.position.latitude != 0.0)
+            Marker(
+                state = markerState,
+                title = uiState.move.title,
+                snippet = uiState.move.snippet,
+                onClick = {
+                    onMark?.invoke(Integer.parseInt(it.tag.toString()))
+                    false
+                }
+            )
     }
 }

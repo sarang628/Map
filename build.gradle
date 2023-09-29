@@ -22,7 +22,6 @@ ext {
 
     themeVersion = '6f8e2a7a08'
     navigationModuleVersion = 'd98f57435d'
-    designVersion = '973242b6ae'
-    torangRepositoryVersion = '46db8bba15'
+    torangRepositoryVersion = 'e2aba4de6e'
 
 }

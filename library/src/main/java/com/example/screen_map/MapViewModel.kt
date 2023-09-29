@@ -41,9 +41,9 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun selectRestaurant(restaurant: MarkerData) {
+    fun selectRestaurantById(id: Int) {
         val r = mapUiStateFlow.value.list.find {
-            it.id == restaurant.id
+            it.id == id
         }
         viewModelScope.launch {
             r?.let {
