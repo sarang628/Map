@@ -48,7 +48,8 @@ class MainActivity : ComponentActivity() {
                                 snippet = ""
                             )
                         )
-                    )
+                    ),
+                    onIdle = {}
                 )
                 Button(onClick = { mapViewModel.selectRestaurantById(Random.nextInt(10)) }) {
                     Text(text = "pageChange")

@@ -1,11 +1,14 @@
 package com.example.screen_map
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -18,6 +21,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
@@ -25,12 +29,12 @@ fun MapScreen(
     mapViewModel: MapViewModel,
     uiStateFlow: StateFlow<MapUiState>,
     animationMoveDuration: Int,
-    onMark: ((Int) -> Unit)? = null
+    onMark: ((Int) -> Unit)? = null,
+    onIdle: () -> Unit
 ) {
 
     val uiState by mapViewModel.mapUiStateFlow.collectAsState()
     val list = ArrayList<MarkerState>()
-
     val markerState = rememberMarkerState().apply {
         showInfoWindow()
     }
@@ -44,6 +48,14 @@ fun MapScreen(
             }
         }
     }
+
+    LaunchedEffect(key1 = cameraPositionState, block = {
+        snapshotFlow { cameraPositionState.isMoving }.collect {
+            if (!it)
+                onIdle.invoke()
+        }
+    })
+
     val scope = rememberCoroutineScope()
 
     GoogleMap(
