@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 fun MapScreen(
     mapViewModel: MapViewModel,
     uiStateFlow: StateFlow<MapUiState>,
+    animationMoveDuration: Int,
     onMark: ((Int) -> Unit)? = null
 ) {
 
@@ -82,7 +83,7 @@ fun MapScreen(
             markerState.hideInfoWindow()
             cameraPositionState.animate(
                 update = CameraUpdateFactory.newLatLng(uiState.move.getLatLng()),
-                durationMs = 300
+                durationMs = animationMoveDuration
             )
             markerState.showInfoWindow()
         }

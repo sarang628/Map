@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
             Box {
                 MapScreen(
                     mapViewModel = mapViewModel,
+                    animationMoveDuration = 300,
                     uiStateFlow = MutableStateFlow<MapUiState>(
                         MapUiState(
                             list = ArrayList(),
