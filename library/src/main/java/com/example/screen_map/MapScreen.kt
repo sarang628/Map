@@ -81,7 +81,8 @@ fun MapScreen(
             markerState.position = it.getLatLng()
             markerState.hideInfoWindow()
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLng(uiState.move.getLatLng())
+                update = CameraUpdateFactory.newLatLng(uiState.move.getLatLng()),
+                durationMs = 300
             )
             markerState.showInfoWindow()
         }
