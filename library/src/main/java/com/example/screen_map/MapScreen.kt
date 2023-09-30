@@ -45,21 +45,21 @@ fun MapScreen(
     }
     val scope = rememberCoroutineScope()
 
-    uiState.move.let {
-        scope.launch {
-            markerState.position = it.getLatLng()
-            markerState.hideInfoWindow()
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLng(uiState.move.getLatLng())
-            )
-            markerState.showInfoWindow()
-        }
-    }
-
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
     ) {
+        if (markerState.position.latitude != 0.0)
+            Marker(
+                state = markerState,
+                title = uiState.move.title,
+                snippet = uiState.move.snippet,
+                onClick = {
+                    onMark?.invoke(Integer.parseInt(it.tag.toString()))
+                    false
+                }
+            )
+
         uiState.list.let {
             for (data: MarkerData in it) {
                 Marker(
@@ -74,16 +74,16 @@ fun MapScreen(
                 )
             }
         }
+    }
 
-        if (markerState.position.latitude != 0.0)
-            Marker(
-                state = markerState,
-                title = uiState.move.title,
-                snippet = uiState.move.snippet,
-                onClick = {
-                    onMark?.invoke(Integer.parseInt(it.tag.toString()))
-                    false
-                }
+    uiState.move.let {
+        scope.launch {
+            markerState.position = it.getLatLng()
+            markerState.hideInfoWindow()
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLng(uiState.move.getLatLng())
             )
+            markerState.showInfoWindow()
+        }
     }
 }
