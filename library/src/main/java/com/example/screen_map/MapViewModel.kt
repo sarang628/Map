@@ -23,8 +23,9 @@ class MapViewModel @Inject constructor(
                 lat = 0.0,
                 lon = 0.0,
                 title = "",
-                snippet = ""
-            )
+                snippet = "",
+                foodType = ""
+            ),
         )
     )
 

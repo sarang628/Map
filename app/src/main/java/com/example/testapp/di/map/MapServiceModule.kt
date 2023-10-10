@@ -32,7 +32,8 @@ class MapServiceModule {
                         lat = it.lat,
                         lon = it.lon,
                         title = it.restaurantName,
-                        snippet = ""
+                        snippet = "",
+                        foodType = it.restaurantType
                     )
                 }.toList()
             }
