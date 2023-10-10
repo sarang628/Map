@@ -18,14 +18,6 @@ class MapViewModel @Inject constructor(
         MapUiState(
             list = ArrayList(),
             currentPosition = 0,
-            move = MarkerData(
-                id = 0,
-                lat = 0.0,
-                lon = 0.0,
-                title = "",
-                snippet = "",
-                foodType = ""
-            ),
         )
     )
 
@@ -50,7 +42,7 @@ class MapViewModel @Inject constructor(
             r?.let {
                 mapUiStateFlow.emit(
                     mapUiStateFlow.value.copy(
-                        move = it
+                        selectedMarker = it
                     )
                 )
             }
