@@ -1,4 +1,4 @@
-package com.sryang.torang_repository.di.api
+package com.sryang.torang_repository.di.repository.api
 
 import com.sryang.torang_repository.api.ApiProfile
 import dagger.Module

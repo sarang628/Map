@@ -6,19 +6,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberMarkerState
+import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(
     mapViewModel: MapViewModel,
-    animationMoveDuration: Int,
     onMark: ((Int) -> Unit)? = null,
     onIdle: () -> Unit,
     cameraPositionState: CameraPositionState,
@@ -43,11 +45,20 @@ fun MapScreen(
         }
     })
 
+    LaunchedEffect(key1 = selectedMarkerData) {
+        selectedMarkerData?.let {
+            if (selectedMarker.position != it.getLatLng()) {
+                cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()))
+            }
+        }
+    }
+
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
     ) {
         selectedMarkerData?.let {
+            selectedMarker.position = selectedMarkerData.getLatLng()
             Marker(
                 state = selectedMarker,
                 title = selectedMarkerData.title,

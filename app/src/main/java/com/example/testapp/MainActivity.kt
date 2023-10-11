@@ -8,17 +8,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import com.example.screen_map.MapScreen
 import com.example.screen_map.MapService
-import com.example.screen_map.MapUiState
 import com.example.screen_map.MapViewModel
 import com.example.screen_map.MarkerData
+import com.example.screen_map.testMarkArrayList
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.rememberCameraPositionState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
@@ -31,25 +33,29 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var mapService: MapService
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             val coroutineScope = rememberCoroutineScope()
             val cameraPositionState = rememberCameraPositionState()
+            var selectedMarkerData: MarkerData? by remember { mutableStateOf(null) }
+            val list = testMarkArrayList()
 
             Box {
                 MapScreen(
                     mapViewModel = mapViewModel,
-                    animationMoveDuration = 300,
                     onIdle = {},
                     cameraPositionState = cameraPositionState,
-                    list = ArrayList(),
-                    selectedMarkerData = null
+                    list = list,
+                    selectedMarkerData = selectedMarkerData
                 )
 
                 Row {
-                    Button(onClick = { }) {
+                    Button(onClick = {
+                        selectedMarkerData = list[Random.nextInt(list.size - 1)]
+                    }) {
                         Text(text = "pageChange")
                     }
 

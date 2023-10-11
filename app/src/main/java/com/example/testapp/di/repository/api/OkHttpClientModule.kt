@@ -1,4 +1,4 @@
-package com.sryang.torang_repository.di.api
+package com.sryang.torang_repository.di.repository.api
 
 import android.content.Context
 import com.sryang.torang_repository.repository.preference.TorangPreference
