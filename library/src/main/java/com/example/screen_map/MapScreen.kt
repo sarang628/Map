@@ -23,6 +23,7 @@ fun MapScreen(
     mapViewModel: MapViewModel,
     onMark: ((Int) -> Unit)? = null,
     onIdle: () -> Unit,
+    speed: Int = 300,
     cameraPositionState: CameraPositionState,
     list: List<MarkerData>?,
     selectedMarkerData: MarkerData?
@@ -48,7 +49,10 @@ fun MapScreen(
     LaunchedEffect(key1 = selectedMarkerData) {
         selectedMarkerData?.let {
             if (selectedMarker.position != it.getLatLng()) {
-                cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()))
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLng(it.getLatLng()),
+                    speed
+                )
             }
         }
     }
