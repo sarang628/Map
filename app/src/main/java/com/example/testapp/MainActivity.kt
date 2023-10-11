@@ -44,7 +44,8 @@ class MainActivity : ComponentActivity() {
                     animationMoveDuration = 300,
                     onIdle = {},
                     cameraPositionState = cameraPositionState,
-                    list = ArrayList()
+                    list = ArrayList(),
+                    selectedMarkerData = null
                 )
 
                 Row {

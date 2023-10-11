@@ -22,7 +22,8 @@ fun MapScreen(
     onMark: ((Int) -> Unit)? = null,
     onIdle: () -> Unit,
     cameraPositionState: CameraPositionState,
-    list: List<MarkerData>?
+    list: List<MarkerData>?,
+    selectedMarkerData: MarkerData?
 ) {
 
     val uiState: MapUiState by mapViewModel.mapUiStateFlow.collectAsState()
@@ -42,24 +43,24 @@ fun MapScreen(
         }
     })
 
-    LaunchedEffect(key1 = uiState.selectedMarker, block = {
-        snapshotFlow { uiState.selectedMarker }.collect {
-            it?.let {
-                selectedMarker.position = it.getLatLng()
-                selectedMarker.hideInfoWindow()
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newLatLng(it.getLatLng()),
-                    durationMs = animationMoveDuration
-                )
-                selectedMarker.showInfoWindow()
-            }
-        }
-    })
-
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
     ) {
+        selectedMarkerData?.let {
+            Marker(
+                state = selectedMarker,
+                title = selectedMarkerData.title,
+                snippet = selectedMarkerData.snippet,
+                onClick = {
+                    onMark?.invoke(Integer.parseInt(it.tag.toString()))
+                    false
+                },
+                tag = selectedMarkerData.id,
+                icon = BitmapDescriptorFactory.fromResource(selectedMarkerData.icon)
+            )
+        }
+
         list?.let {
             for (data: MarkerData in it) {
                 Marker(
@@ -68,7 +69,7 @@ fun MapScreen(
                     snippet = data.snippet,
                     onClick = {
                         onMark?.invoke(Integer.parseInt(it.tag.toString()))
-                        true
+                        false
                     },
                     tag = data.id,
                     icon = BitmapDescriptorFactory.fromResource(data.icon)
