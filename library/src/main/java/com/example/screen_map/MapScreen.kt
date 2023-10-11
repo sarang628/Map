@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -22,7 +21,8 @@ fun MapScreen(
     animationMoveDuration: Int,
     onMark: ((Int) -> Unit)? = null,
     onIdle: () -> Unit,
-    cameraPositionState: CameraPositionState
+    cameraPositionState: CameraPositionState,
+    list: List<MarkerData>?
 ) {
 
     val uiState: MapUiState by mapViewModel.mapUiStateFlow.collectAsState()
@@ -56,29 +56,11 @@ fun MapScreen(
         }
     })
 
-    val scope = rememberCoroutineScope()
-
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
     ) {
-
-        //현재 선택된 마커
-        uiState.selectedMarker?.let {
-            Marker(
-                state = selectedMarker,
-                title = it.title,
-                snippet = it.snippet,
-                icon = BitmapDescriptorFactory.fromResource(it.icon),
-                tag = it.id,
-                onClick = {
-                    onMark?.invoke(Integer.parseInt(it.tag.toString()))
-                    true
-                },
-            )
-        }
-        //선택되지 않은 마커
-        uiState.unSelectedMarkers.let {
+        list?.let {
             for (data: MarkerData in it) {
                 Marker(
                     state = data.markState(),
@@ -86,7 +68,6 @@ fun MapScreen(
                     snippet = data.snippet,
                     onClick = {
                         onMark?.invoke(Integer.parseInt(it.tag.toString()))
-                        mapViewModel.selectRestaurantById(it.tag.toString().toInt())
                         true
                     },
                     tag = data.id,

@@ -43,11 +43,12 @@ class MainActivity : ComponentActivity() {
                     mapViewModel = mapViewModel,
                     animationMoveDuration = 300,
                     onIdle = {},
-                    cameraPositionState = cameraPositionState
+                    cameraPositionState = cameraPositionState,
+                    list = ArrayList()
                 )
 
                 Row {
-                    Button(onClick = { mapViewModel.selectRestaurantById(Random.nextInt(10)) }) {
+                    Button(onClick = { }) {
                         Text(text = "pageChange")
                     }
 

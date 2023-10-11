@@ -9,44 +9,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MapViewModel @Inject constructor(
-    private val mapService: MapService
-) : ViewModel() {
+class MapViewModel @Inject constructor() : ViewModel() {
 
 
     val mapUiStateFlow = MutableStateFlow(
-        MapUiState(
-            list = ArrayList(),
-            currentPosition = 0,
-        )
+        MapUiState(currentPosition = 0)
     )
-
-    init {
-        Log.d("_MapViewModel", "init")
-        viewModelScope.launch {
-            val list = mapService.restaurantMarkerList()
-            Log.d("_MapViewModel", list.toString())
-            mapUiStateFlow.emit(
-                mapUiStateFlow.value.copy(
-                    list = list
-                )
-            )
-        }
-    }
-
-    fun selectRestaurantById(id: Int) {
-        val r = mapUiStateFlow.value.list.find {
-            it.id == id
-        }
-        viewModelScope.launch {
-            r?.let {
-                mapUiStateFlow.emit(
-                    mapUiStateFlow.value.copy(
-                        selectedMarker = it
-                    )
-                )
-            }
-        }
-    }
 
 }
