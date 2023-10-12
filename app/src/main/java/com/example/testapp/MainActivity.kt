@@ -1,5 +1,6 @@
 package com.example.testapp
 
+import android.location.Location
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.example.screen_map.CurrentLocationScreen
 import com.example.screen_map.MapScreen
 import com.example.screen_map.MapService
 import com.example.screen_map.MapViewModel
@@ -42,6 +44,7 @@ class MainActivity : ComponentActivity() {
             val cameraPositionState = rememberCameraPositionState()
             var selectedMarkerData: MarkerData? by remember { mutableStateOf(null) }
             val list = testMarkArrayList()
+            var location by remember { mutableStateOf(newLocation()) }
 
             Box {
                 MapScreen(
@@ -49,7 +52,8 @@ class MainActivity : ComponentActivity() {
                     onIdle = {},
                     cameraPositionState = cameraPositionState,
                     list = list,
-                    selectedMarkerData = selectedMarkerData
+                    selectedMarkerData = selectedMarkerData,
+                    currentLocation = location
                 )
 
                 Row {
@@ -73,8 +77,17 @@ class MainActivity : ComponentActivity() {
                     }) {
                         Text(text = "-")
                     }
+
+                    CurrentLocationScreen(onLocation = {
+                        location = it
+                    })
                 }
             }
         }
     }
+}
+
+private fun newLocation(): Location {
+    val location = Location("MyLocationProvider")
+    return location
 }

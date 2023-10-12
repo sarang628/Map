@@ -38,6 +38,7 @@ android {
 dependencies {
     /** HILT */
     implementation "com.google.dagger:hilt-android:$hiltVersion"
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
     /** compose */
@@ -70,6 +71,10 @@ dependencies {
     implementation 'com.google.maps.android:maps-compose-widgets:2.11.2'
 
     implementation 'com.github.sarang628:JsonToObjectGenerator:960fe9fece'
+
+    implementation 'com.google.accompanist:accompanist-permissions:0.28.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1'
+    implementation 'com.google.android.catalog.framework:casa-ui:0.4.4'
 
     implementation "com.github.sarang628:Theme:$themeVersion"
 }
