@@ -38,17 +38,13 @@ fun MapScreen(
     currentLocation: Location? = null
 ) {
     val context = LocalContext.current
-    val selectedMarker = rememberMarkerState().apply {
-        showInfoWindow()
-    }
+    val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
+    val myLocationMarker = rememberMarkerState().apply {}
+
     val TAG = "MapScreen"
     val zoom = 18f
 
     val locationSource = MyLocationSource()
-    // Collect location updates
-    var locationState by remember { mutableStateOf(newLocation()) }
-
-    val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = true)) }
 
     // 맵에서 마커를 클릭 시 카드를 움직이게되는데
     // 이 때 카드가 움직이며 또 맵의 마커 이동 요청을 하게됨으로 이를 방지하기위해
@@ -108,8 +104,7 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
-            properties = mapProperties,
-            locationSource = locationSource
+            //locationSource = locationSource
         ) {
             selectedMarkerData?.let {
                 selectedMarker.position = selectedMarkerData.getLatLng()
@@ -123,6 +118,18 @@ fun MapScreen(
                     },
                     tag = selectedMarkerData.id,
                     icon = BitmapDescriptorFactory.fromResource(selectedMarkerData.icon)
+                )
+            }
+
+            if (currentLocation != null) {
+                myLocationMarker.position =
+                    LatLng(currentLocation.latitude, currentLocation.longitude)
+                Marker(
+                    state = myLocationMarker,
+                    onClick = {
+                        false
+                    },
+                    icon = BitmapDescriptorFactory.defaultMarker()
                 )
             }
 

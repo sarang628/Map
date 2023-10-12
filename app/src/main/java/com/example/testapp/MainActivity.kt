@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
             var selectedMarkerData: MarkerData? by remember { mutableStateOf(null) }
             val list = testMarkArrayList()
             var location by remember { mutableStateOf(newLocation()) }
+            var isMyLocationEnabled by remember { mutableStateOf(false) }
 
             Box {
                 MapScreen(
@@ -80,6 +81,7 @@ class MainActivity : ComponentActivity() {
 
                     CurrentLocationScreen(onLocation = {
                         location = it
+                        isMyLocationEnabled = !isMyLocationEnabled
                     })
                 }
             }
