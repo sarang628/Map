@@ -14,6 +14,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.CurrentLocationScreen
 import com.example.screen_map.MapScreen
 import com.example.screen_map.MapService
@@ -21,6 +24,7 @@ import com.example.screen_map.MapViewModel
 import com.example.screen_map.MarkerData
 import com.example.screen_map.testMarkArrayList
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -44,18 +48,28 @@ class MainActivity : ComponentActivity() {
             val cameraPositionState = rememberCameraPositionState()
             var selectedMarkerData: MarkerData? by remember { mutableStateOf(null) }
             val list = testMarkArrayList()
-            var location by remember { mutableStateOf(newLocation()) }
+            var location : Location? by remember { mutableStateOf(null) }
             var isMyLocationEnabled by remember { mutableStateOf(false) }
+            val navHostController = rememberNavController()
 
             Box {
-                MapScreen(
-                    mapViewModel = mapViewModel,
-                    onIdle = {},
-                    cameraPositionState = cameraPositionState,
-                    list = list,
-                    selectedMarkerData = selectedMarkerData,
-                    currentLocation = location
-                )
+                NavHost(navController = navHostController, startDestination = "map") {
+                    composable("map") {
+                        MapScreen(
+                            mapViewModel = mapViewModel,
+                            onIdle = {},
+                            cameraPositionState = cameraPositionState,
+                            list = list,
+                            selectedMarkerData = selectedMarkerData,
+                            currentLocation = location
+                        )
+                    }
+                    composable("restaurant") {
+
+                    }
+
+                }
+
 
                 Row {
                     Button(onClick = {
@@ -78,11 +92,26 @@ class MainActivity : ComponentActivity() {
                     }) {
                         Text(text = "-")
                     }
-
                     CurrentLocationScreen(onLocation = {
                         location = it
                         isMyLocationEnabled = !isMyLocationEnabled
+                        coroutineScope.launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newLatLng(
+                                    LatLng(
+                                        it.latitude,
+                                        it.longitude
+                                    )
+                                ),
+                                300
+                            )
+                        }
                     })
+                    Button(onClick = {
+                        navHostController.navigate("restaurant")
+                    }) {
+                        Text(text = "aa")
+                    }
                 }
             }
         }
