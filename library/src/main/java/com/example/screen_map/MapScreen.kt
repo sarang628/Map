@@ -59,7 +59,7 @@ fun MapScreen(
                     ) else CameraUpdateFactory.newLatLng(it.getLatLng()),
                     durationMs = speed
                 )
-                isFirst = true
+                isFirst = false
             }
         }
     }
