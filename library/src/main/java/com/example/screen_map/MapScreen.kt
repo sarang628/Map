@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -30,6 +34,7 @@ fun MapScreen(
 ) {
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val myLocationMarker = rememberMarkerState().apply {}
+    var isFirst by remember { mutableStateOf(true) }
 
 
     /* 맵에서 마커를 클릭 시 카드를 움직이게되는데
@@ -48,9 +53,13 @@ fun MapScreen(
         selectedMarkerData?.let {
             if (selectedMarker.position != it.getLatLng()) {
                 cameraPositionState.animate(
-                    update = CameraUpdateFactory.newLatLng(it.getLatLng()),
-                    speed
+                    update = if (isFirst) CameraUpdateFactory.newLatLngZoom(
+                        it.getLatLng(),
+                        18f
+                    ) else CameraUpdateFactory.newLatLng(it.getLatLng()),
+                    durationMs = speed
                 )
+                isFirst = true
             }
         }
     }
