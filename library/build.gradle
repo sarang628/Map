@@ -58,6 +58,9 @@ dependencies {
 
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
+    // hiltViewModel
+    implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
+
 
     implementation 'com.google.maps.android:maps-compose:2.11.2'
 

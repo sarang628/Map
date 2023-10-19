@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -23,7 +24,7 @@ import com.google.maps.android.compose.rememberMarkerState
 
 @Composable
 fun MapScreen(
-    mapViewModel: MapViewModel,
+    mapViewModel: MapViewModel = hiltViewModel(),
     onMark: ((Int) -> Unit)? = null,
     onIdle: () -> Unit,
     speed: Int = 300,

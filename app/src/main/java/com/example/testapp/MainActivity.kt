@@ -4,7 +4,6 @@ import android.location.Location
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
@@ -19,8 +18,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.CurrentLocationScreen
 import com.example.screen_map.MapScreen
-import com.example.screen_map.MapService
-import com.example.screen_map.MapViewModel
 import com.example.screen_map.MarkerData
 import com.example.screen_map.testMarkArrayList
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,17 +25,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.random.Random
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private val mapViewModel: MapViewModel by viewModels()
-
-    @Inject
-    lateinit var mapService: MapService
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +46,6 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navHostController, startDestination = "map") {
                     composable("map") {
                         MapScreen(
-                            mapViewModel = mapViewModel,
                             onIdle = {},
                             cameraPositionState = cameraPositionState,
                             list = list,
