@@ -73,7 +73,6 @@ dependencies {
     // Optionally, you can include the widgets library for ScaleBar, etc.
     implementation 'com.google.maps.android:maps-compose-widgets:2.11.2'
 
-    implementation "com.github.sarang628:JsonToObjectGenerator:$jsonToObjectGeneratorVersion"
 
     implementation 'com.google.accompanist:accompanist-permissions:0.28.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1'

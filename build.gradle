@@ -23,6 +23,5 @@ ext {
     themeVersion = '6f8e2a7a08'
     navigationModuleVersion = 'd98f57435d'
     torangRepositoryVersion = '3b176168c4'
-    jsonToObjectGeneratorVersion = '8d8a65e1f1'
 
 }
