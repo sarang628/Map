@@ -19,6 +19,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberMarkerState
 
@@ -36,6 +38,7 @@ fun MapScreen(
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val myLocationMarker = rememberMarkerState().apply {}
     var isFirst by remember { mutableStateOf(true) }
+    val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = true)) }
 
 
     /* 맵에서 마커를 클릭 시 카드를 움직이게되는데
@@ -69,6 +72,7 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
+            properties = mapProperties
         ) {
             selectedMarkerData?.let {
                 selectedMarker.position = selectedMarkerData.getLatLng()
@@ -82,18 +86,6 @@ fun MapScreen(
                     },
                     tag = selectedMarkerData.id,
                     icon = BitmapDescriptorFactory.fromResource(selectedMarkerData.icon)
-                )
-            }
-
-            if (currentLocation != null) {
-                myLocationMarker.position =
-                    LatLng(currentLocation.latitude, currentLocation.longitude)
-                Marker(
-                    state = myLocationMarker,
-                    onClick = {
-                        false
-                    },
-                    icon = BitmapDescriptorFactory.defaultMarker()
                 )
             }
 
