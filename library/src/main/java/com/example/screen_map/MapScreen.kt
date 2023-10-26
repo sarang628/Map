@@ -1,5 +1,7 @@
 package com.example.screen_map
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
@@ -35,10 +38,13 @@ fun MapScreen(
     selectedMarkerData: MarkerData?,
     currentLocation: Location? = null
 ) {
+    val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val myLocationMarker = rememberMarkerState().apply {}
     var isFirst by remember { mutableStateOf(true) }
-    val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = true)) }
+    var isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+    val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
 
 
     /* 맵에서 마커를 클릭 시 카드를 움직이게되는데
