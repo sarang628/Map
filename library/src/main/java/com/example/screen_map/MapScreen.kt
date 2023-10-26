@@ -36,7 +36,8 @@ fun MapScreen(
     cameraPositionState: CameraPositionState,
     list: List<MarkerData>?,
     selectedMarkerData: MarkerData?,
-    currentLocation: Location? = null
+    currentLocation: Location? = null,
+    onMapClick: (LatLng) -> Unit = {},
 ) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
@@ -78,7 +79,8 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
-            properties = mapProperties
+            properties = mapProperties,
+            onMapClick = onMapClick
         ) {
             selectedMarkerData?.let {
                 selectedMarker.position = selectedMarkerData.getLatLng()
