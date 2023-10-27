@@ -61,46 +61,11 @@ class MainActivity : ComponentActivity() {
 
 
                 Row {
-                    Button(onClick = {
-                        selectedMarkerData = list[Random.nextInt(list.size - 1)]
-                    }) {
-                        Text(text = "pageChange")
-                    }
-
-                    Button(onClick = {
-                        coroutineScope.launch {
-                            cameraPositionState.animate(CameraUpdateFactory.zoomIn())
-                        }
-                    }) {
-                        Text(text = "+")
-                    }
-                    Button(onClick = {
-                        coroutineScope.launch {
-                            cameraPositionState.animate(CameraUpdateFactory.zoomOut())
-                        }
-                    }) {
-                        Text(text = "-")
-                    }
-                    CurrentLocationScreen(onLocation = {
-                        location = it
-                        isMyLocationEnabled = !isMyLocationEnabled
-                        coroutineScope.launch {
-                            cameraPositionState.animate(
-                                update = CameraUpdateFactory.newLatLng(
-                                    LatLng(
-                                        it.latitude,
-                                        it.longitude
-                                    )
-                                ),
-                                300
-                            )
-                        }
-                    })
-                    Button(onClick = {
-                        navHostController.navigate("restaurant")
-                    }) {
-                        Text(text = "aa")
-                    }
+//                    Button(onClick = { selectedMarkerData = list[Random.nextInt(list.size - 1)] }) { Text(text = "pageChange") }
+//                    Button(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomIn()) } }) { Text(text = "+") }
+//                    Button(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomOut()) } }) { Text(text = "-") }
+//                    CurrentLocationScreen(onLocation = { location = it; isMyLocationEnabled = !isMyLocationEnabled; coroutineScope.launch { cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)), 300) } })
+//                    Button(onClick = { navHostController.navigate("restaurant") }) { Text(text = "aa") }
                 }
             }
         }

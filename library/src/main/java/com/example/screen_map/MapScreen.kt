@@ -80,7 +80,12 @@ fun MapScreen(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = mapProperties,
-            onMapClick = onMapClick
+            onMapClick = onMapClick,
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false,
+                myLocationButtonEnabled = false,
+                compassEnabled = false
+            )
         ) {
             selectedMarkerData?.let {
                 selectedMarker.position = selectedMarkerData.getLatLng()
