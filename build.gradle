@@ -7,9 +7,9 @@ plugins {
 }
 
 ext {
-    compileSdk = 33
+    compileSdk = 34
     minSdk = 24
-    targetSdk = 33
+    targetSdk = 34
     buildToolsVersion = '30.0.3'
 
     //hilt
@@ -20,7 +20,7 @@ ext {
 
     room_version = "2.5.1"
 
-    themeVersion = '6f8e2a7a08'
+    themeVersion = '28a1702347'
     navigationModuleVersion = 'd98f57435d'
     torangRepositoryVersion = 'eacd8d631c'
 

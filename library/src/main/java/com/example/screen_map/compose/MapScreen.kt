@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.booleanResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
@@ -27,7 +29,11 @@ import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PatternItem
+import com.google.android.gms.maps.model.Polygon
+import com.google.android.gms.maps.model.Polyline
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -45,6 +51,8 @@ fun MapScreen(
     list: List<MarkerData>?,
     selectedMarkerData: MarkerData?,
     onMapClick: (LatLng) -> Unit = {},
+    myLocation: LatLng? = null,
+    boundary : Double? = null
 ) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
@@ -55,14 +63,13 @@ fun MapScreen(
 
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
 
-    /* 맵에서 마커를 클릭 시 카드를 움직이게되는데
-    이 때 카드가 움직이며 또 맵의 마커 이동 요청을 하게됨으로 이를 방지하기위해
-    먼저 맵의 idle상태를 전달하기로 결정 */
+
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
             if (!cameraPositionState.isMoving) {
-                Log.d("_MapScreen", cameraPositionState.position.toString())
+                // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
                 if (isMapLoaded) {
+                    //마지막으로 움직인 지점 저장하기
                     mapViewModel.saveCameraPosition(cameraPositionState.position)
                 }
             }
@@ -73,6 +80,7 @@ fun MapScreen(
         if (!isMapLoaded)
             return@LaunchedEffect
 
+        //카드가 포커스된 음식점에 맞춰 지도 이동시키기
         selectedMarkerData?.let {
             if (selectedMarker.position != it.getLatLng()) {
                 cameraPositionState.animate(
@@ -96,16 +104,18 @@ fun MapScreen(
             ),
             onMapLoaded = {
                 coroutine.launch {
-                    cameraPositionState.animate(
-                        CameraUpdateFactory.newLatLngZoom(
-                            mapViewModel.getLastPosition(),
-                            mapViewModel.getLastZoom()
-                        ),
-                        durationMs = 1000
-                    )
-                    //카메라 이동 전까지 플래그 비활성화
-                    delay(1000)
-                    isMapLoaded = true
+                    if (!isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newLatLngZoom(
+                                mapViewModel.getLastPosition(),
+                                mapViewModel.getLastZoom()
+                            ),
+                            durationMs = 1000
+                        )
+                        //카메라 이동 전까지 플래그 비활성화
+                        delay(1000)
+                        isMapLoaded = true
+                    }
                 }
             }
         ) {
@@ -139,6 +149,17 @@ fun MapScreen(
                     )
                 }
             }
+
+            myLocation?.let { latlng->
+                boundary?.let {
+                    Circle(
+                        center = latlng,
+                        radius = boundary,
+                        strokeWidth = 5f,
+                        strokeColor = MaterialTheme.colorScheme.primary
+                    )
+                }
+                }
         }
         if (!isMapLoaded) {
             Box(
@@ -146,8 +167,9 @@ fun MapScreen(
                     .fillMaxSize()
                     .clickable(
                         enabled = false
-                    ) {  }
-                    .background(Color(0x33000000)
+                    ) { }
+                    .background(
+                        Color(0x33000000)
                     )
             ) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
