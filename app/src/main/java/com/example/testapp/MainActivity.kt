@@ -6,8 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,16 +14,11 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.screen_map.CurrentLocationScreen
-import com.example.screen_map.MapScreen
-import com.example.screen_map.MarkerData
-import com.example.screen_map.testMarkArrayList
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
+import com.example.screen_map.compose.MapScreen
+import com.example.screen_map.data.MarkerData
+import com.example.screen_map.data.testMarkArrayList
 import com.google.maps.android.compose.rememberCameraPositionState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -46,11 +39,9 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navHostController, startDestination = "map") {
                     composable("map") {
                         MapScreen(
-                            onIdle = {},
                             cameraPositionState = cameraPositionState,
                             list = list,
                             selectedMarkerData = selectedMarkerData,
-                            currentLocation = location
                         )
                     }
                     composable("restaurant") {

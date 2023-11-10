@@ -15,8 +15,8 @@ class ApiCommentModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiComment: ProductApiComment,
-//        apiFeed: LocalApiComment
+//        apiComment: ProductApiComment,
+        apiComment: LocalApiComment
     ): ApiComment {
         return apiComment.create()
     }
@@ -47,7 +47,7 @@ class LocalApiComment @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://192.168.0.14:8081/"
+    private var url = "http://172.20.10.2:8081/"
     fun create(): ApiComment {
         return retrofitModule.getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(
             ApiComment::class.java

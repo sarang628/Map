@@ -1,7 +1,7 @@
 package com.sryang.torang_repository.di.repository.api
 
 import android.content.Context
-import com.sryang.torang_repository.repository.preference.TorangPreference
+import com.sryang.torang_repository.preference.TorangPreference
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -42,7 +42,7 @@ class TorangOkHttpClientImpl @Inject constructor(@ApplicationContext val context
             val original = chain.request()
             val request = original.newBuilder()
                 .header("User-Agent", "android")
-                .header("accessToken", TorangPreference().getAccessToken(context)!!)
+                .header("accessToken", "")
                 .method(original.method, original.body)
                 .build()
             chain.proceed(request)

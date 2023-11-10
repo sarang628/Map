@@ -3,7 +3,7 @@ package com.sryang.torang_repository.di.repository.service
 import android.content.Context
 import com.sryang.torang_repository.di.repository.api.RetrofitModule
 import com.sryang.torang_repository.di.repository.api.TorangOkhttpClient
-import com.sryang.torang_repository.repository.preference.TorangPreference
+import com.sryang.torang_repository.preference.TorangPreference
 import com.sryang.torang_repository.api.ApiReport
 import dagger.Module
 import dagger.Provides
@@ -27,7 +27,8 @@ class ProductReportService @Inject constructor(
     private val retrofitModule: RetrofitModule
 ) {
     private var url = "http://sarang628.iptime.org:8080/"
-//    private var url = "https://www.vrscoo.com:8080/"
+
+    //    private var url = "https://www.vrscoo.com:8080/"
     fun create(): ApiReport {
         return retrofitModule.getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(
             ApiReport::class.java
@@ -57,10 +58,7 @@ class LocalReportService {
             val original = chain.request()
             val request = original.newBuilder()
                 .header("User-Agent", "android")
-                .header(
-                    "accessToken",
-                    TorangPreference().getAccessToken(context)!!
-                )
+                .header("accessToken", "")
                 .method(original.method, original.body)
                 .build()
             chain.proceed(request)

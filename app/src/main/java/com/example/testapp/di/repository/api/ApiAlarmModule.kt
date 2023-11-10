@@ -1,6 +1,6 @@
 package com.sryang.torang_repository.di.repository.api
 
-import com.sryang.torang_repository.api.ApiProfile
+import com.sryang.torang_repository.api.ApiAlarm
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,41 +11,39 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class ApiProfileModule {
+class ApiAlarmModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiProfile: ProductApiProfile
-//        apiProfile: LocalApiProfile
-    ): ApiProfile {
-        return apiProfile.create()
+        apiAlarm: ProductApiAlarm,
+        //apiFeed: LocalApiAlarm
+    ): ApiAlarm {
+        return apiAlarm.create()
     }
 }
 
 @Singleton
-class ProductApiProfile @Inject constructor(
+class ProductApiAlarm @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
     private var url = "http://sarang628.iptime.org:8081/"
-    fun create(): ApiProfile {
+    fun create(): ApiAlarm {
         return retrofitModule
-//            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
             .getRetrofit(torangOkHttpClientImpl.getHttpClient(), url)
-            .create(ApiProfile::class.java)
+            .create(ApiAlarm::class.java)
     }
 }
 
 @Singleton
-class LocalApiProfile @Inject constructor(
+class LocalApiAlarm @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://172.20.10.2:8081/"
-    fun create(): ApiProfile {
-        return retrofitModule
-//            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
-            .getRetrofit(torangOkHttpClientImpl.getHttpClient(), url)
-            .create(ApiProfile::class.java)
+    private var url = "http://192.168.0.14:8081/"
+    fun create(): ApiAlarm {
+        return retrofitModule.getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(
+            ApiAlarm::class.java
+        )
     }
 }
