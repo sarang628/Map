@@ -1,8 +1,7 @@
 package com.example.testapp.di.map
 
-import androidx.compose.material.icons.materialIcon
-import com.example.screen_map.usecase.MapService
 import com.example.screen_map.data.MarkerData
+import com.example.screen_map.usecase.MapService
 import com.example.screen_map.usecase.SavePositionUseCase
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
