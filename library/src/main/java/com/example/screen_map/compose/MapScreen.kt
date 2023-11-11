@@ -22,11 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.booleanResource
+import androidx.core.os.persistableBundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PatternItem
@@ -52,7 +54,7 @@ fun MapScreen(
     selectedMarkerData: MarkerData?,
     onMapClick: (LatLng) -> Unit = {},
     myLocation: LatLng? = null,
-    boundary : Double? = null
+    boundary: Double? = null
 ) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
@@ -70,11 +72,13 @@ fun MapScreen(
                 // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
                 if (isMapLoaded) {
                     //마지막으로 움직인 지점 저장하기
-                    mapViewModel.saveCameraPosition(cameraPositionState.position)
+                    mapViewModel.saveCameraPosition(cameraPositionState)
                 }
             }
         }
+
     })
+
 
     LaunchedEffect(key1 = selectedMarkerData) {
         if (!isMapLoaded)
@@ -150,7 +154,7 @@ fun MapScreen(
                 }
             }
 
-            myLocation?.let { latlng->
+            myLocation?.let { latlng ->
                 boundary?.let {
                     Circle(
                         center = latlng,
@@ -159,7 +163,7 @@ fun MapScreen(
                         strokeColor = MaterialTheme.colorScheme.primary
                     )
                 }
-                }
+            }
         }
         if (!isMapLoaded) {
             Box(
