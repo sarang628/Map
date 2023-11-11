@@ -5,6 +5,7 @@ import com.example.screen_map.usecase.MapService
 import com.example.screen_map.usecase.SavePositionUseCase
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.VisibleRegion
 import com.sryang.torang_repository.api.ApiRestaurant
 import com.sryang.torang_repository.repository.MapRepository
 import dagger.Module
@@ -57,6 +58,13 @@ class MapServiceModule {
                     0f,
                     0f
                 )
+            }
+
+            override fun saveBound(visibleRegion: VisibleRegion) {
+                mapRepository.setNElat(visibleRegion.latLngBounds.northeast.latitude)
+                mapRepository.setNElon(visibleRegion.latLngBounds.northeast.longitude)
+                mapRepository.setSWlat(visibleRegion.latLngBounds.southwest.latitude)
+                mapRepository.setSWlon(visibleRegion.latLngBounds.southwest.longitude)
             }
         }
     }
