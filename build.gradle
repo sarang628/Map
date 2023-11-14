@@ -22,6 +22,6 @@ ext {
 
     themeVersion = '28a1702347'
     navigationModuleVersion = 'd98f57435d'
-    torangRepositoryVersion = 'eacd8d631c'
+    torangRepositoryVersion = '7ef5acc303'
 
 }

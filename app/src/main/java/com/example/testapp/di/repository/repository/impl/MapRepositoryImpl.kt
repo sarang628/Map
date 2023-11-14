@@ -9,6 +9,10 @@ import javax.inject.Singleton
 class MapRepositoryImpl @Inject constructor(
     private val torangPreference: TorangPreference
 ) : MapRepository {
+    private var NElat: Double = 0.0
+    private var NElon: Double = 0.0
+    private var SWlat: Double = 0.0
+    private var SWlon: Double = 0.0
     override fun saveLat(lat: Double) {
         torangPreference.saveLat(lat)
     }
@@ -31,5 +35,37 @@ class MapRepositoryImpl @Inject constructor(
 
     override fun loadZoom(): Float {
         return torangPreference.loadZoom()
+    }
+
+    override fun setNElat(latitude: Double) {
+        NElat = latitude
+    }
+
+    override fun setNElon(longitude: Double) {
+        NElon = longitude
+    }
+
+    override fun setSWlat(latitude: Double) {
+        SWlat = latitude
+    }
+
+    override fun setSWlon(longitude: Double) {
+        SWlon = longitude
+    }
+
+    override fun getNElat(): Double {
+        return NElat
+    }
+
+    override fun getNElon(): Double {
+        return NElon
+    }
+
+    override fun getSWlat(): Double {
+        return SWlat
+    }
+
+    override fun getSWlon(): Double {
+        return SWlon
     }
 }

@@ -78,7 +78,6 @@ class MainActivity : ComponentActivity() {
 
                         Column(
                             Modifier
-                                .fillMaxWidth()
                                 .scrollable(
                                     rememberScrollState(),
                                     orientation = Orientation.Horizontal

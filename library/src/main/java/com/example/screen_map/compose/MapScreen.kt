@@ -2,7 +2,6 @@ package com.example.screen_map.compose
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,19 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.booleanResource
-import androidx.core.os.persistableBundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PatternItem
-import com.google.android.gms.maps.model.Polygon
-import com.google.android.gms.maps.model.Polyline
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
@@ -46,25 +39,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(
-    mapViewModel: MapViewModel = hiltViewModel(),
-    onMark: ((Int) -> Unit)? = null,
-    speed: Int = 300,
-    cameraPositionState: CameraPositionState,
-    list: List<MarkerData>?,
-    selectedMarkerData: MarkerData?,
-    onMapClick: (LatLng) -> Unit = {},
-    myLocation: LatLng? = null,
-    boundary: Double? = null
+    mapViewModel: MapViewModel = hiltViewModel(),   // map 뷰모델
+    onMark: ((Int) -> Unit)? = null,                // 마커 클릭 이벤트
+    cameraSpeed: Int = 300,                         // 카메라 이동 속도 설정
+    cameraPositionState: CameraPositionState,       // 카메라 위치 상태 객체
+    list: List<MarkerData>?,                        // 지도에 마킹 할 데이터
+    selectedMarkerData: MarkerData?,                // 선택된 마커. 외부에서 마커로 위치시키고 싶을 때 사용
+    onMapClick: (LatLng) -> Unit = {},              // 맵 클릭 이벤트
+    myLocation: LatLng? = null,                     // 내 위치로 이동
+    boundary: Double? = null                        // 내 위치 반경 표시
 ) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     var isMapLoaded by remember { mutableStateOf(false) }
-    var isMyLocationEnabled =
-        context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     val coroutine = rememberCoroutineScope()
-
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
-
 
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
@@ -76,9 +66,7 @@ fun MapScreen(
                 }
             }
         }
-
     })
-
 
     LaunchedEffect(key1 = selectedMarkerData) {
         if (!isMapLoaded)
@@ -89,7 +77,7 @@ fun MapScreen(
             if (selectedMarker.position != it.getLatLng()) {
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newLatLng(it.getLatLng()),
-                    durationMs = speed
+                    durationMs = cameraSpeed
                 )
             }
         }
