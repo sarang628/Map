@@ -10,6 +10,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,10 +52,10 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    var isMapLoaded by remember { mutableStateOf(false) }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     val coroutine = rememberCoroutineScope()
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
+    val isMapLoaded by mapViewModel.isMapLoaded.collectAsState()
 
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
@@ -106,7 +107,7 @@ fun MapScreen(
                         )
                         //카메라 이동 전까지 플래그 비활성화
                         delay(1000)
-                        isMapLoaded = true
+                        mapViewModel.onMapLoaded()
                     }
                 }
             }
