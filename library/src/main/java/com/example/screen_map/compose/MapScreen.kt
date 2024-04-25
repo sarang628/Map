@@ -38,17 +38,28 @@ import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * @param mapViewModel map 뷰모델
+ * @param onMark map 마커 클릭 이벤트
+ * @param cameraSpeed map 카메라 이동 속도 설정
+ * @param cameraPositionState map 카메라 위치 상태 객체
+ * @param list 지도에 마킹 할 데이터
+ * @param selectedMarkerData 선택된 마커. 외부에서 마커로 위치시키고 싶을 때 사용
+ * @param onMapClick 맵 클릭 이벤트
+ * @param myLocation 내 위치로 이동
+ * @param boundary 내 위치 반경 표시
+ */
 @Composable
 fun MapScreen(
-    mapViewModel: MapViewModel = hiltViewModel(),   // map 뷰모델
-    onMark: ((Int) -> Unit)? = null,                // 마커 클릭 이벤트
-    cameraSpeed: Int = 300,                         // 카메라 이동 속도 설정
-    cameraPositionState: CameraPositionState,       // 카메라 위치 상태 객체
-    list: List<MarkerData>?,                        // 지도에 마킹 할 데이터
-    selectedMarkerData: MarkerData?,                // 선택된 마커. 외부에서 마커로 위치시키고 싶을 때 사용
-    onMapClick: (LatLng) -> Unit = {},              // 맵 클릭 이벤트
-    myLocation: LatLng? = null,                     // 내 위치로 이동
-    boundary: Double? = null                        // 내 위치 반경 표시
+    mapViewModel: MapViewModel = hiltViewModel(),
+    onMark: ((Int) -> Unit)? = null,
+    cameraSpeed: Int = 300,
+    cameraPositionState: CameraPositionState,
+    list: List<MarkerData>?,
+    selectedMarkerData: MarkerData?,
+    onMapClick: (LatLng) -> Unit = {},
+    myLocation: LatLng? = null,
+    boundary: Double? = null
 ) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
