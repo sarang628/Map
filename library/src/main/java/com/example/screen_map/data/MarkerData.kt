@@ -27,10 +27,12 @@ data class MarkerData(
 val MarkerData.icon
     get() =
         if (this.foodType.lowercase() == "kr") R.drawable.ic_korean
-        else if (this.foodType.lowercase() == "japanese") R.drawable.ic_japan
+        else if (this.foodType.lowercase() == "jp") R.drawable.ic_japan
         else if (this.foodType.lowercase() == "am") R.drawable.ic_american
-        else if (this.foodType.lowercase() == "italian") R.drawable.ic_italian
-        else if (this.foodType.lowercase() == "spanish") R.drawable.ic_spanish
+        else if (this.foodType.lowercase() == "it") R.drawable.ic_italian
+        else if (this.foodType.lowercase() == "sp") R.drawable.ic_spanish
+        else if (this.foodType.lowercase() == "vn") R.drawable.ic_vn
+        else if (this.foodType.lowercase() == "cf") R.drawable.ic_cafe
         else R.drawable.ic_food
 
 
