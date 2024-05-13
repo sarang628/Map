@@ -31,7 +31,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
@@ -51,38 +50,21 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreen(
+fun MapScreenForFinding(
     mapViewModel: MapViewModel = hiltViewModel(),
     onMark: ((Int) -> Unit)? = null,
+    cameraSpeed: Int = 300,
     cameraPositionState: CameraPositionState,
+    list: List<MarkerData>?,
     selectedMarkerData: MarkerData?,
     onMapClick: (LatLng) -> Unit = {},
-    uiSettings: MapUiSettings = MapUiSettings(
-        zoomControlsEnabled = false,
-        myLocationButtonEnabled = false,
-        compassEnabled = false
-    ),
-    onMapLoaded: () -> Unit = {},
-    content: (@Composable @GoogleMapComposable () -> Unit)? = null,
+    myLocation: LatLng? = null,
+    boundary: Double? = null,
 ) {
-    val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    val isMyLocationEnabled =
-        context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
     val isMapLoaded by mapViewModel.isMapLoaded.collectAsState()
+    val coroutine = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = cameraPositionState, block = {
-        snapshotFlow { cameraPositionState.isMoving }.collect {
-            if (!cameraPositionState.isMoving) {
-                // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                if (isMapLoaded) {
-                    //마지막으로 움직인 지점 저장하기
-                    mapViewModel.saveCameraPosition(cameraPositionState)
-                }
-            }
-        }
-    })
 
     LaunchedEffect(key1 = selectedMarkerData) {
         if (!isMapLoaded)
@@ -93,45 +75,59 @@ fun MapScreen(
             if (selectedMarker.position != it.getLatLng()) {
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newLatLng(it.getLatLng()),
-                    durationMs = 300
+                    durationMs = cameraSpeed
                 )
             }
         }
     }
 
-    Box {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = mapProperties,
-            onMapClick = onMapClick,
-            uiSettings = uiSettings,
-            onMapLoaded = onMapLoaded
-        ) {
-            content?.invoke()
-            selectedMarkerData?.let {
-                selectedMarker.position = selectedMarkerData.getLatLng()
+    MapScreen(
+        mapViewModel = mapViewModel,
+        cameraPositionState = cameraPositionState,
+        selectedMarkerData = selectedMarkerData,
+        onMapClick = onMapClick,
+        onMark = onMark,
+        onMapLoaded = {
+            coroutine.launch {
+                if (!isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(
+                            mapViewModel.getLastPosition(),
+                            mapViewModel.getLastZoom()
+                        ),
+                        durationMs = 1000
+                    )
+                    //카메라 이동 전까지 플래그 비활성화
+                    delay(1000)
+                    mapViewModel.onMapLoaded()
+                }
+            }
+        }
+    ){
+        list?.let {
+            for (data: MarkerData in it) {
                 Marker(
-                    state = selectedMarker,
-                    title = selectedMarkerData.title,
-                    snippet = selectedMarkerData.snippet,
+                    state = data.markState(),
+                    title = data.title,
+                    snippet = data.snippet,
                     onClick = {
                         onMark?.invoke(Integer.parseInt(it.tag.toString()))
                         false
                     },
-                    tag = selectedMarkerData.id,
-                    icon = BitmapDescriptorFactory.fromResource(selectedMarkerData.icon)
+                    tag = data.id,
+                    icon = BitmapDescriptorFactory.fromResource(data.icon)
                 )
             }
         }
-        if (!isMapLoaded) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .clickable(enabled = false) { }
-                    .background(Color(0x33000000))
-            ) {
-                CircularProgressIndicator(Modifier.align(Alignment.Center))
+
+        myLocation?.let { latlng ->
+            boundary?.let {
+                Circle(
+                    center = latlng,
+                    radius = boundary,
+                    strokeWidth = 5f,
+                    strokeColor = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }
