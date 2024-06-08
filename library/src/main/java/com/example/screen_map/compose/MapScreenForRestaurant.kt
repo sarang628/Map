@@ -59,6 +59,7 @@ fun MapScreenForRestaurant(
         zoomControlsEnabled = true
     ),
     onMapClick: (LatLng) -> Unit = {},
+    zoom : Float
 ) {
     val isMapLoaded by mapViewModel.isMapLoaded.collectAsState()
     val coroutine = rememberCoroutineScope()
@@ -77,7 +78,7 @@ fun MapScreenForRestaurant(
                                 selectedMarkerData?.lat ?: 0.0,
                                 selectedMarkerData?.lon ?: 0.0
                             ),
-                            mapViewModel.getLastZoom()
+                            zoom
                         ),
                         durationMs = 1000
                     )
