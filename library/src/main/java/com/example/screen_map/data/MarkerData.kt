@@ -26,14 +26,14 @@ data class MarkerData(
 
 val MarkerData.icon
     get() =
-        if (this.foodType.lowercase() == "kr") R.drawable.ic_korean
+        if (this.foodType.lowercase() == "kr") R.drawable.ic_korea
         else if (this.foodType.lowercase() == "jp") R.drawable.ic_japan
-        else if (this.foodType.lowercase() == "am") R.drawable.ic_american
-        else if (this.foodType.lowercase() == "it") R.drawable.ic_italian
-        else if (this.foodType.lowercase() == "sp") R.drawable.ic_spanish
+        else if (this.foodType.lowercase() == "am") R.drawable.ic_us
+        else if (this.foodType.lowercase() == "it") R.drawable.ic_italy
+        else if (this.foodType.lowercase() == "sp") R.drawable.ic_spain
         else if (this.foodType.lowercase() == "vn") R.drawable.ic_vn
-        else if (this.foodType.lowercase() == "cf") R.drawable.ic_cafe
-        else R.drawable.ic_food
+        else if (this.foodType.lowercase() == "cf") R.drawable.ic_coffee
+        else R.drawable.ic_pointer
 
 
 fun testMarkArrayList(): List<MarkerData> {
