@@ -1,9 +1,9 @@
 package com.example.screen_map.data
 
 import androidx.compose.runtime.Composable
-import com.example.screen_map.R
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MarkerState
+import com.sarang.torang.R
 
 data class MarkerData(
     val id: Int,
