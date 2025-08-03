@@ -51,33 +51,17 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreen(
-    mapViewModel: MapViewModel = hiltViewModel(),
-    onMark: ((Int) -> Unit)? = null,
-    cameraPositionState: CameraPositionState,
-    selectedMarkerData: MarkerData?,
-    onMapClick: (LatLng) -> Unit = {},
-    uiSettings: MapUiSettings = MapUiSettings(
-        zoomControlsEnabled = false,
-        myLocationButtonEnabled = false,
-        compassEnabled = false
-    ),
-    onMapLoaded: () -> Unit = {},
-    content: (@Composable @GoogleMapComposable () -> Unit)? = null,
-) {
+fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit)? = null, cameraPositionState: CameraPositionState, selectedMarkerData: MarkerData?, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit)? = null) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    val isMyLocationEnabled =
-        context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
     val isMapLoaded by mapViewModel.isMapLoaded.collectAsState()
 
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
-            if (!cameraPositionState.isMoving) {
-                // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                if (isMapLoaded) {
-                    //마지막으로 움직인 지점 저장하기
+            if (!cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
+                if (isMapLoaded) { //마지막으로 움직인 지점 저장하기
                     mapViewModel.saveCameraPosition(cameraPositionState)
                 }
             }
@@ -85,29 +69,17 @@ fun MapScreen(
     })
 
     LaunchedEffect(key1 = selectedMarkerData) {
-        if (!isMapLoaded)
-            return@LaunchedEffect
+        if (!isMapLoaded) return@LaunchedEffect
 
-        //카드가 포커스된 음식점에 맞춰 지도 이동시키기
-        selectedMarkerData?.let {
+        selectedMarkerData?.let { //카드가 포커스된 음식점에 맞춰 지도 이동시키기
             if (selectedMarker.position != it.getLatLng()) {
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newLatLng(it.getLatLng()),
-                    durationMs = 300
-                )
+                cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = 300)
             }
         }
     }
 
     Box {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = mapProperties,
-            onMapClick = onMapClick,
-            uiSettings = uiSettings,
-            onMapLoaded = onMapLoaded
-        ) {
+        GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = mapProperties, onMapClick = onMapClick, uiSettings = uiSettings, onMapLoaded = onMapLoaded) {
             content?.invoke()
             selectedMarkerData?.let {
                 selectedMarker.position = selectedMarkerData.getLatLng()
@@ -115,22 +87,14 @@ fun MapScreen(
                     state = selectedMarker,
                     title = selectedMarkerData.title,
                     snippet = selectedMarkerData.snippet,
-                    onClick = {
-                        onMark?.invoke(Integer.parseInt(it.tag.toString()))
-                        false
-                    },
+                    onClick = { onMark?.invoke(Integer.parseInt(it.tag.toString())); false },
                     tag = selectedMarkerData.id,
                     icon = BitmapDescriptorFactory.fromResource(selectedMarkerData.icon)
                 )
             }
         }
         if (!isMapLoaded) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .clickable(enabled = false) { }
-                    .background(Color(0x33000000))
-            ) {
+            Box(Modifier.fillMaxSize().clickable(enabled = false) { }.background(Color(0x33000000))) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
         }
