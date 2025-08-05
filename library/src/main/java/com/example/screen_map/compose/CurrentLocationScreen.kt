@@ -26,12 +26,13 @@ import kotlinx.coroutines.tasks.await
     documentation = "https://developer.android.com/training/location/retrieve-current",
 )
 @Composable
-fun CurrentLocationScreen(onLocation: (Location) -> Unit) {
+fun CurrentLocationScreen(onLocation: (Location) -> Unit, content : @Composable (() -> Unit)->Unit = {}) {
     val permissions = listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,)
     PermissionBox(permissions = permissions, requiredPermissions = listOf(permissions.first()),
         onGranted = {
             CurrentLocationContent(usePreciseLocation = it.contains(Manifest.permission.ACCESS_FINE_LOCATION), onLocation = onLocation, content = {
-                Button(onClick = it,) { Text(text = "MyLocation") } })
+                content.invoke(it)
+            })
         }
     )
 }
