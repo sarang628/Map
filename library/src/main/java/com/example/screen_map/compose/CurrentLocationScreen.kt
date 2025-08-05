@@ -27,73 +27,26 @@ import kotlinx.coroutines.tasks.await
 )
 @Composable
 fun CurrentLocationScreen(onLocation: (Location) -> Unit) {
-    val permissions = listOf(
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-    )
-    PermissionBox(
-        permissions = permissions,
-        requiredPermissions = listOf(permissions.first()),
+    val permissions = listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,)
+    PermissionBox(permissions = permissions, requiredPermissions = listOf(permissions.first()),
         onGranted = {
-            CurrentLocationContent(
-                usePreciseLocation = it.contains(Manifest.permission.ACCESS_FINE_LOCATION),
-                onLocation = onLocation
-            )
-        },
+            CurrentLocationContent(usePreciseLocation = it.contains(Manifest.permission.ACCESS_FINE_LOCATION), onLocation = onLocation, content = {
+                Button(onClick = it,) { Text(text = "MyLocation") } })
+        }
     )
 }
 
-@RequiresPermission(
-    anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION],
-)
+@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
-fun CurrentLocationContent(usePreciseLocation: Boolean, onLocation: (Location) -> Unit) {
+fun CurrentLocationContent(usePreciseLocation: Boolean, onLocation: (Location) -> Unit, content : @Composable (() -> Unit)->Unit = {}) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val locationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    Box {
-        /*Button(
-            onClick = {
-                // getting last known location is faster and minimizes battery usage
-                // This information may be out of date.
-                // Location may be null as previously no client has access location
-                // or location turned of in device setting.
-                // Please handle for null case as well as additional check can be added before using the method
-                scope.launch(Dispatchers.IO) {
-                    val result = locationClient.lastLocation.await()
-                    locationInfo = if (result == null) {
-                        "No last known location. Try fetching the current location first"
-                    } else {
-                        "Current location is \n" + "lat : ${result.latitude}\n" +
-                                "long : ${result.longitude}\n" + "fetched at ${System.currentTimeMillis()}"
-                    }
-                }
-            },
-        ) {
-            Text("Get last known location")
-        }*/
-
-        Button(
-            onClick = {
-                //To get more accurate or fresher device location use this method
-                scope.launch(Dispatchers.IO) {
-                    val priority = if (usePreciseLocation) {
-                        Priority.PRIORITY_HIGH_ACCURACY
-                    } else {
-                        Priority.PRIORITY_BALANCED_POWER_ACCURACY
-                    }
-                    val result = locationClient.getCurrentLocation(
-                        priority,
-                        CancellationTokenSource().token,
-                    ).await()
-                    result?.let { fetchedLocation ->
-                        onLocation.invoke(fetchedLocation)
-                    }
-                }
-            },
-        ) {
-            Text(text = "MyLocation")
-        }
+    content.invoke {
+        scope.launch(Dispatchers.IO) {
+            val priority = if (usePreciseLocation) { Priority.PRIORITY_HIGH_ACCURACY } else { Priority.PRIORITY_BALANCED_POWER_ACCURACY }
+            val result = locationClient.getCurrentLocation(priority, CancellationTokenSource().token,).await()
+            result?.let { fetchedLocation -> onLocation.invoke(fetchedLocation) } }
     }
 }

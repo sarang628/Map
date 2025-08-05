@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit)? = null, cameraPositionState: CameraPositionState, selectedMarkerData: MarkerData?, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit)? = null) {
+fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, selectedMarkerData: MarkerData?, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit)? = null) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;

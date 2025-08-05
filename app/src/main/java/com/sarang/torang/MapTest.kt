@@ -1,9 +1,9 @@
-package com.example.testapp
+package com.sarang.torang
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Switch
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +59,7 @@ fun test3() {
         Circle(
             center = circleCenter,
             //fillColor = MaterialTheme.colors.secondary,
-            strokeColor = MaterialTheme.colors.secondaryVariant,
+            strokeColor = MaterialTheme.colorScheme.secondary,
             radius = 1000.0,
         )
     }

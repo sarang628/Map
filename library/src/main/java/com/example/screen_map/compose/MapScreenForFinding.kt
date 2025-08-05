@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MapScreenForFinding(
     mapViewModel: MapViewModel = hiltViewModel(),
-    onMark: ((Int) -> Unit)? = null,
+    onMark: ((Int) -> Unit) = {},
     cameraSpeed: Int = 300,
     cameraPositionState: CameraPositionState,
     list: List<MarkerData>?,
