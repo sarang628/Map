@@ -38,10 +38,8 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((
     val isMapLoaded by mapViewModel.isMapLoaded.collectAsState()
     val coroutine = rememberCoroutineScope()
 
-
     LaunchedEffect(key1 = selectedMarkerData) {
-        if (!isMapLoaded)
-            return@LaunchedEffect
+        if (!isMapLoaded) return@LaunchedEffect
 
         //카드가 포커스된 음식점에 맞춰 지도 이동시키기
         selectedMarkerData?.let {
