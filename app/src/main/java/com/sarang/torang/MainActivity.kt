@@ -21,13 +21,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.compose.CurrentLocationScreen
 import com.example.screen_map.compose.MapScreen
+import com.example.screen_map.compose.MapScreenForFinding
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.testMarkArrayList
+import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -62,11 +65,13 @@ class MainActivity : ComponentActivity() {
         var myLocation: LatLng? by remember { mutableStateOf(null) }
         val navHostController = rememberNavController()
         var boundary by remember { mutableStateOf(0.0) }
+        val mapViewModel: MapViewModel = hiltViewModel()
 
         Box {
             NavHost(navController = navHostController, startDestination = "map") {
                 composable("map") {
-                    MapScreen(cameraPositionState = cameraPositionState, selectedMarkerData = selectedMarkerData,)
+                    //MapScreen(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState, selectedMarkerData = selectedMarkerData)
+                    MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState, selectedMarkerData = selectedMarkerData)
                 }
                 composable("restaurant") {}
             }
