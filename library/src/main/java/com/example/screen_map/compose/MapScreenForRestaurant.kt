@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun MapScreenForRestaurant(mapViewModel: MapViewModel = hiltViewModel(), cameraPositionState: CameraPositionState = rememberCameraPositionState(), selectedMarkerData: MarkerData?, mapUiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = true), onMapClick: (LatLng) -> Unit = {}, zoom : Float) {
-    val isMapLoaded by mapViewModel.isMapLoaded.collectAsState()
+    val isMapLoaded = mapViewModel.uiState.isMapLoaded
     val coroutine = rememberCoroutineScope()
     MapScreen(
         mapViewModel = mapViewModel,

@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraSpeed: Int = 300, cameraPositionState: CameraPositionState, selectedMarkerData: MarkerData?, onMapClick: (LatLng) -> Unit = {}, myLocation: LatLng? = null, boundary: Double? = null,
 ) {
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    val isMapLoaded by mapViewModel.isMapLoaded.collectAsState()
+    val isMapLoaded = mapViewModel.uiState.isMapLoaded
     val coroutine = rememberCoroutineScope()
 
     LaunchedEffect(key1 = selectedMarkerData) {
