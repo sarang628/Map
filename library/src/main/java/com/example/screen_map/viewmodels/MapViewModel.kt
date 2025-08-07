@@ -27,7 +27,7 @@ class MapViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             try {
-                getMarkerListFlowUseCase.invoke().collect {
+                getMarkerListFlowUseCase.invoke(viewModelScope).collect {
                     uiState = uiState.copy(list = it)
                 }
             }catch (e : Exception){

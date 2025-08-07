@@ -34,13 +34,18 @@ import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.sarang.torang.data.Filter
+import com.sarang.torang.repository.FindRepository
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.random.Random
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var findRepository : FindRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +99,7 @@ class MainActivity : ComponentActivity() {
                 Button(onClick = { boundary = 500.0 }) { Text(text = "500M") }
                 Button(onClick = { boundary = 1000.0 }) { Text(text = "1000M") }
                 Button(onClick = { boundary = 3000.0 }) { Text(text = "3000M") }
+                Button(onClick = { coroutineScope.launch { findRepository.search(Filter()) }}) { Text(text = "filter") }
             }
         }
     }

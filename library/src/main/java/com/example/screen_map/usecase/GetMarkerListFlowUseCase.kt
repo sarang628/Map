@@ -1,8 +1,9 @@
 package com.example.screen_map.usecase
 
 import com.example.screen_map.data.MarkerData
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
 interface GetMarkerListFlowUseCase {
-    suspend fun invoke(): StateFlow<List<MarkerData>>
+    fun invoke(coroutineScope : CoroutineScope): StateFlow<List<MarkerData>>
 }
