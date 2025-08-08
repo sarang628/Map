@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -106,22 +107,21 @@ class MainActivity : ComponentActivity() {
 
             Column {
                 FlowRow(Modifier.scrollable(rememberScrollState(), orientation = Orientation.Horizontal)) {
-                    Button(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomIn()) } }) {
-                        Text(text = "+") }
-                    Button(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomOut()) } }) {
-                        Text(text = "-") }
+                    AssistChip(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomIn()) } }, label = { Text(text = "+") })
+                    AssistChip(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomOut()) } }, label = {Text(text = "-") })
                     CurrentLocationScreen(onLocation = {
                         location = it
                         isMyLocationEnabled = !isMyLocationEnabled; coroutineScope.launch {
                         cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)), 300)
                         myLocation = LatLng(it.latitude, it.longitude) } })
                     Button(onClick = { navHostController.navigate("restaurant") }) { Text(text = "aa") }
-                    Button(onClick = { boundary = 100.0 }) { Text(text = "100M") }
-                    Button(onClick = { boundary = 200.0 }) { Text(text = "200M") }
-                    Button(onClick = { boundary = 500.0 }) { Text(text = "500M") }
-                    Button(onClick = { boundary = 1000.0 }) { Text(text = "1000M") }
-                    Button(onClick = { boundary = 3000.0 }) { Text(text = "3000M") }
-                    Button(onClick = { coroutineScope.launch { findRepository.search(Filter()) }}) { Text(text = "filter") }
+                    AssistChip(onClick = { boundary = 100.0 }, label = { Text(text = "100M") })
+                    AssistChip(onClick = { boundary = 200.0 }, label = { Text(text = "200M") })
+                    AssistChip(onClick = { boundary = 500.0 }, label = { Text(text = "500M") })
+                    AssistChip(onClick = { boundary = 1000.0 }, label = { Text(text = "1000M") })
+                    AssistChip(onClick = { boundary = 3000.0 }, label = { Text(text = "3000M") })
+                    AssistChip(onClick = { coroutineScope.launch { findRepository.search(Filter()) }}, label = {Text(text = "filter")})
+                    AssistChip(onClick = { coroutineScope.launch { findRepository.findThisArea() }}, label = {Text(text = "bound")})
                 }
                 LazyColumn(modifier = Modifier.width(150.dp), state = state) {
                     items(restaurants.size){
