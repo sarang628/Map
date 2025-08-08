@@ -146,7 +146,6 @@ dependencies {
 
     implementation(libs.theme)
     implementation(libs.torangRepository)
-    implementation(libs.cardInfo)
     implementation(libs.commonImageLoader)
     implementation(project(":library"))
 }
