@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,15 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.compose.CurrentLocationScreen
-import com.example.screen_map.compose.MapScreen
 import com.example.screen_map.compose.MapScreenForFinding
-import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.testMarkArrayList
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -44,12 +46,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sarang.torang.data.Filter
 import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
-import com.sarang.torang.repository.FindRepository
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -81,6 +81,18 @@ class MainActivity : ComponentActivity() {
         var boundary by remember { mutableStateOf(0.0) }
         val mapViewModel: MapViewModel = hiltViewModel()
         val restaurants = findRepository.restaurants.collectAsState().value
+        val selectedRestaurant = findRepository.selectedRestaurant.collectAsState().value
+        val state: LazyListState = rememberLazyListState()
+
+        LaunchedEffect(selectedRestaurant) {
+            findRepository.restaurants.collect { list ->
+                list.forEachIndexed { index, restaurant ->
+                    if (restaurant.restaurantId == selectedRestaurant.restaurantId) {
+                        state.animateScrollToItem(index)
+                    }
+                }
+            }
+        }
 
         Scaffold {
             Box(Modifier.padding(it)){
@@ -111,7 +123,7 @@ class MainActivity : ComponentActivity() {
                     Button(onClick = { boundary = 3000.0 }) { Text(text = "3000M") }
                     Button(onClick = { coroutineScope.launch { findRepository.search(Filter()) }}) { Text(text = "filter") }
                 }
-                LazyColumn {
+                LazyColumn(modifier = Modifier.width(150.dp), state = state) {
                     items(restaurants.size){
                         TextButton({
                             coroutineScope.launch {
