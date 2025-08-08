@@ -6,12 +6,12 @@ import com.google.maps.android.compose.MarkerState
 import com.sarang.torang.R
 
 data class MarkerData(
-    val id: Int,
+    val id: Int = -1,
     val lat: Double = 0.0,
     val lon: Double = 0.0,
     val title: String = "",
     val snippet: String = "",
-    val foodType: String
+    val foodType: String = ""
 ) {
     @Composable
     fun markState(): MarkerState {
