@@ -9,6 +9,7 @@ import com.example.screen_map.data.MarkerData
 import com.example.screen_map.usecase.GetMarkerListFlowUseCase
 import com.example.screen_map.usecase.GetSelectedMarkUseCase
 import com.example.screen_map.usecase.SavePositionUseCase
+import com.example.screen_map.usecase.SetSelectedMarkUseCase
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,8 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val saveMapPositionUseCase: SavePositionUseCase,
     private val getMarkerListFlowUseCase: GetMarkerListFlowUseCase,
-    private val getSelectedMarkUseCase : GetSelectedMarkUseCase
+    private val getSelectedMarkUseCase : GetSelectedMarkUseCase,
+    private val setSelectMarkerUseCase : SetSelectedMarkUseCase
 ) : ViewModel() {
     var uiState: MapUIstate by mutableStateOf(MapUIstate(list = listOf()))
         private set
@@ -54,6 +56,12 @@ class MapViewModel @Inject constructor(
 
     fun onMapLoaded() {
         uiState = uiState.copy(isMapLoaded = true)
+    }
+
+    fun onMark(restaurantId: Int) {
+        viewModelScope.launch {
+            setSelectMarkerUseCase.invoke(restaurantId)
+        }
     }
 }
 
