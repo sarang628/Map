@@ -1,6 +1,5 @@
 package com.example.screen_map.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.usecase.GetMarkerListFlowUseCase
-import com.example.screen_map.usecase.GetMarkerListUseCase
+import com.example.screen_map.usecase.GetSelectedMarkUseCase
 import com.example.screen_map.usecase.SavePositionUseCase
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -19,19 +18,21 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val saveMapPositionUseCase: SavePositionUseCase,
-    private val getMarkerListFlowUseCase: GetMarkerListFlowUseCase
+    private val getMarkerListFlowUseCase: GetMarkerListFlowUseCase,
+    private val getSelectedMarkUseCase : GetSelectedMarkUseCase
 ) : ViewModel() {
     var uiState: MapUIstate by mutableStateOf(MapUIstate(list = listOf()))
         private set
 
     init {
         viewModelScope.launch {
-            try {
+            launch {
                 getMarkerListFlowUseCase.invoke(viewModelScope).collect {
                     uiState = uiState.copy(list = it)
                 }
-            }catch (e : Exception){
-                Log.e("__MapViewModel", e.toString())
+            }
+            launch {
+                getSelectedMarkUseCase.invoke(viewModelScope).collect { uiState = uiState.copy(selectedMarker = it) }
             }
         }
     }
