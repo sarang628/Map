@@ -33,7 +33,6 @@ fun MapScreenForRestaurant(mapViewModel: MapViewModel = hiltViewModel(), cameraP
     MapScreen(
         mapViewModel = mapViewModel,
         cameraPositionState = cameraPositionState,
-        selectedMarkerData = selectedMarkerData,
         onMapClick = onMapClick,
         uiSettings = mapUiSettings,
         onMapLoaded = {

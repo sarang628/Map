@@ -41,12 +41,13 @@ import com.google.maps.android.compose.rememberMarkerState
  * @param onMapClick 맵 클릭 이벤트
  */
 @Composable
-fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, selectedMarkerData: MarkerData?, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit) = { }) {
+fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit) = { }) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
+
 
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
@@ -58,10 +59,10 @@ fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Un
         }
     })
 
-    LaunchedEffect(key1 = selectedMarkerData) {
+    LaunchedEffect(key1 = mapViewModel.uiState.selectedMarker) {
         if (!isMapLoaded) return@LaunchedEffect
 
-        selectedMarkerData?.let { //카드가 포커스된 음식점에 맞춰 지도 이동시키기
+        mapViewModel.uiState.selectedMarker?.let { //카드가 포커스된 음식점에 맞춰 지도 이동시키기
             if (selectedMarker.position != it.getLatLng()) {
                 cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = 300)
             }
@@ -71,15 +72,15 @@ fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Un
     Box {
         GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = mapProperties, onMapClick = onMapClick, uiSettings = uiSettings, onMapLoaded = { onMapLoaded.invoke(); mapViewModel.onMapLoaded() }) {
             content.invoke()
-            selectedMarkerData?.let {
-                selectedMarker.position = selectedMarkerData.getLatLng()
+            mapViewModel.uiState.selectedMarker?.let {
+                selectedMarker.position = it.getLatLng()
                 Marker(
                     state = selectedMarker,
-                    title = selectedMarkerData.title,
-                    snippet = selectedMarkerData.snippet,
+                    title = it.title,
+                    snippet = it.snippet,
                     onClick = { onMark.invoke(Integer.parseInt(it.tag.toString())); false },
-                    tag = selectedMarkerData.id,
-                    icon = BitmapDescriptorFactory.fromResource(selectedMarkerData.icon)
+                    tag = it.id,
+                    icon = BitmapDescriptorFactory.fromResource(it.icon)
                 )
             }
         }

@@ -32,17 +32,17 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraSpeed: Int = 300, cameraPositionState: CameraPositionState, selectedMarkerData: MarkerData?, onMapClick: (LatLng) -> Unit = {}, myLocation: LatLng? = null, boundary: Double? = null,
+fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraSpeed: Int = 300, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, myLocation: LatLng? = null, boundary: Double? = null,
 ) {
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
     val coroutine = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = selectedMarkerData) {
+    LaunchedEffect(key1 = mapViewModel.uiState.selectedMarker) {
         if (!isMapLoaded) return@LaunchedEffect
 
         //카드가 포커스된 음식점에 맞춰 지도 이동시키기
-        selectedMarkerData?.let {
+        mapViewModel.uiState.selectedMarker?.let {
             if (selectedMarker.position != it.getLatLng()) {
                 cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = cameraSpeed)
             }
@@ -52,7 +52,6 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((
     MapScreen(
         mapViewModel = mapViewModel,
         cameraPositionState = cameraPositionState,
-        selectedMarkerData = selectedMarkerData,
         onMapClick = onMapClick,
         onMark = onMark,
         onMapLoaded = { coroutine.launch {
