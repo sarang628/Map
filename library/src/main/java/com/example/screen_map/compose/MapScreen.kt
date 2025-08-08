@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -46,13 +44,11 @@ fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Un
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled)) }
-    val isMapLoaded = mapViewModel.uiState.isMapLoaded
-
 
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
             if (!cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                if (isMapLoaded) { //마지막으로 움직인 지점 저장하기
+                if (mapViewModel.uiState.isMapLoaded) { //마지막으로 움직인 지점 저장하기
                     mapViewModel.saveCameraPosition(cameraPositionState)
                 }
             }
@@ -60,7 +56,7 @@ fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Un
     })
 
     LaunchedEffect(key1 = mapViewModel.uiState.selectedMarker) {
-        if (!isMapLoaded) return@LaunchedEffect
+        if (!mapViewModel.uiState.isMapLoaded) return@LaunchedEffect
 
         mapViewModel.uiState.selectedMarker?.let { //카드가 포커스된 음식점에 맞춰 지도 이동시키기
             if (selectedMarker.position != it.getLatLng()) {
