@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraSpeed: Int = 300, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, myLocation: LatLng? = null, boundary: Double? = null,
+fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpeed: Int = 300, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, myLocation: LatLng? = null, boundary: Double? = null,
 ) {
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
@@ -53,7 +53,6 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((
         mapViewModel = mapViewModel,
         cameraPositionState = cameraPositionState,
         onMapClick = onMapClick,
-        onMark = onMark,
         onMapLoaded = { coroutine.launch {
             if (!isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
                 cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(), mapViewModel.getLastZoom()), durationMs = 1000)
@@ -63,7 +62,7 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((
         mapViewModel.uiState.list.let {
             Log.d("__MapScreenForFinding", "markerSize : ${it.size}")
             for (data: MarkerData in it) {
-                Marker(tag = data.id, state = data.markState(), title = data.title, snippet = data.snippet, onClick = { onMark.invoke(Integer.parseInt(it.tag.toString())); false }, icon = BitmapDescriptorFactory.fromResource(data.icon))
+                Marker(tag = data.id, state = data.markState(), title = data.title, snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = BitmapDescriptorFactory.fromResource(data.icon))
             }
         }
 
