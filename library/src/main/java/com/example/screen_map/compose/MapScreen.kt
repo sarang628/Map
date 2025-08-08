@@ -74,21 +74,11 @@ fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Un
             content.invoke()
             mapViewModel.uiState.selectedMarker?.let {
                 selectedMarker.position = it.getLatLng()
-                Marker(
-                    state = selectedMarker,
-                    title = it.title,
-                    snippet = it.snippet,
-                    onClick = { onMark.invoke(Integer.parseInt(it.tag.toString())); false },
-                    tag = it.id,
-                    icon = BitmapDescriptorFactory.fromResource(it.icon)
-                )
+                Marker(state = selectedMarker, title = it.title, snippet = it.snippet, onClick = { onMark.invoke(Integer.parseInt(it.tag.toString())); false }, tag = it.id, icon = BitmapDescriptorFactory.fromResource(it.icon))
             }
         }
-        if (!isMapLoaded) {
-            Box(Modifier
-                .fillMaxSize()
-                .clickable(enabled = false) { }
-                .background(Color(0x33000000))) {
+        if (!mapViewModel.uiState.isMapLoaded) {
+            Box(Modifier.fillMaxSize().clickable(enabled = false) { }.background(Color(0x33000000))) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
         }
