@@ -81,7 +81,6 @@ dependencies {
     implementation ("com.google.maps.android:maps-compose-utils:2.11.2") // Optionally, you can include the Compose utils library for Clustering, etc.
 
     /** utils */
-    implementation ("com.google.accompanist:accompanist-permissions:0.28.0") /** compose permission */
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
     implementation ("com.google.android.catalog.framework:casa-ui:0.4.4")
 }
