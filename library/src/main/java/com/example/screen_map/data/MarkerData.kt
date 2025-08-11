@@ -14,14 +14,8 @@ data class MarkerData(
     val foodType: String = ""
 ) {
     @Composable
-    fun markState(): MarkerState {
-        val markState = MarkerState(position = getLatLng())
-        return markState
-    }
-
-    fun getLatLng(): LatLng {
-        return LatLng(lat, lon)
-    }
+    fun markState(): MarkerState = MarkerState(position = getLatLng())
+    fun getLatLng(): LatLng = LatLng(lat, lon)
 }
 
 val MarkerData.icon
