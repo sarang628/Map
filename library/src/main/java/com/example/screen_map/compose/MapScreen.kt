@@ -42,7 +42,7 @@ import com.google.maps.android.compose.rememberMarkerState
  * @param onMapClick 맵 클릭 이벤트
  */
 @Composable
-fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit) = { }, logoBottomPadding : Dp = 0.dp) {
+fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, logoBottomPadding : Dp = 0.dp, content: (@Composable @GoogleMapComposable () -> Unit) = { }) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
