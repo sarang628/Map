@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.viewmodels.MapViewModel
@@ -27,7 +29,7 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreenForRestaurant(mapViewModel: MapViewModel = hiltViewModel(), cameraPositionState: CameraPositionState = rememberCameraPositionState(), selectedMarkerData: MarkerData?, mapUiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = true), onMapClick: (LatLng) -> Unit = {}, zoom : Float) {
+fun MapScreenForRestaurant(mapViewModel: MapViewModel = hiltViewModel(), cameraPositionState: CameraPositionState = rememberCameraPositionState(), selectedMarkerData: MarkerData?, mapUiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = true), onMapClick: (LatLng) -> Unit = {}, zoom : Float, logoBottomPadding : Dp = 0.dp,) {
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
     val coroutine = rememberCoroutineScope()
     MapScreen(
@@ -35,6 +37,7 @@ fun MapScreenForRestaurant(mapViewModel: MapViewModel = hiltViewModel(), cameraP
         cameraPositionState = cameraPositionState,
         onMapClick = onMapClick,
         uiSettings = mapUiSettings,
+        logoBottomPadding = logoBottomPadding,
         onMapLoaded = {
             coroutine.launch {
                 if (!isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
