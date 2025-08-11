@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -17,8 +18,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -38,7 +42,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.screen_map.compose.CurrentLocationScreen
+import com.sarang.torang.di.map_di.CurrentLocationScreen
 import com.example.screen_map.compose.MapScreenForFinding
 import com.example.screen_map.data.testMarkArrayList
 import com.example.screen_map.viewmodels.MapViewModel
@@ -46,6 +50,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sarang.torang.data.Filter
+import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -100,7 +105,9 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navHostController, startDestination = "map") {
                 composable("map") {
                     //MapScreen(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState, selectedMarkerData = selectedMarkerData)
-                    MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
+                    MapScreenForFindingWithPermission {
+                        MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
+                    }
                 }
                 composable("restaurant") {}
             }
@@ -115,13 +122,24 @@ class MainActivity : ComponentActivity() {
                         cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)), 300)
                         myLocation = LatLng(it.latitude, it.longitude) } })
                     Button(onClick = { navHostController.navigate("restaurant") }) { Text(text = "aa") }
+                    Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 100.0 }, label = { Text(text = "100M") })
+                    Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 200.0 }, label = { Text(text = "200M") })
+                    Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 500.0 }, label = { Text(text = "500M") })
+                    Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 1000.0 }, label = { Text(text = "1000M") })
+                    Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 3000.0 }, label = { Text(text = "3000M") })
+                    Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { coroutineScope.launch { findRepository.search(Filter()) }}, label = {Text(text = "filter")})
+                    Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { coroutineScope.launch { findRepository.findThisArea() }}, label = {Text(text = "bound")})
+                    Spacer(Modifier.width(3.dp))
+                    CurrentLocationScreen {
+                        AssistChip(onClick = it, label = { Icon(Icons.Default.LocationOn, "") })
+                    }
                 }
                 LazyColumn(modifier = Modifier.width(150.dp), state = state) {
                     items(restaurants.size){
