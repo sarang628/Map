@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -17,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapViewModel
@@ -39,7 +42,7 @@ import com.google.maps.android.compose.rememberMarkerState
  * @param onMapClick 맵 클릭 이벤트
  */
 @Composable
-fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit) = { }) {
+fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, content: (@Composable @GoogleMapComposable () -> Unit) = { }, logoBottomPadding : Dp = 0.dp) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -66,7 +69,7 @@ fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Un
     }
 
     Box {
-        GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = mapProperties, onMapClick = onMapClick, uiSettings = uiSettings, onMapLoaded = { onMapLoaded.invoke(); mapViewModel.onMapLoaded() }) {
+        GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = mapProperties, onMapClick = onMapClick, uiSettings = uiSettings, onMapLoaded = { onMapLoaded.invoke(); mapViewModel.onMapLoaded() }, contentPadding = PaddingValues(bottom = logoBottomPadding)) {
             content.invoke()
             mapViewModel.uiState.selectedMarker?.let {
                 selectedMarker.position = it.getLatLng()
