@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
                         isMyLocationEnabled = !isMyLocationEnabled; coroutineScope.launch {
                         cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)), 300)
                         myLocation = LatLng(it.latitude, it.longitude) } })
-                    Button(onClick = { navHostController.navigate("restaurant") }) { Text(text = "aa") }
+                    AssistChip(onClick = { navHostController.navigate("restaurant") }, label = { Text(text = "move") })
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 100.0 }, label = { Text(text = "100M") })
                     Spacer(Modifier.width(3.dp))
