@@ -24,7 +24,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
@@ -71,10 +70,10 @@ fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Un
     Box {
         GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = mapProperties, onMapClick = onMapClick, uiSettings = uiSettings, onMapLoaded = { onMapLoaded.invoke(); mapViewModel.onMapLoaded() }, contentPadding = PaddingValues(bottom = logoBottomPadding)) {
             content.invoke()
-            mapViewModel.uiState.selectedMarker?.let {
+            /*mapViewModel.uiState.selectedMarker?.let {
                 selectedMarker.position = it.getLatLng()
-                Marker(state = selectedMarker, title = it.title, snippet = it.snippet, onClick = { onMark.invoke(Integer.parseInt(it.tag.toString())); false }, tag = it.id, icon = BitmapDescriptorFactory.fromResource(it.icon))
-            }
+                Marker(state = selectedMarker, title = it.title, snippet = it.snippet, onClick = { onMark.invoke(Integer.parseInt(it.tag.toString())); false }, tag = it.id, icon = it.icon(context, "", ""))
+            }*/
         }
         if (!mapViewModel.uiState.isMapLoaded) {
             Box(Modifier.fillMaxSize().clickable(enabled = false) { }.background(Color(0x33000000))) {

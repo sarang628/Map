@@ -1,11 +1,10 @@
 package com.example.screen_map.compose
 
-import android.util.Log
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -13,7 +12,6 @@ import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
@@ -39,6 +37,7 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpee
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
     val coroutine = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = mapViewModel.uiState.selectedMarker) {
         if (!isMapLoaded) return@LaunchedEffect
@@ -64,7 +63,7 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpee
         }}) {
         mapViewModel.uiState.list.let {
             for (data: MarkerData in it) {
-                Marker(tag = data.id, state = data.markState(), title = data.title, snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = BitmapDescriptorFactory.fromResource(data.icon))
+                Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating))
             }
         }
 
