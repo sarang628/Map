@@ -63,7 +63,6 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpee
                 mapViewModel.onMapLoaded() }
         }}) {
         mapViewModel.uiState.list.let {
-            Log.d("__MapScreenForFinding", "markerSize : ${it.size}")
             for (data: MarkerData in it) {
                 Marker(tag = data.id, state = data.markState(), title = data.title, snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = BitmapDescriptorFactory.fromResource(data.icon))
             }
