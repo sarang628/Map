@@ -18,11 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,15 +38,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sarang.torang.di.map_di.CurrentLocationScreen
-import com.example.screen_map.compose.MapScreenForFinding
 import com.example.screen_map.data.testMarkArrayList
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sarang.torang.data.Filter
-import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,9 +98,9 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navHostController, startDestination = "map") {
                 composable("map") {
                     //MapScreen(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState, selectedMarkerData = selectedMarkerData)
-                    MapScreenForFindingWithPermission {
-                        MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
-                    }
+//                    MapScreenForFindingWithPermission {
+//                        MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
+//                    }
                 }
                 composable("restaurant") {}
             }
@@ -116,11 +109,6 @@ class MainActivity : ComponentActivity() {
                 FlowRow(Modifier.scrollable(rememberScrollState(), orientation = Orientation.Horizontal)) {
                     AssistChip(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomIn()) } }, label = { Text(text = "+") })
                     AssistChip(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomOut()) } }, label = {Text(text = "-") })
-                    CurrentLocationScreen(onLocation = {
-                        location = it
-                        isMyLocationEnabled = !isMyLocationEnabled; coroutineScope.launch {
-                        cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)), 300)
-                        myLocation = LatLng(it.latitude, it.longitude) } })
                     AssistChip(onClick = { navHostController.navigate("restaurant") }, label = { Text(text = "move") })
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 100.0 }, label = { Text(text = "100M") })
@@ -137,9 +125,6 @@ class MainActivity : ComponentActivity() {
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { coroutineScope.launch { findRepository.findThisArea() }}, label = {Text(text = "bound")})
                     Spacer(Modifier.width(3.dp))
-                    CurrentLocationScreen {
-                        AssistChip(onClick = it, label = { Icon(Icons.Default.LocationOn, "") })
-                    }
                 }
                 LazyColumn(modifier = Modifier.width(150.dp), state = state) {
                     items(restaurants.size){
