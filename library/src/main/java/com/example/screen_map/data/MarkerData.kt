@@ -29,7 +29,7 @@ data class MarkerData(
     fun getLatLng(): LatLng = LatLng(lat, lon)
 }
 
-fun MarkerData.icon(context: Context, title: String, rating: String) =
+fun MarkerData.icon(context: Context, title: String, rating: String, isSelected : Boolean = false) =
         if (this.foodType.lowercase() == "kr") BitmapDescriptorFactory.fromResource(R.drawable.ic_korea)
         else if (this.foodType.lowercase() == "jp") BitmapDescriptorFactory.fromResource(R.drawable.ic_japan)
         else if (this.foodType.lowercase() == "am") BitmapDescriptorFactory.fromResource(R.drawable.ic_us)
@@ -37,7 +37,7 @@ fun MarkerData.icon(context: Context, title: String, rating: String) =
         else if (this.foodType.lowercase() == "sp") BitmapDescriptorFactory.fromResource(R.drawable.ic_spain)
         else if (this.foodType.lowercase() == "vn") BitmapDescriptorFactory.fromResource(R.drawable.ic_vn)
         else if (this.foodType.lowercase() == "cf") BitmapDescriptorFactory.fromResource(R.drawable.ic_coffee)
-        else createCustomMarker(context, R.drawable.ic_pointer, title, rating)
+        else createCustomMarker(context, isSelected, title, rating)
         //else R.drawable.ic_pointer
 
 
@@ -53,14 +53,12 @@ fun testMarkArrayList(): List<MarkerData> {
     }
 }
 
-fun createCustomMarker(context: Context, iconResId: Int, title: String, rating: String): BitmapDescriptor {
-    val markerView = LayoutInflater.from(context).inflate(R.layout.view_custom_marker, null)
+fun createCustomMarker(context: Context, isSelected: Boolean, title: String, rating: String): BitmapDescriptor {
+    val markerView = LayoutInflater.from(context).inflate(if(isSelected)R.layout.view_selected_custom_marker else R.layout.view_custom_marker, null)
 
-    val icon = markerView.findViewById<ImageView>(R.id.markerIcon)
     val name = markerView.findViewById<TextView>(R.id.markerTitle)
     val ratingText = markerView.findViewById<TextView>(R.id.markerRating)
 
-    icon.setImageResource(iconResId)
     name.text = title
     ratingText.text = rating
 

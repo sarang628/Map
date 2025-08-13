@@ -63,8 +63,13 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpee
         }}) {
         mapViewModel.uiState.list.let {
             for (data: MarkerData in it) {
+                if(mapViewModel.uiState.selectedMarker?.title != data.title)
                 Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating))
             }
+        }
+        mapViewModel.uiState.selectedMarker?.let {
+            selectedMarker.position = it.getLatLng()
+            Marker(state = selectedMarker, /*title = it.title,*/ snippet = it.snippet, onClick = { false }, tag = it.id, icon = it.icon(context, it.title, it.rating, isSelected = true))
         }
 
         myLocation?.let { latlng ->
