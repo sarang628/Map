@@ -38,12 +38,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.screen_map.compose.MapScreenForFinding
 import com.example.screen_map.data.testMarkArrayList
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sarang.torang.data.Filter
+import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,9 +100,9 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navHostController, startDestination = "map") {
                 composable("map") {
                     //MapScreen(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState, selectedMarkerData = selectedMarkerData)
-//                    MapScreenForFindingWithPermission {
-//                        MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
-//                    }
+                    MapScreenForFindingWithPermission {
+                        MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
+                    }
                 }
                 composable("restaurant") {}
             }
@@ -130,7 +132,7 @@ class MainActivity : ComponentActivity() {
                     items(restaurants.size){
                         TextButton({
                             coroutineScope.launch {
-                                findRepository.selectRestaurant(restaurants[it].restaurantId ?: -1)
+                                findRepository.selectRestaurant(restaurants[it].restaurantId)
                             }
                         }) {
                             Text(restaurants[it].restaurantName.toString())

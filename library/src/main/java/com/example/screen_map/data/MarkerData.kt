@@ -1,19 +1,18 @@
 package com.example.screen_map.data
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.compose.runtime.Composable
+import androidx.core.graphics.createBitmap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MarkerState
 import com.sarang.torang.R
-import androidx.core.graphics.createBitmap
 
 data class MarkerData(
     val id: Int = -1,
@@ -30,14 +29,14 @@ data class MarkerData(
 }
 
 fun MarkerData.icon(context: Context, title: String, rating: String, isSelected : Boolean = false) =
-        if (this.foodType.lowercase() == "kr") BitmapDescriptorFactory.fromResource(R.drawable.ic_korea)
-        else if (this.foodType.lowercase() == "jp") BitmapDescriptorFactory.fromResource(R.drawable.ic_japan)
-        else if (this.foodType.lowercase() == "am") BitmapDescriptorFactory.fromResource(R.drawable.ic_us)
-        else if (this.foodType.lowercase() == "it") BitmapDescriptorFactory.fromResource(R.drawable.ic_italy)
-        else if (this.foodType.lowercase() == "sp") BitmapDescriptorFactory.fromResource(R.drawable.ic_spain)
-        else if (this.foodType.lowercase() == "vn") BitmapDescriptorFactory.fromResource(R.drawable.ic_vn)
-        else if (this.foodType.lowercase() == "cf") BitmapDescriptorFactory.fromResource(R.drawable.ic_coffee)
-        else createCustomMarker(context, isSelected, title, rating)
+        if (this.foodType.lowercase() == "kr") createCustomMarker(context = context, iconRes = R.drawable.ic_korea, isSelected = isSelected, title = title, rating = rating)
+        else if (this.foodType.lowercase() == "jp")createCustomMarker(context = context, iconRes = R.drawable.ic_japan, isSelected = isSelected, title = title, rating = rating)
+        else if (this.foodType.lowercase() == "am") createCustomMarker(context = context, iconRes = R.drawable.ic_us, isSelected = isSelected, title = title, rating = rating)
+        else if (this.foodType.lowercase() == "it") createCustomMarker(context = context, iconRes = R.drawable.ic_italy, isSelected = isSelected, title = title, rating = rating)
+        else if (this.foodType.lowercase() == "sp") createCustomMarker(context = context, iconRes = R.drawable.ic_spain, isSelected = isSelected, title = title, rating = rating)
+        else if (this.foodType.lowercase() == "vn") createCustomMarker(context = context, iconRes = R.drawable.ic_vn, isSelected = isSelected, title = title, rating = rating)
+        else if (this.foodType.lowercase() == "cf") createCustomMarker(context = context, iconRes = R.drawable.ic_coffee, isSelected = isSelected, title = title, rating = rating)
+        else createCustomMarker(context = context, isSelected = isSelected, title = title, rating = rating)
         //else R.drawable.ic_pointer
 
 
@@ -53,12 +52,14 @@ fun testMarkArrayList(): List<MarkerData> {
     }
 }
 
-fun createCustomMarker(context: Context, isSelected: Boolean, title: String, rating: String): BitmapDescriptor {
+fun createCustomMarker(context: Context, iconRes : Int? = null, isSelected: Boolean, title: String, rating: String): BitmapDescriptor {
     val markerView = LayoutInflater.from(context).inflate(if(isSelected)R.layout.view_selected_custom_marker else R.layout.view_custom_marker, null)
 
+    val icon = markerView.findViewById<ImageView>(R.id.markerIcon)
     val name = markerView.findViewById<TextView>(R.id.markerTitle)
     val ratingText = markerView.findViewById<TextView>(R.id.markerRating)
 
+    iconRes?.let { icon.setImageResource(it) }
     name.text = title
     ratingText.text = rating
 
