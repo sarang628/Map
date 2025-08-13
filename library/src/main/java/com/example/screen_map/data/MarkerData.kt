@@ -35,6 +35,7 @@ fun MarkerData.icon(context: Context, title: String, rating: String, isSelected 
         else if (this.foodType.lowercase() == "it") createCustomMarker(context = context, iconRes = R.drawable.ic_italy, isSelected = isSelected, title = title, rating = rating)
         else if (this.foodType.lowercase() == "sp") createCustomMarker(context = context, iconRes = R.drawable.ic_spain, isSelected = isSelected, title = title, rating = rating)
         else if (this.foodType.lowercase() == "vn") createCustomMarker(context = context, iconRes = R.drawable.ic_vn, isSelected = isSelected, title = title, rating = rating)
+        else if (this.foodType.lowercase() == "cn") createCustomMarker(context = context, iconRes = R.drawable.ic_cn, isSelected = isSelected, title = title, rating = rating)
         else if (this.foodType.lowercase() == "cf") createCustomMarker(context = context, iconRes = R.drawable.ic_coffee, isSelected = isSelected, title = title, rating = rating)
         else createCustomMarker(context = context, isSelected = isSelected, title = title, rating = rating)
         //else R.drawable.ic_pointer
