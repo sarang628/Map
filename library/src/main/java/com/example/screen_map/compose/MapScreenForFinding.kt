@@ -3,7 +3,11 @@ package com.example.screen_map.compose
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,6 +42,13 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpee
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
     val coroutine = rememberCoroutineScope()
     val context = LocalContext.current
+    var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
+
+    LaunchedEffect(cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving) {
+            zoomLevel = cameraPositionState.position.zoom
+        }
+    }
 
     LaunchedEffect(key1 = mapViewModel.uiState.selectedMarker) {
         if (!isMapLoaded) return@LaunchedEffect
@@ -64,7 +75,7 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpee
         mapViewModel.uiState.list.let {
             for (data: MarkerData in it) {
                 if(mapViewModel.uiState.selectedMarker?.title != data.title)
-                Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price))
+                Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > 16.8, zoomLevel > 16.8))
             }
         }
         mapViewModel.uiState.selectedMarker?.let {
