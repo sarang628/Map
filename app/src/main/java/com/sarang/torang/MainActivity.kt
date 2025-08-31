@@ -46,6 +46,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sarang.torang.data.Filter
+import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
 import com.sryang.torang.ui.TorangTheme
@@ -89,7 +90,7 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(selectedRestaurant) {
             findRepository.restaurants.collect { list ->
                 list.forEachIndexed { index, restaurant ->
-                    if (restaurant.restaurantId == selectedRestaurant.restaurantId) {
+                    if (restaurant.restaurant.restaurantId == selectedRestaurant.restaurant.restaurantId) {
                         state.animateScrollToItem(index)
                     }
                 }
@@ -124,7 +125,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 3000.0 }, label = { Text(text = "3000M") })
                     Spacer(Modifier.width(3.dp))
-                    AssistChip(onClick = { coroutineScope.launch { findRepository.search(Filter()) }}, label = {Text(text = "filter")})
+                    AssistChip(onClick = { coroutineScope.launch { findRepository.search(FilterApiModel()) }}, label = {Text(text = "filter")})
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { coroutineScope.launch { findRepository.findThisArea() }}, label = {Text(text = "bound")})
                     Spacer(Modifier.width(3.dp))
@@ -133,10 +134,10 @@ class MainActivity : ComponentActivity() {
                     items(restaurants.size){
                         TextButton({
                             coroutineScope.launch {
-                                findRepository.selectRestaurant(restaurants[it].restaurantId)
+                                findRepository.selectRestaurant(restaurants[it].restaurant.restaurantId)
                             }
                         }) {
-                            Text(restaurants[it].restaurantName.toString())
+                            Text(restaurants[it].restaurant.restaurantName.toString())
                         }
                     }
                 }
