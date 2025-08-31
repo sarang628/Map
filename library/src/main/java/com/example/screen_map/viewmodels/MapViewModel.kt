@@ -18,20 +18,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val saveMapPositionUseCase: SavePositionUseCase,
-    private val getMarkerListFlowUseCase: GetMarkerListFlowUseCase,
+    private val saveMapPositionUseCase : SavePositionUseCase,
+    private val getMarkerListFlowUseCase : GetMarkerListFlowUseCase,
     private val getSelectedMarkUseCase : GetSelectedMarkUseCase,
     private val setSelectMarkerUseCase : SetSelectedMarkUseCase
 ) : ViewModel() {
-    var uiState: MapUIstate by mutableStateOf(MapUIstate(list = listOf()))
-        private set
+    var uiState: MapUIState by mutableStateOf(MapUIState(list = listOf())); private set
 
     init {
         viewModelScope.launch {
             launch {
-                getMarkerListFlowUseCase.invoke(viewModelScope).collect {
-                    uiState = uiState.copy(list = it)
-                }
+                getMarkerListFlowUseCase.invoke(viewModelScope).collect { uiState = uiState.copy(list = it) }
             }
             launch {
                 getSelectedMarkUseCase.invoke(viewModelScope).collect { uiState = uiState.copy(selectedMarker = it) }
@@ -41,31 +38,15 @@ class MapViewModel @Inject constructor(
 
     fun saveCameraPosition(state: CameraPositionState) {
         saveMapPositionUseCase.save(position = state.position)
-        state.projection?.visibleRegion?.let {
-            saveMapPositionUseCase.saveBound(it)
-        }
+        state.projection?.visibleRegion?.let { saveMapPositionUseCase.saveBound(it) }
     }
-
-    fun getLastPosition(): LatLng {
-        return saveMapPositionUseCase.load().target
-    }
-
-    fun getLastZoom(): Float {
-        return saveMapPositionUseCase.load().zoom
-    }
-
-    fun onMapLoaded() {
-        uiState = uiState.copy(isMapLoaded = true)
-    }
-
-    fun onMark(restaurantId: Int) {
-        viewModelScope.launch {
-            setSelectMarkerUseCase.invoke(restaurantId)
-        }
-    }
+    fun getLastPosition(): LatLng { return saveMapPositionUseCase.load().target }
+    fun getLastZoom(): Float { return saveMapPositionUseCase.load().zoom }
+    fun onMapLoaded() { uiState = uiState.copy(isMapLoaded = true) }
+    fun onMark(restaurantId: Int) { viewModelScope.launch { setSelectMarkerUseCase.invoke(restaurantId) } }
 }
 
-data class MapUIstate(
+data class MapUIState(
     val list: List<MarkerData>,
     val isMapLoaded: Boolean = false,
     val currentPosition: Int = 0,
