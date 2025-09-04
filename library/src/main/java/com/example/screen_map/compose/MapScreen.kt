@@ -30,6 +30,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.sarang.torang.R
 
@@ -41,7 +42,14 @@ import com.sarang.torang.R
  * @param onMapClick 맵 클릭 이벤트
  */
 @Composable
-fun MapScreen(mapViewModel: MapViewModel = hiltViewModel(), onMark: ((Int) -> Unit) = {}, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, uiSettings: MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), onMapLoaded: () -> Unit = {}, logoBottomPadding : Dp = 0.dp, content: (@Composable @GoogleMapComposable () -> Unit) = { }) {
+fun MapScreen(mapViewModel          : MapViewModel = hiltViewModel(),
+              onMark                : (Int) -> Unit = {},
+              cameraPositionState   : CameraPositionState = rememberCameraPositionState(),
+              onMapClick            : (LatLng) -> Unit = {},
+              uiSettings            : MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+              onMapLoaded           : () -> Unit = {},
+              logoBottomPadding     : Dp = 0.dp,
+              content               : @Composable @GoogleMapComposable () -> Unit = { }) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
