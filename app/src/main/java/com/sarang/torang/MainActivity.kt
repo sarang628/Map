@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -99,9 +101,28 @@ class MainActivity : ComponentActivity() {
 
         Scaffold {
             Box(Modifier.padding(it)){
-            NavHost(navController = navHostController, startDestination = "map") {
-                composable("map") {
-                    //MapScreen(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState, selectedMarkerData = selectedMarkerData)
+            NavHost(navController = navHostController, startDestination = "nav") {
+                composable("nav") {
+                    Column {
+                        Spacer(modifier = Modifier.height(200.dp))
+                        Button({navHostController.navigate("SimpleMapScreen")}) {
+                            Text("SimpleMapScreen")
+                        }
+                        Button({navHostController.navigate("MapScreen")}) {
+                            Text("MapScreen")
+                        }
+                        Button({navHostController.navigate("MapScreenForFindingWithPermission")}) {
+                            Text("MapScreenForFindingWithPermission")
+                        }
+                    }
+                }
+                composable("SimpleMapScreen") {
+                    MapScreen()
+                }
+                composable("MapScreen") {
+                    MapScreen(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
+                }
+                composable("MapScreenForFindingWithPermission") {
                     MapScreenForFindingWithPermission {
                         MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
                     }
