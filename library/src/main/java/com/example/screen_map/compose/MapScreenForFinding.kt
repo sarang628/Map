@@ -36,8 +36,13 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(), cameraSpeed: Int = 300, cameraPositionState: CameraPositionState, onMapClick: (LatLng) -> Unit = {}, myLocation: LatLng? = null, boundary: Double? = null, logoBottomPadding : Dp = 0.dp,
-) {
+fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(),
+                        cameraSpeed: Int = 300,
+                        cameraPositionState: CameraPositionState,
+                        onMapClick: (LatLng) -> Unit = {},
+                        myLocation: LatLng? = null,
+                        boundary: Double? = null,
+                        logoBottomPadding : Dp = 0.dp, ) {
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
     val coroutine = rememberCoroutineScope()
