@@ -31,7 +31,9 @@ class MapViewModel @Inject constructor(
                 getMarkerListFlowUseCase.invoke(viewModelScope).collect { uiState = uiState.copy(list = it) }
             }
             launch {
-                getSelectedMarkUseCase.invoke(viewModelScope).collect { uiState = uiState.copy(selectedMarker = it) }
+                getSelectedMarkUseCase.invoke(viewModelScope).collect {
+                    uiState = uiState.copy(selectedMarker = if(it.id == -1) null else it)
+                }
             }
         }
     }
