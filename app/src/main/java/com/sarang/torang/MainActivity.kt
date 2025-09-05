@@ -42,12 +42,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.compose.MapScreen
 import com.example.screen_map.compose.MapScreenForFinding
+import com.example.screen_map.compose.MapScreenSingleRestaurantMarker
 import com.example.screen_map.data.testMarkArrayList
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.sarang.torang.data.Filter
 import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
@@ -114,6 +114,12 @@ class MainActivity : ComponentActivity() {
                         Button({navHostController.navigate("MapScreenForFindingWithPermission")}) {
                             Text("MapScreenForFindingWithPermission")
                         }
+                        Button({navHostController.navigate("MapScreen")}) {
+                            Text("MapScreen")
+                        }
+                        Button({navHostController.navigate("MapScreenForRestaurant")}) {
+                            Text("MapScreenForRestaurant")
+                        }
                     }
                 }
                 composable("SimpleMapScreen") {
@@ -127,7 +133,12 @@ class MainActivity : ComponentActivity() {
                         MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
                     }
                 }
-                composable("restaurant") {}
+                composable("MapScreenForRestaurant"){
+                    MapScreenSingleRestaurantMarker(restaurantId = 1)
+                }
+                composable("restaurant") {
+
+                }
             }
 
             Column {

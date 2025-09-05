@@ -11,8 +11,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +23,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.screen_map.data.MarkerData
+import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
@@ -30,6 +34,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.sarang.torang.R
@@ -54,6 +59,13 @@ fun MapScreen(mapViewModel          : MapViewModel = hiltViewModel(),
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled, mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.hide_all_type))) }
+    var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
+
+    LaunchedEffect(cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving) {
+            zoomLevel = cameraPositionState.position.zoom
+        }
+    }
 
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
@@ -77,8 +89,17 @@ fun MapScreen(mapViewModel          : MapViewModel = hiltViewModel(),
 
     Box {
         GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = mapProperties, onMapClick = onMapClick, uiSettings = uiSettings, onMapLoaded = { onMapLoaded.invoke(); mapViewModel.onMapLoaded() }, contentPadding = PaddingValues(bottom = logoBottomPadding)) {
+            mapViewModel.uiState.list.let {
+                for (data: MarkerData in it) {
+                    if(mapViewModel.uiState.selectedMarker?.title != data.title)
+                        Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > 16.8, zoomLevel > 16.8))
+                }
+            }
+            mapViewModel.uiState.selectedMarker?.let {
+                selectedMarker.position = it.getLatLng()
+                Marker(state = selectedMarker, /*title = it.title,*/ snippet = it.snippet, onClick = { false }, tag = it.id, icon = it.icon(context, it.title, it.rating, isSelected = true, it.price))
+            }
             content.invoke()
-
         }
         if (!mapViewModel.uiState.isMapLoaded) {
             Box(Modifier.fillMaxSize().clickable(enabled = false) { }.background(Color(0x33000000))) {

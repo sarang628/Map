@@ -77,17 +77,6 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(),
                 delay(1000) //카메라 이동 전까지 플래그 비활성화
                 mapViewModel.onMapLoaded() }
         }}) {
-        mapViewModel.uiState.list.let {
-            for (data: MarkerData in it) {
-                if(mapViewModel.uiState.selectedMarker?.title != data.title)
-                Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > 16.8, zoomLevel > 16.8))
-            }
-        }
-        mapViewModel.uiState.selectedMarker?.let {
-            selectedMarker.position = it.getLatLng()
-            Marker(state = selectedMarker, /*title = it.title,*/ snippet = it.snippet, onClick = { false }, tag = it.id, icon = it.icon(context, it.title, it.rating, isSelected = true, it.price))
-        }
-
         myLocation?.let { latlng ->
             boundary?.let {
                 Circle(center = latlng, radius = boundary, strokeWidth = 5f, strokeColor = MaterialTheme.colorScheme.primary)

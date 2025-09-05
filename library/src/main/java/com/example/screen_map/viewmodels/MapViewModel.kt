@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.screen_map.data.MarkerData
+import com.example.screen_map.usecase.FindRestaurantUseCase
 import com.example.screen_map.usecase.GetMarkerListFlowUseCase
 import com.example.screen_map.usecase.GetSelectedMarkUseCase
 import com.example.screen_map.usecase.SavePositionUseCase
@@ -21,7 +22,8 @@ class MapViewModel @Inject constructor(
     private val saveMapPositionUseCase : SavePositionUseCase,
     private val getMarkerListFlowUseCase : GetMarkerListFlowUseCase,
     private val getSelectedMarkUseCase : GetSelectedMarkUseCase,
-    private val setSelectMarkerUseCase : SetSelectedMarkUseCase
+    private val setSelectMarkerUseCase : SetSelectedMarkUseCase,
+    private val findRestaurantUseCase : FindRestaurantUseCase
 ) : ViewModel() {
     var uiState: MapUIState by mutableStateOf(MapUIState(list = listOf())); private set
 
@@ -35,6 +37,13 @@ class MapViewModel @Inject constructor(
                     uiState = uiState.copy(selectedMarker = if(it.id == -1) null else it)
                 }
             }
+        }
+    }
+
+    fun findRestaurant(restaurantId: Int){
+        viewModelScope.launch {
+            val result = findRestaurantUseCase.invoke(restaurantId)
+            uiState = uiState.copy(selectedMarker = result, list = listOf(result))
         }
     }
 
