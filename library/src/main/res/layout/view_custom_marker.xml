@@ -3,20 +3,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="8dp">
-
-    <ImageView
-        android:id="@+id/markerIcon"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:src="@drawable/ic_pointer" />
+    android:orientation="horizontal">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:orientation="vertical">
+        android:layout_marginEnd="4.dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/markerTitle"
@@ -25,34 +19,43 @@
             android:ellipsize="marquee"
             android:maxLength="15"
             android:maxLines="1"
+            android:layout_marginEnd="2.dp"
             android:text="음식점 이름"
             android:textColor="#666666"
             android:textSize="14sp" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/markerPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:text="$$$"
+            android:textColor="#666666"
+            android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/markerRating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="★ 4.3"
-                android:layout_marginStart="5dp"
-                android:textColor="#666666"
-                android:textSize="12sp" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/markerPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$$$"
-                android:layout_marginStart="5dp"
-                android:textColor="#666666"
-                android:textSize="12sp" />
 
-        </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bub"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/markerIcon"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/ic_pointer" />
+
+        <TextView
+            android:id="@+id/markerRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="★ 4.3"
+            android:textColor="#666666"
+            android:textSize="12sp" />
 
     </LinearLayout>
 </LinearLayout>
