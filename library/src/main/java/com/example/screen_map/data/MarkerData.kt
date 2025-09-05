@@ -63,7 +63,7 @@ fun createCustomMarker(context: Context, iconRes : Int? = null, isSelected: Bool
     val markerPrice = markerView.findViewById<TextView>(R.id.markerPrice)
 
     name.visibility = if(visibleTitle) View.VISIBLE else View.GONE
-    ratingText.visibility = if(visiblePriceAndRating) View.VISIBLE else View.GONE
+    //ratingText.visibility = if(visiblePriceAndRating) View.VISIBLE else View.GONE
     markerPrice.visibility = if(visiblePriceAndRating) View.VISIBLE else View.GONE
 
     iconRes?.let { icon.setImageResource(it) }
