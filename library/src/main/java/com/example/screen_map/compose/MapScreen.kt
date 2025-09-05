@@ -47,14 +47,15 @@ import com.sarang.torang.R
  * @param onMapClick 맵 클릭 이벤트
  */
 @Composable
-fun MapScreen(mapViewModel          : MapViewModel = hiltViewModel(),
-              onMark                : (Int) -> Unit = {},
-              cameraPositionState   : CameraPositionState = rememberCameraPositionState(),
-              onMapClick            : (LatLng) -> Unit = {},
-              uiSettings            : MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
-              onMapLoaded           : () -> Unit = {},
-              logoBottomPadding     : Dp = 0.dp,
-              content               : @Composable @GoogleMapComposable () -> Unit = { }) {
+fun MapScreen(mapViewModel              : MapViewModel = hiltViewModel(),
+              onMark                    : (Int) -> Unit = {},
+              cameraPositionState       : CameraPositionState = rememberCameraPositionState(),
+              onMapClick                : (LatLng) -> Unit = {},
+              uiSettings                : MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+              onMapLoaded               : () -> Unit = {},
+              logoBottomPadding         : Dp = 0.dp,
+              markerDetailVisibleLevel  : Float = 18f,
+              content                   : @Composable @GoogleMapComposable () -> Unit = { }) {
     val context = LocalContext.current
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
     val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -92,7 +93,7 @@ fun MapScreen(mapViewModel          : MapViewModel = hiltViewModel(),
             mapViewModel.uiState.list.let {
                 for (data: MarkerData in it) {
                     if(mapViewModel.uiState.selectedMarker?.title != data.title)
-                        Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > 16.8, zoomLevel > 16.8))
+                        Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapViewModel.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > markerDetailVisibleLevel, zoomLevel > markerDetailVisibleLevel))
                 }
             }
             mapViewModel.uiState.selectedMarker?.let {
