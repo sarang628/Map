@@ -50,7 +50,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
-import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
+import com.sarang.torang.di.repository.FindRepositoryImpl
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

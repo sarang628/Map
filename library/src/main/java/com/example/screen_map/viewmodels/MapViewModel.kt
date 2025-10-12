@@ -58,7 +58,7 @@ class MapViewModel @Inject constructor(
 }
 
 data class MapUIState(
-    val list: List<MarkerData>,
+    val list: List<MarkerData> = listOf(),
     val isMapLoaded: Boolean = false,
     val currentPosition: Int = 0,
     val selectedMarker: MarkerData? = null
