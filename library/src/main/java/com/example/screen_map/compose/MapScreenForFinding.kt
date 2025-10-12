@@ -9,17 +9,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
+import com.example.screen_map.viewmodels.MapUIState
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
+import com.google.maps.android.compose.GoogleMapComposable
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,18 +41,63 @@ import kotlinx.coroutines.launch
  * @param boundary 내 위치 반경 표시
  */
 @Composable
-fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(),
-                        cameraSpeed: Int = 300,
-                        cameraPositionState: CameraPositionState,
-                        onMapClick: (LatLng) -> Unit = {},
-                        myLocation: LatLng? = null,
-                        boundary: Double? = null,
-                        logoBottomPadding : Dp = 0.dp, ) {
-    val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    val isMapLoaded = mapViewModel.uiState.isMapLoaded
+fun MapScreenForFinding(
+    mapViewModel                : MapViewModel          = hiltViewModel(),
+    cameraSpeed                 : Int                   = 300,
+    cameraPositionState         : CameraPositionState   = rememberCameraPositionState(),
+    onMapClick                  : (LatLng) -> Unit      = {},
+    myLocation                  : LatLng?               = null,
+    boundary                    : Double?               = null,
+    logoBottomPadding           : Dp                    = 0.dp,
+    markerDetailVisibleLevel    : Float                 = 18f,
+    onMark                      : (Int) -> Unit         = {},
+    uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+) {
     val coroutine = rememberCoroutineScope()
-    val context = LocalContext.current
+    MapScreenForFinding_(
+        uiState                     = mapViewModel.uiState,
+        cameraSpeed                 = cameraSpeed,
+        cameraPositionState         = cameraPositionState,
+        onMapClick                  = onMapClick,
+        myLocation                  = myLocation,
+        boundary                    = boundary,
+        logoBottomPadding           = logoBottomPadding,
+        markerDetailVisibleLevel    = markerDetailVisibleLevel,
+        uiSettings                  = uiSettings,
+        onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
+        onMark                      = { mapViewModel.onMark(it) },
+        onMapLoaded                 = {
+            coroutine.launch {
+                if (!mapViewModel.uiState.isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(), mapViewModel.getLastZoom()), durationMs = 1000)
+                    delay(1000) //카메라 이동 전까지 플래그 비활성화
+                    mapViewModel.onMapLoaded()
+                }
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+fun MapScreenForFinding_(
+    uiState                     : MapUIState            = MapUIState(),
+    cameraSpeed                 : Int                   = 300,
+    cameraPositionState         : CameraPositionState   = rememberCameraPositionState(),
+    onMapClick                  : (LatLng) -> Unit      = {},
+    myLocation                  : LatLng?               = null,
+    boundary                    : Double?               = null,
+    logoBottomPadding           : Dp                    = 0.dp,
+    markerDetailVisibleLevel    : Float                 = 18f,
+    onMark                      : (Int) -> Unit         = {},
+    onMapLoaded                 : () -> Unit            = {},
+    onSaveCameraPosition        : (CameraPositionState) -> Unit = {},
+    uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+){
+    val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
+    val isMapLoaded = uiState.isMapLoaded
     var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
+    val coroutine = rememberCoroutineScope()
 
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
@@ -55,28 +105,28 @@ fun MapScreenForFinding(mapViewModel: MapViewModel = hiltViewModel(),
         }
     }
 
-    LaunchedEffect(key1 = mapViewModel.uiState.selectedMarker) {
+    LaunchedEffect(key1 = uiState.selectedMarker) {
         if (!isMapLoaded) return@LaunchedEffect
 
         //카드가 포커스된 음식점에 맞춰 지도 이동시키기
-        mapViewModel.uiState.selectedMarker?.let {
+        uiState.selectedMarker?.let {
             if (selectedMarker.position != it.getLatLng()) {
                 cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = cameraSpeed)
             }
         }
     }
 
-    MapScreen(
-        mapViewModel = mapViewModel,
-        cameraPositionState = cameraPositionState,
-        onMapClick = onMapClick,
-        logoBottomPadding = logoBottomPadding,
-        onMapLoaded = { coroutine.launch {
-            if (!isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
-                cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(), mapViewModel.getLastZoom()), durationMs = 1000)
-                delay(1000) //카메라 이동 전까지 플래그 비활성화
-                mapViewModel.onMapLoaded() }
-        }}) {
+    MapScreen_(
+        cameraPositionState         = cameraPositionState,
+        uiState                     = uiState,
+        onSaveCameraPosition        = onSaveCameraPosition,
+        onMapClick                  = onMapClick,
+        logoBottomPadding           = logoBottomPadding,
+        uiSettings                  = uiSettings,
+        markerDetailVisibleLevel    = markerDetailVisibleLevel,
+        onMark                      = onMark,
+        onMapLoaded                 = onMapLoaded
+    ){
         myLocation?.let { latlng ->
             boundary?.let {
                 Circle(center = latlng, radius = boundary, strokeWidth = 5f, strokeColor = MaterialTheme.colorScheme.primary)
