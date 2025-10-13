@@ -51,6 +51,7 @@ fun MapScreenForFinding(
     logoBottomPadding           : Dp                    = 0.dp,
     markerDetailVisibleLevel    : Float                 = 18f,
     onMark                      : (Int) -> Unit         = {},
+    showLog                     : Boolean               = false,
     uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
 ) {
     val coroutine = rememberCoroutineScope()
@@ -89,6 +90,7 @@ fun MapScreenForFinding_(
     boundary                    : Double?               = null,
     logoBottomPadding           : Dp                    = 0.dp,
     markerDetailVisibleLevel    : Float                 = 18f,
+    showLog                     : Boolean               = false,
     onMark                      : (Int) -> Unit         = {},
     onMapLoaded                 : () -> Unit            = {},
     onSaveCameraPosition        : (CameraPositionState) -> Unit = {},
@@ -125,7 +127,8 @@ fun MapScreenForFinding_(
         uiSettings                  = uiSettings,
         markerDetailVisibleLevel    = markerDetailVisibleLevel,
         onMark                      = onMark,
-        onMapLoaded                 = onMapLoaded
+        onMapLoaded                 = onMapLoaded,
+        showLog                     = showLog
     ){
         myLocation?.let { latlng ->
             boundary?.let {

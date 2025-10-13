@@ -44,7 +44,6 @@ import com.example.screen_map.compose.MapScreen
 import com.example.screen_map.compose.MapScreenForFinding
 import com.example.screen_map.compose.MapScreenSingleRestaurantMarker
 import com.example.screen_map.data.testMarkArrayList
-import com.example.screen_map.viewmodels.MapUIState
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
