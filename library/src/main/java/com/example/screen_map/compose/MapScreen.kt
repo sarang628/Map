@@ -2,6 +2,8 @@ package com.example.screen_map.compose
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.nfc.Tag
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -58,6 +60,7 @@ fun MapScreen(mapViewModel              : MapViewModel = hiltViewModel(),
               onMapLoaded               : () -> Unit = {},
               logoBottomPadding         : Dp = 0.dp,
               markerDetailVisibleLevel  : Float = 18f,
+              showLog                   : Boolean                                     = false,
               content                   : @Composable @GoogleMapComposable () -> Unit = { }) {
 
     MapScreen_(
@@ -68,6 +71,7 @@ fun MapScreen(mapViewModel              : MapViewModel = hiltViewModel(),
         onMapLoaded = { onMapLoaded(); mapViewModel.onMapLoaded() },
         logoBottomPadding = logoBottomPadding,
         uiSettings = uiSettings,
+        showLog = showLog,
         markerDetailVisibleLevel = markerDetailVisibleLevel,
         onMark = { mapViewModel.onMark(it) },
         content = content
@@ -77,15 +81,17 @@ fun MapScreen(mapViewModel              : MapViewModel = hiltViewModel(),
 @Preview
 @Composable
 fun MapScreen_(
-    cameraPositionState       : CameraPositionState = rememberCameraPositionState(),
-    uiState                   : MapUIState = MapUIState(),
-    onSaveCameraPosition      : (CameraPositionState) -> Unit = {},
-    onMapClick                : (LatLng) -> Unit = {},
-    onMapLoaded               : () -> Unit = {},
-    logoBottomPadding         : Dp = 0.dp,
-    onMark                    : (Int) -> Unit = {},
-    markerDetailVisibleLevel  : Float = 18f,
-    uiSettings                : MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+    tag                       : String                                      = "__MapScreen",
+    cameraPositionState       : CameraPositionState                         = rememberCameraPositionState(),
+    uiState                   : MapUIState                                  = MapUIState(),
+    onSaveCameraPosition      : (CameraPositionState) -> Unit               = {},
+    onMapClick                : (LatLng) -> Unit                            = {},
+    onMapLoaded               : () -> Unit                                  = {},
+    logoBottomPadding         : Dp                                          = 0.dp,
+    onMark                    : (Int) -> Unit                               = {},
+    showLog                   : Boolean                                     = false,
+    markerDetailVisibleLevel  : Float                                       = 18f,
+    uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
     content                   : @Composable @GoogleMapComposable () -> Unit = { }
 ){
     val context = LocalContext.current
@@ -97,14 +103,19 @@ fun MapScreen_(
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
             zoomLevel = cameraPositionState.position.zoom
+            showLog.log(tag, "zoomLevel:$zoomLevel")
         }
     }
 
     LaunchedEffect(key1 = cameraPositionState, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
             if (!cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
+                showLog.log(tag, "isMoving:${cameraPositionState.isMoving}")
                 if (uiState.isMapLoaded) { //마지막으로 움직인 지점 저장하기
                     onSaveCameraPosition(cameraPositionState)
+                    showLog.log(tag, "좌표 저장 요청. onSaveCameraPosition:$cameraPositionState")
+                }else{
+                    showLog.log(tag, "좌표 저장 않함. isMapLoaded false. : ${cameraPositionState.position}")
                 }
             }
         }
@@ -150,4 +161,8 @@ fun MapScreen_(
             }
         }
     }
+}
+
+fun Boolean.log(tag : String, message : String) {
+    if(this) Log.d(tag, message)
 }

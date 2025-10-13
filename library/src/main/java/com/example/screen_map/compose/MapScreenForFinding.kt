@@ -134,3 +134,11 @@ fun MapScreenForFinding_(
         }
     }
 }
+
+@Preview
+@Composable
+fun test(){
+    MapScreenForFinding_(
+        cameraPositionState =  rememberCameraPositionState()
+    )
+}
