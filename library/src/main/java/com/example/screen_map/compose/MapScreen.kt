@@ -109,19 +109,19 @@ fun MapScreen_(
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
             zoomLevel = cameraPositionState.position.zoom
-            showLog.log(tag, "zoomLevel:$zoomLevel")
+            showLog.log(tag, "zoomLevel changed: $zoomLevel")
         }
     }
 
-    LaunchedEffect(key1 = cameraPositionState, block = {
+    LaunchedEffect(key1 = uiState.isMapLoaded, block = {
         snapshotFlow { cameraPositionState.isMoving }.collect {
             if (!cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                showLog.log(tag, "isMoving:${cameraPositionState.isMoving}")
+                showLog.log(tag, "isMoving changed: ${cameraPositionState.isMoving}")
                 if (uiState.isMapLoaded) { //마지막으로 움직인 지점 저장하기
                     mapScreenCallback.onSaveCameraPosition(cameraPositionState)
                     showLog.log(tag, "좌표 저장 요청. onSaveCameraPosition:$cameraPositionState")
                 }else{
-                    showLog.log(tag, "좌표 저장 않함. isMapLoaded false. : ${cameraPositionState.position}")
+                    showLog.log(tag, "좌표 저장 안함. isMapLoaded is false : ${cameraPositionState.position}")
                 }
             }
         }
