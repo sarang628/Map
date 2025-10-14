@@ -1,5 +1,6 @@
 package com.example.screen_map.compose
 
+import android.util.Log
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,6 +68,7 @@ fun MapScreenForFinding(
         uiSettings                  = uiSettings,
         onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
         onMark                      = { mapViewModel.onMark(it) },
+        showLog                     = showLog,
         onMapLoaded                 = {
             coroutine.launch {
                 if (!mapViewModel.uiState.isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
@@ -82,6 +84,7 @@ fun MapScreenForFinding(
 @Preview
 @Composable
 fun MapScreenForFinding_(
+    tag                         : String                = "__MapScreenForFinding",
     uiState                     : MapUIState            = MapUIState(),
     cameraSpeed                 : Int                   = 300,
     cameraPositionState         : CameraPositionState   = rememberCameraPositionState(),
@@ -100,6 +103,12 @@ fun MapScreenForFinding_(
     val isMapLoaded = uiState.isMapLoaded
     var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
     val coroutine = rememberCoroutineScope()
+
+    if (showLog) {
+        LaunchedEffect(uiState) {
+            Log.d(tag, "recompositon uiState : $uiState")
+        }
+    }
 
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
