@@ -66,17 +66,25 @@ fun MapScreen(mapViewModel              : MapViewModel = hiltViewModel(),
     MapScreen_(
         cameraPositionState = cameraPositionState,
         uiState = mapViewModel.uiState,
-        onSaveCameraPosition = { mapViewModel.saveCameraPosition(it) },
-        onMapClick = onMapClick,
-        onMapLoaded = { onMapLoaded(); mapViewModel.onMapLoaded() },
         logoBottomPadding = logoBottomPadding,
         uiSettings = uiSettings,
         showLog = showLog,
         markerDetailVisibleLevel = markerDetailVisibleLevel,
-        onMark = { mapViewModel.onMark(it) },
+        mapScreenCallback = MapScreenCallback(
+        onSaveCameraPosition = { mapViewModel.saveCameraPosition(it) },
+        onMapClick = onMapClick,
+        onMapLoaded = { onMapLoaded(); mapViewModel.onMapLoaded() },
+        onMark = { mapViewModel.onMark(it) },),
         content = content
     )
 }
+
+data class MapScreenCallback(
+    val onSaveCameraPosition      : (CameraPositionState) -> Unit               = {},
+    val onMapClick                : (LatLng) -> Unit                            = {},
+    val onMapLoaded               : () -> Unit                                  = {},
+    val onMark                    : (Int) -> Unit                               = {},
+)
 
 @Preview
 @Composable
@@ -84,14 +92,11 @@ fun MapScreen_(
     tag                       : String                                      = "__MapScreen",
     cameraPositionState       : CameraPositionState                         = rememberCameraPositionState(),
     uiState                   : MapUIState                                  = MapUIState(),
-    onSaveCameraPosition      : (CameraPositionState) -> Unit               = {},
-    onMapClick                : (LatLng) -> Unit                            = {},
-    onMapLoaded               : () -> Unit                                  = {},
     logoBottomPadding         : Dp                                          = 0.dp,
-    onMark                    : (Int) -> Unit                               = {},
     showLog                   : Boolean                                     = false,
     markerDetailVisibleLevel  : Float                                       = 18f,
     uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+    mapScreenCallback         : MapScreenCallback                           = MapScreenCallback(),
     content                   : @Composable @GoogleMapComposable () -> Unit = { }
 ){
     val context = LocalContext.current
@@ -118,7 +123,7 @@ fun MapScreen_(
             if (!cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
                 showLog.log(tag, "isMoving:${cameraPositionState.isMoving}")
                 if (uiState.isMapLoaded) { //마지막으로 움직인 지점 저장하기
-                    onSaveCameraPosition(cameraPositionState)
+                    mapScreenCallback.onSaveCameraPosition(cameraPositionState)
                     showLog.log(tag, "좌표 저장 요청. onSaveCameraPosition:$cameraPositionState")
                 }else{
                     showLog.log(tag, "좌표 저장 않함. isMapLoaded false. : ${cameraPositionState.position}")
@@ -142,9 +147,9 @@ fun MapScreen_(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = mapProperties,
-            onMapClick = onMapClick,
+            onMapClick = mapScreenCallback.onMapClick,
             uiSettings = uiSettings,
-            onMapLoaded = { onMapLoaded.invoke() },
+            onMapLoaded = { mapScreenCallback.onMapLoaded.invoke() },
             contentPadding = PaddingValues(bottom = logoBottomPadding)) {
             uiState.list.let {
                 for (data: MarkerData in it) {
