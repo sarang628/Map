@@ -100,6 +100,12 @@ fun MapScreen_(
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled, mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.hide_all_type))) }
     var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
 
+    if(showLog){
+        LaunchedEffect(uiState) {
+            showLog.log(tag, "recomposition : $uiState")
+        }
+    }
+
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
             zoomLevel = cameraPositionState.position.zoom

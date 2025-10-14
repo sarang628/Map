@@ -100,7 +100,6 @@ fun MapScreenForFinding_(
     uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
 ){
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    val isMapLoaded = uiState.isMapLoaded
     var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
     val coroutine = rememberCoroutineScope()
 
@@ -117,7 +116,7 @@ fun MapScreenForFinding_(
     }
 
     LaunchedEffect(key1 = uiState.selectedMarker) {
-        if (!isMapLoaded) return@LaunchedEffect
+        if (!uiState.isMapLoaded) return@LaunchedEffect
 
         //카드가 포커스된 음식점에 맞춰 지도 이동시키기
         uiState.selectedMarker?.let {
