@@ -106,7 +106,7 @@ fun MapScreenForFinding_(
 
     if (showLog) {
         LaunchedEffect(uiState) {
-            Log.d(tag, "recompositon uiState : $uiState")
+            Log.d(tag, "recomposition uiState : $uiState")
         }
     }
 
