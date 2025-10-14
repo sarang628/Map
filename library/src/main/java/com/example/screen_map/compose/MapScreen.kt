@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.screen_map.data.MapScreenCallback
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapUIState
@@ -52,39 +53,33 @@ import com.sarang.torang.R
  * @param onMapClick 맵 클릭 이벤트
  */
 @Composable
-fun MapScreen(mapViewModel              : MapViewModel = hiltViewModel(),
-              onMark                    : (Int) -> Unit = {},
-              cameraPositionState       : CameraPositionState = rememberCameraPositionState(),
-              onMapClick                : (LatLng) -> Unit = {},
-              uiSettings                : MapUiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
-              onMapLoaded               : () -> Unit = {},
-              logoBottomPadding         : Dp = 0.dp,
-              markerDetailVisibleLevel  : Float = 18f,
-              showLog                   : Boolean                                     = false,
-              content                   : @Composable @GoogleMapComposable () -> Unit = { }) {
-
+fun MapScreen(
+    mapViewModel              : MapViewModel                                  = hiltViewModel(),
+    onMark                    : (Int) -> Unit                                 = {},
+    cameraPositionState       : CameraPositionState                           = rememberCameraPositionState(),
+    onMapClick                : (LatLng) -> Unit                              = {},
+    uiSettings                : MapUiSettings                                 = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+    onMapLoaded               : () -> Unit                                    = {},
+    logoBottomPadding         : Dp                                            = 0.dp,
+    markerDetailVisibleLevel  : Float                                         = 18f,
+    showLog                   : Boolean                                       = false,
+    content                   : @Composable @GoogleMapComposable () -> Unit   = { }
+) {
     MapScreen_(
-        cameraPositionState = cameraPositionState,
-        uiState = mapViewModel.uiState,
-        logoBottomPadding = logoBottomPadding,
-        uiSettings = uiSettings,
-        showLog = showLog,
-        markerDetailVisibleLevel = markerDetailVisibleLevel,
-        mapScreenCallback = MapScreenCallback(
-        onSaveCameraPosition = { mapViewModel.saveCameraPosition(it) },
-        onMapClick = onMapClick,
-        onMapLoaded = { onMapLoaded(); mapViewModel.onMapLoaded() },
-        onMark = { mapViewModel.onMark(it) },),
-        content = content
+        cameraPositionState         = cameraPositionState,
+        uiState                     = mapViewModel.uiState,
+        logoBottomPadding           = logoBottomPadding,
+        uiSettings                  = uiSettings,
+        showLog                     = showLog,
+        markerDetailVisibleLevel    = markerDetailVisibleLevel,
+        mapScreenCallback           = MapScreenCallback(
+        onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
+        onMapClick                  = onMapClick,
+        onMapLoaded                 = { onMapLoaded(); mapViewModel.onMapLoaded() },
+        onMark                      = { mapViewModel.onMark(it) },),
+        content                     = content
     )
 }
-
-data class MapScreenCallback(
-    val onSaveCameraPosition      : (CameraPositionState) -> Unit               = {},
-    val onMapClick                : (LatLng) -> Unit                            = {},
-    val onMapLoaded               : () -> Unit                                  = {},
-    val onMark                    : (Int) -> Unit                               = {},
-)
 
 @Preview
 @Composable
