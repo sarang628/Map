@@ -154,7 +154,7 @@ fun MapScreen_(
             uiState.list.let {
                 for (data: MarkerData in it) {
                     if(uiState.selectedMarker?.title != data.title)
-                        Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > markerDetailVisibleLevel, zoomLevel > markerDetailVisibleLevel))
+                        Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapScreenCallback.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > markerDetailVisibleLevel, zoomLevel > markerDetailVisibleLevel))
                 }
             }
             uiState.selectedMarker?.let {

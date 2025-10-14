@@ -129,13 +129,14 @@ fun MapScreenForFinding_(
     MapScreen_(
         cameraPositionState         = cameraPositionState,
         uiState                     = uiState,
+        mapScreenCallback           = MapScreenCallback(
         onSaveCameraPosition        = onSaveCameraPosition,
         onMapClick                  = onMapClick,
+        onMark                      = onMark,
+        onMapLoaded                 = onMapLoaded),
         logoBottomPadding           = logoBottomPadding,
         uiSettings                  = uiSettings,
         markerDetailVisibleLevel    = markerDetailVisibleLevel,
-        onMark                      = onMark,
-        onMapLoaded                 = onMapLoaded,
         showLog                     = showLog
     ){
         myLocation?.let { latlng ->
