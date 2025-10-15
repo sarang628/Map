@@ -2,6 +2,7 @@ package com.sarang.torang
 
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.gestures.Orientation
@@ -37,22 +38,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.compose.MapScreen
 import com.example.screen_map.compose.MapScreenForFinding
 import com.example.screen_map.compose.MapScreenSingleRestaurantMarker
+import com.example.screen_map.compose.MapState
+import com.example.screen_map.compose.rememberMapState
+import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.testMarkArrayList
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.sarang.torang.data.RestaurantWithFiveImages
 import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.FindRepositoryImpl
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -76,35 +85,29 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun MapTest(){
-        val coroutineScope = rememberCoroutineScope()
-        val cameraPositionState = rememberCameraPositionState()
-        val list = testMarkArrayList()
-        var location: Location? by remember { mutableStateOf(null) }
-        var isMyLocationEnabled by remember { mutableStateOf(false) }
-        var myLocation: LatLng? by remember { mutableStateOf(null) }
-        val navHostController = rememberNavController()
-        var boundary by remember { mutableStateOf(0.0) }
-        val mapViewModel: MapViewModel = hiltViewModel()
-        val restaurants = findRepository.restaurants.collectAsState().value
-        val selectedRestaurant = findRepository.selectedRestaurant.collectAsState().value
-        val state: LazyListState = rememberLazyListState()
+        val tag = "__MapTest"
+        val coroutineScope      : CoroutineScope                    = rememberCoroutineScope()
+        val list                : List<MarkerData>                  = testMarkArrayList()
+        var location            : Location?                         by remember { mutableStateOf(null) }
+        var isMyLocationEnabled : Boolean                           by remember { mutableStateOf(false) }
+        var myLocation          : LatLng?                           by remember { mutableStateOf(null) }
+        val navHostController   : NavHostController                 = rememberNavController()
+        var boundary            : Double                            by remember { mutableStateOf(0.0) }
+        val mapViewModel        : MapViewModel                      = hiltViewModel()
+        val mapState            : MapState                          = rememberMapState()
+        val state               : LazyListState                     = rememberLazyListState()
 
-        LaunchedEffect(selectedRestaurant) {
-            findRepository.restaurants.collect { list ->
-                list.forEachIndexed { index, restaurant ->
-                    if (restaurant.restaurant.restaurantId == selectedRestaurant.restaurant.restaurantId) {
-                        state.animateScrollToItem(index)
-                    }
-                }
-            }
-        }
+        Log.w(tag, "recomposition")
+
+        ScrollLazyList(findRepository, state)
+        MoveCamera(findRepository, mapState)
 
         Scaffold {
             Box(Modifier.padding(it)){
             NavHost(navController = navHostController, startDestination = "nav") {
                 composable("nav") {
                     Column {
-                        Spacer(modifier = Modifier.height(200.dp))
+                        Spacer(modifier = Modifier.height(400.dp))
                         Button({navHostController.navigate("SimpleMapScreen")}) {
                             Text("SimpleMapScreen")
                         }
@@ -124,15 +127,17 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("SimpleMapScreen") {
                     MapScreen(
-                        showLog = true
+                        mapState = mapState,
+                        showLog = true,
+                        onMapLoaded = { mapState.setOnMapLoaded() }
                     )
                 }
                 composable("MapScreen") {
-                    MapScreen(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
+                    MapScreen(mapViewModel = mapViewModel, mapState = mapState)
                 }
                 composable("MapScreenForFindingWithPermission") {
                     MapScreenForFindingWithPermission {
-                        MapScreenForFinding(mapViewModel = mapViewModel, cameraPositionState = cameraPositionState)
+                        MapScreenForFinding(mapViewModel = mapViewModel, mapState = mapState)
                     }
                 }
                 composable("MapScreenForRestaurant"){
@@ -145,8 +150,8 @@ class MainActivity : ComponentActivity() {
 
             Column {
                 FlowRow(Modifier.scrollable(rememberScrollState(), orientation = Orientation.Horizontal)) {
-                    AssistChip(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomIn()) } }, label = { Text(text = "+") })
-                    AssistChip(onClick = { coroutineScope.launch { cameraPositionState.animate(CameraUpdateFactory.zoomOut()) } }, label = {Text(text = "-") })
+                    AssistChip(onClick = { coroutineScope.launch { mapState.cameraPositionState.animate(CameraUpdateFactory.zoomIn()) } }, label = { Text(text = "+") })
+                    AssistChip(onClick = { coroutineScope.launch { mapState.cameraPositionState.animate(CameraUpdateFactory.zoomOut()) } }, label = {Text(text = "-") })
                     AssistChip(onClick = { navHostController.navigate("restaurant") }, label = { Text(text = "move") })
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 100.0 }, label = { Text(text = "100M") })
@@ -164,18 +169,82 @@ class MainActivity : ComponentActivity() {
                     AssistChip(onClick = { coroutineScope.launch { findRepository.findThisArea() }}, label = {Text(text = "bound")})
                     Spacer(Modifier.width(3.dp))
                 }
-                LazyColumn(modifier = Modifier.width(150.dp), state = state) {
-                    items(restaurants.size){
-                        TextButton({
-                            coroutineScope.launch {
-                                findRepository.selectRestaurant(restaurants[it].restaurant.restaurantId)
-                            }
-                        }) {
-                            Text(restaurants[it].restaurant.restaurantName.toString())
-                        }
-                    }
-                }
+                RestaurantList(findRepository, state)
             }
         }
     }}
+}
+
+@Composable
+private fun MoveCamera(
+    repository: FindRepositoryImpl,
+    state: MapState
+) {
+    val tag = "__MoveCamera"
+    LaunchedEffect(state.onMapLoaded) { //Unit 으로 하면 state.onMapLoaded를 false에서 true 바뀌었을 때 인식 못함.
+        repository.selectedRestaurant.collect {
+            if(state.onMapLoaded) { //TODO:: state 안으로 넣기
+                state.cameraPositionState.animate(CameraUpdateFactory.newLatLng(LatLng(it.restaurant.lat, it.restaurant.lon)))
+            }
+            else{
+                Log.d(tag, "카메라 이동 불가. state.onMapLoaded : false")
+            }
+        }
+    }
+
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@Composable
+fun ScrollLazyList(findRepository : FindRepositoryImpl, state : LazyListState){
+    val tag = "__ScrollLazyList"
+    Log.w(tag, "recomposition")
+
+    LaunchedEffect(Unit) {
+        findRepository.selectedRestaurant
+            .flatMapLatest { selected ->
+                findRepository.restaurants.map { list ->
+                    list.indexOfFirst {
+                        it.restaurant.restaurantId == selected.restaurant.restaurantId
+                    }
+                }
+            }
+            .collect { index ->
+                if (index >= 0) {
+                    state.animateScrollToItem(index)
+                }
+            }
+    }
+}
+
+@Composable
+fun RestaurantList(
+    findRepository: FindRepositoryImpl,
+    state               : LazyListState
+){
+    val tag = "__RestaurantList"
+    val coroutineScope      : CoroutineScope                    = rememberCoroutineScope()
+    val restaurants         : List<RestaurantWithFiveImages>    = findRepository.restaurants.collectAsState().value
+
+    Log.w(tag, "recomposition")
+
+    LazyColumn(modifier = Modifier
+        .width(150.dp)
+        .height(200.dp), state = state)
+    {
+        items(restaurants.size)
+        {
+            TextButton(
+                onClick =
+                    {
+                        coroutineScope.launch {
+                                findRepository.selectRestaurant(restaurants[it].restaurant.restaurantId)
+                            }
+                    }
+                 )
+            {
+                Text(restaurants[it].restaurant.restaurantName.toString())
+            }
+        }
+    }
 }

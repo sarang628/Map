@@ -44,23 +44,23 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun MapScreenForFinding(
+    showLog                     : Boolean               = false,
     mapViewModel                : MapViewModel          = hiltViewModel(),
     cameraSpeed                 : Int                   = 300,
-    cameraPositionState         : CameraPositionState   = rememberCameraPositionState(),
+    mapState                    : MapState              = rememberMapState(showLog = showLog),
     onMapClick                  : (LatLng) -> Unit      = {},
     myLocation                  : LatLng?               = null,
     boundary                    : Double?               = null,
     logoBottomPadding           : Dp                    = 0.dp,
     markerDetailVisibleLevel    : Float                 = 18f,
     onMark                      : (Int) -> Unit         = {},
-    showLog                     : Boolean               = false,
     uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
 ) {
     val coroutine = rememberCoroutineScope()
     MapScreenForFinding_(
         uiState                     = mapViewModel.uiState,
         cameraSpeed                 = cameraSpeed,
-        cameraPositionState         = cameraPositionState,
+        mapState                    = mapState,
         onMapClick                  = onMapClick,
         myLocation                  = myLocation,
         boundary                    = boundary,
@@ -73,7 +73,7 @@ fun MapScreenForFinding(
         onMapLoaded                 = {
             coroutine.launch {
                 if (!mapViewModel.uiState.isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(), mapViewModel.getLastZoom()), durationMs = 1000)
+                    mapState.cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(), mapViewModel.getLastZoom()), durationMs = 1000)
                     delay(1000) //카메라 이동 전까지 플래그 비활성화
                     mapViewModel.onMapLoaded()
                 }
@@ -86,23 +86,21 @@ fun MapScreenForFinding(
 @Composable
 fun MapScreenForFinding_(
     tag                         : String                = "__MapScreenForFinding",
+    showLog                     : Boolean               = false,
     uiState                     : MapUIState            = MapUIState(),
     cameraSpeed                 : Int                   = 300,
-    cameraPositionState         : CameraPositionState   = rememberCameraPositionState(),
+    mapState                    : MapState              = rememberMapState(showLog = showLog),
     onMapClick                  : (LatLng) -> Unit      = {},
     myLocation                  : LatLng?               = null,
     boundary                    : Double?               = null,
     logoBottomPadding           : Dp                    = 0.dp,
     markerDetailVisibleLevel    : Float                 = 18f,
-    showLog                     : Boolean               = false,
     onMark                      : (Int) -> Unit         = {},
     onMapLoaded                 : () -> Unit            = {},
     onSaveCameraPosition        : (CameraPositionState) -> Unit = {},
     uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
 ){
     val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
-    val coroutine = rememberCoroutineScope()
 
     if (showLog) {
         LaunchedEffect(uiState) {
@@ -110,25 +108,18 @@ fun MapScreenForFinding_(
         }
     }
 
-    LaunchedEffect(cameraPositionState.isMoving) {
-        if (!cameraPositionState.isMoving) {
-            zoomLevel = cameraPositionState.position.zoom
-        }
-    }
-
-    LaunchedEffect(key1 = uiState.selectedMarker) {
+    /*LaunchedEffect(key1 = uiState.selectedMarker) {
         if (!uiState.isMapLoaded) return@LaunchedEffect
 
         //카드가 포커스된 음식점에 맞춰 지도 이동시키기
         uiState.selectedMarker?.let {
             if (selectedMarker.position != it.getLatLng()) {
-                cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = cameraSpeed)
+                mapState.cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = cameraSpeed)
             }
         }
-    }
+    }*/
 
     MapScreen_(
-        cameraPositionState         = cameraPositionState,
         uiState                     = uiState,
         mapScreenCallback           = MapScreenCallback(
         onSaveCameraPosition        = onSaveCameraPosition,
@@ -152,6 +143,5 @@ fun MapScreenForFinding_(
 @Composable
 fun test(){
     MapScreenForFinding_(
-        cameraPositionState =  rememberCameraPositionState()
     )
 }

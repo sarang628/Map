@@ -1,6 +1,7 @@
 package com.example.screen_map.compose
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.nfc.Tag
 import android.util.Log
@@ -41,6 +42,7 @@ import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.sarang.torang.R
@@ -54,21 +56,21 @@ import com.sarang.torang.R
  */
 @Composable
 fun MapScreen(
+    showLog                   : Boolean                                       = false,
+    mapState                  : MapState                                      = rememberMapState(showLog = showLog),
     mapViewModel              : MapViewModel                                  = hiltViewModel(),
     onMark                    : (Int) -> Unit                                 = {},
-    cameraPositionState       : CameraPositionState                           = rememberCameraPositionState(),
     onMapClick                : (LatLng) -> Unit                              = {},
     uiSettings                : MapUiSettings                                 = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
     onMapLoaded               : () -> Unit                                    = {},
     logoBottomPadding         : Dp                                            = 0.dp,
     markerDetailVisibleLevel  : Float                                         = 18f,
-    showLog                   : Boolean                                       = false,
     content                   : @Composable @GoogleMapComposable () -> Unit   = { }
 ) {
     MapScreen_(
-        cameraPositionState         = cameraPositionState,
         uiState                     = mapViewModel.uiState,
         logoBottomPadding           = logoBottomPadding,
+        mapState                    = mapState,
         uiSettings                  = uiSettings,
         showLog                     = showLog,
         markerDetailVisibleLevel    = markerDetailVisibleLevel,
@@ -85,77 +87,68 @@ fun MapScreen(
 @Composable
 fun MapScreen_(
     tag                       : String                                      = "__MapScreen",
-    cameraPositionState       : CameraPositionState                         = rememberCameraPositionState(),
+    showLog                   : Boolean                                     = false,
+    mapState                  : MapState                                    = rememberMapState(showLog = showLog),
     uiState                   : MapUIState                                  = MapUIState(),
     logoBottomPadding         : Dp                                          = 0.dp,
-    showLog                   : Boolean                                     = false,
     markerDetailVisibleLevel  : Float                                       = 18f,
     uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
     mapScreenCallback         : MapScreenCallback                           = MapScreenCallback(),
     content                   : @Composable @GoogleMapComposable () -> Unit = { }
 ){
-    val context = LocalContext.current
-    val selectedMarker = rememberMarkerState().apply { showInfoWindow() }
-    val isMyLocationEnabled = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled, mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.hide_all_type))) }
-    var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
-
-    if(showLog){
-        LaunchedEffect(uiState) {
-            showLog.log(tag, "recomposition : $uiState")
-        }
-    }
-
-    LaunchedEffect(cameraPositionState.isMoving) {
-        if (!cameraPositionState.isMoving) {
-            zoomLevel = cameraPositionState.position.zoom
-            showLog.log(tag, "zoomLevel changed: $zoomLevel")
-        }
-    }
-
-    LaunchedEffect(key1 = uiState.isMapLoaded, block = {
-        snapshotFlow { cameraPositionState.isMoving }.collect {
-            if (!cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                showLog.log(tag, "isMoving changed: ${cameraPositionState.isMoving}")
-                if (uiState.isMapLoaded) { //마지막으로 움직인 지점 저장하기
-                    mapScreenCallback.onSaveCameraPosition(cameraPositionState)
-                    showLog.log(tag, "좌표 저장 요청. onSaveCameraPosition:$cameraPositionState")
-                }else{
-                    showLog.log(tag, "좌표 저장 안함. isMapLoaded is false : ${cameraPositionState.position}")
-                }
-            }
-        }
-    })
-
-    LaunchedEffect(key1 = uiState.selectedMarker) {
-        if (!uiState.isMapLoaded) return@LaunchedEffect
-
-        uiState.selectedMarker?.let { //카드가 포커스된 음식점에 맞춰 지도 이동시키기
-            if (selectedMarker.position != it.getLatLng()) {
-                cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = 300)
-            }
-        }
-    }
+    val context             : Context       = LocalContext.current
+    val isMyLocationEnabled : Boolean       = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    val mapProperties       : MapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled, mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.hide_all_type))) }
 
     Box {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = mapProperties,
-            onMapClick = mapScreenCallback.onMapClick,
-            uiSettings = uiSettings,
-            onMapLoaded = { mapScreenCallback.onMapLoaded.invoke() },
-            contentPadding = PaddingValues(bottom = logoBottomPadding)) {
-            uiState.list.let {
-                for (data: MarkerData in it) {
-                    if(uiState.selectedMarker?.title != data.title)
-                        Marker(tag = data.id, state = data.markState(), /*title = data.title,*/ snippet = data.snippet, onClick = { mapScreenCallback.onMark(Integer.parseInt(it.tag.toString())); false }, icon = data.icon(context, data.title, data.rating, false, data.price, zoomLevel > markerDetailVisibleLevel, zoomLevel > markerDetailVisibleLevel))
+        GoogleMap( modifier            = Modifier.fillMaxSize(),
+                   cameraPositionState = mapState.cameraPositionState,
+                   properties          = mapProperties,
+                   onMapClick          = mapScreenCallback.onMapClick,
+                   uiSettings          = uiSettings,
+                   onMapLoaded         = mapScreenCallback.onMapLoaded,
+                   contentPadding      = PaddingValues(bottom = logoBottomPadding))
+        {
+
+            Log.w(tag, "map recomposition")
+
+            uiState.list
+                .forEach { data ->
+                        Marker(
+                            tag     = data.id,
+                            state   = data.markState(),
+                            snippet = data.snippet,
+                            onClick = {
+                                mapScreenCallback.onMark(Integer.parseInt(it.tag.toString()))
+                                false
+                            },
+                            icon    = data.icon(
+                                context                 = context,
+                                title                   = data.title,
+                                rating                  = data.rating,
+                                isSelected              = false,
+                                price                   = data.price,
+                                visibleTitle            = false,
+                                visiblePriceAndRating   = false
+                                //visibleTitle = mapState.zoomLevel > markerDetailVisibleLevel,
+                                // visiblePriceAndRating = mapState.zoomLevel > markerDetailVisibleLevel
+                            )
+                        )
                 }
-            }
-            uiState.selectedMarker?.let {
-                selectedMarker.position = it.getLatLng()
-                Marker(state = selectedMarker, /*title = it.title,*/ snippet = it.snippet, onClick = { false }, tag = it.id, icon = it.icon(context, it.title, it.rating, isSelected = true, it.price))
-            }
+
+            //TODO::select marker 표시 방법
+            /*uiState.selectedMarker?.let {
+                mapState.setSelectMarker(it)
+                Marker( state   = mapState.selectedMarker,
+                        snippet = it.snippet,
+                        onClick = { false },
+                        tag     = it.id,
+                        icon    = it.icon( context     = context,
+                                           title       = it.title,
+                                           rating      = it.rating,
+                                           isSelected  = true,
+                                           price       = it.price))
+            }*/
             content.invoke()
         }
         if (!uiState.isMapLoaded) {
@@ -167,6 +160,30 @@ fun MapScreen_(
             }
         }
     }
+
+    if(showLog){
+        LaunchedEffect(uiState) {
+            showLog.log(tag, "recomposition : $uiState")
+        }
+    }
+
+    // save location after point out finger
+    LaunchedEffect(key1 = uiState.isMapLoaded, block = {
+        snapshotFlow { mapState.cameraPositionState.isMoving }.collect {
+            if (!mapState.cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
+                showLog.log(tag, "isMoving changed: ${mapState.cameraPositionState.isMoving}")
+                if (uiState.isMapLoaded) { //마지막으로 움직인 지점 저장하기
+                    if(mapState.cameraPositionState.position.target.latitude != 0.0) // TODO::0.0 안나오게 하기
+                    {
+                        mapScreenCallback.onSaveCameraPosition(mapState.cameraPositionState)
+                        showLog.log(tag, "좌표 저장 요청. ${mapState.cameraPositionState.position.target}")
+                    }
+                }else{
+                    showLog.log(tag, "좌표 저장 안함. isMapLoaded is false : ${mapState.cameraPositionState.position.target}")
+                }
+            }
+        }
+    })
 }
 
 fun Boolean.log(tag : String, message : String) {

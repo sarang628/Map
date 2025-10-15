@@ -28,26 +28,26 @@ import com.google.maps.android.compose.rememberCameraPositionState
  */
 @Composable
 fun MapScreenSingleRestaurantMarker(mapViewModel         : MapViewModel = hiltViewModel(),
-                                    restaurantId         : Int = -1,
-                                    cameraPositionState  : CameraPositionState = rememberCameraPositionState(),
-                                    selectedMarkerData   : MarkerData? = null,
+                                    restaurantId         : Int          = -1,
+                                    mapState             : MapState     = rememberMapState(),
+                                    selectedMarkerData   : MarkerData?  = null,
                                     mapUiSettings        : MapUiSettings = MapUiSettings(zoomControlsEnabled = true),
                                     onMapClick           : (LatLng) -> Unit = {},
                                     zoom                 : Float = 17f,
                                     logoBottomPadding    : Dp = 0.dp) {
     val isMapLoaded = mapViewModel.uiState.isMapLoaded
+    val selectedMarker = mapViewModel.selectedMarker
     val coroutine = rememberCoroutineScope()
     val uiState = mapViewModel.uiState
     //TODO:: restaurantId를 조회하여 마커 표시하기
 
-    LaunchedEffect(uiState.selectedMarker != null && isMapLoaded) {
-        cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(uiState.selectedMarker?.lat ?:0.0, uiState.selectedMarker?.lon ?: 0.0 ), zoom), durationMs = 300)
+    LaunchedEffect(selectedMarker != null && isMapLoaded) {
+        mapState.cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(selectedMarker?.lat ?:0.0, selectedMarker?.lon ?: 0.0 ), zoom), durationMs = 300)
     }
 
     if(restaurantId > 0) {
         MapScreen(
             mapViewModel = mapViewModel,
-            cameraPositionState = cameraPositionState,
             onMapClick = onMapClick,
             uiSettings = mapUiSettings,
             logoBottomPadding = logoBottomPadding,

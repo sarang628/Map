@@ -26,6 +26,7 @@ class MapViewModel @Inject constructor(
     private val findRestaurantUseCase : FindRestaurantUseCase
 ) : ViewModel() {
     var uiState: MapUIState by mutableStateOf(MapUIState(list = listOf())); private set
+    var selectedMarker : MarkerData? by mutableStateOf(null)
 
     init {
         viewModelScope.launch {
@@ -34,7 +35,7 @@ class MapViewModel @Inject constructor(
             }
             launch {
                 getSelectedMarkUseCase.invoke(viewModelScope).collect {
-                    uiState = uiState.copy(selectedMarker = if(it.id == -1) null else it)
+                    selectedMarker = if(it.id == -1) null else it
                 }
             }
         }
@@ -43,7 +44,7 @@ class MapViewModel @Inject constructor(
     fun findRestaurant(restaurantId: Int){
         viewModelScope.launch {
             val result = findRestaurantUseCase.invoke(restaurantId)
-            uiState = uiState.copy(selectedMarker = result, list = listOf(result))
+            selectedMarker = result
         }
     }
 
@@ -54,12 +55,13 @@ class MapViewModel @Inject constructor(
     fun getLastPosition(): LatLng { return saveMapPositionUseCase.load().target }
     fun getLastZoom(): Float { return saveMapPositionUseCase.load().zoom }
     fun onMapLoaded() { uiState = uiState.copy(isMapLoaded = true) }
-    fun onMark(restaurantId: Int) { viewModelScope.launch { setSelectMarkerUseCase.invoke(restaurantId) } }
+    fun onMark(restaurantId: Int) {
+        viewModelScope.launch { setSelectMarkerUseCase.invoke(restaurantId) }
+    }
 }
 
 data class MapUIState(
     val list: List<MarkerData> = listOf(),
     val isMapLoaded: Boolean = false,
     val currentPosition: Int = 0,
-    val selectedMarker: MarkerData? = null
 )
