@@ -1,6 +1,5 @@
 package com.example.screen_map.compose
 
-import androidx.compose.animation.core.snap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,7 +49,7 @@ fun rememberMapState(
             .distinctUntilChanged()
             .collect {
             if (!cameraPositionState.isMoving) {
-                showLog.log(tag, "zoomLevel changed: $zoomLevel")
+                showLog.d(tag, "zoomLevel changed: $zoomLevel")
                 //zoomLevel = cameraPositionState.position.zoom
             }
         }

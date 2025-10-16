@@ -3,20 +3,20 @@ package com.example.screen_map.compose
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.nfc.Tag
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -32,20 +32,18 @@ import com.example.screen_map.data.MarkerData
 import com.example.screen_map.data.icon
 import com.example.screen_map.viewmodels.MapUIState
 import com.example.screen_map.viewmodels.MapViewModel
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import com.sarang.torang.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 /**
  * @param mapViewModel map 뷰모델
@@ -67,8 +65,10 @@ fun MapScreen(
     markerDetailVisibleLevel  : Float                                         = 18f,
     content                   : @Composable @GoogleMapComposable () -> Unit   = { }
 ) {
+    mapViewModel.showLog = showLog
     MapScreen_(
         uiState                     = mapViewModel.uiState,
+        selectedMarker              = mapViewModel.selectedMarker,
         logoBottomPadding           = logoBottomPadding,
         mapState                    = mapState,
         uiSettings                  = uiSettings,
@@ -91,6 +91,7 @@ fun MapScreen_(
     mapState                  : MapState                                    = rememberMapState(showLog = showLog),
     uiState                   : MapUIState                                  = MapUIState(),
     logoBottomPadding         : Dp                                          = 0.dp,
+    selectedMarker            : StateFlow<MarkerData?>                      = MutableStateFlow(null),
     markerDetailVisibleLevel  : Float                                       = 18f,
     uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
     mapScreenCallback         : MapScreenCallback                           = MapScreenCallback(),
@@ -110,7 +111,7 @@ fun MapScreen_(
                    contentPadding      = PaddingValues(bottom = logoBottomPadding))
         {
 
-            Log.w(tag, "map recomposition")
+            showLog.w(tag, "map recomposition")
 
             uiState.list
                 .forEach { data ->
@@ -135,20 +136,7 @@ fun MapScreen_(
                             )
                         )
                 }
-
-            //TODO::select marker 표시 방법
-            /*uiState.selectedMarker?.let {
-                mapState.setSelectMarker(it)
-                Marker( state   = mapState.selectedMarker,
-                        snippet = it.snippet,
-                        onClick = { false },
-                        tag     = it.id,
-                        icon    = it.icon( context     = context,
-                                           title       = it.title,
-                                           rating      = it.rating,
-                                           isSelected  = true,
-                                           price       = it.price))
-            }*/
+            SelectedMarker(showLog, selectedMarker)
             content.invoke()
         }
         if (!uiState.isMapLoaded) {
@@ -163,7 +151,7 @@ fun MapScreen_(
 
     if(showLog){
         LaunchedEffect(uiState) {
-            showLog.log(tag, "recomposition : $uiState")
+            showLog.d(tag, "recomposition : $uiState")
         }
     }
 
@@ -171,21 +159,64 @@ fun MapScreen_(
     LaunchedEffect(key1 = uiState.isMapLoaded, block = {
         snapshotFlow { mapState.cameraPositionState.isMoving }.collect {
             if (!mapState.cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                showLog.log(tag, "isMoving changed: ${mapState.cameraPositionState.isMoving}")
+                showLog.d(tag, "isMoving changed: ${mapState.cameraPositionState.isMoving}")
                 if (uiState.isMapLoaded) { //마지막으로 움직인 지점 저장하기
                     if(mapState.cameraPositionState.position.target.latitude != 0.0) // TODO::0.0 안나오게 하기
                     {
                         mapScreenCallback.onSaveCameraPosition(mapState.cameraPositionState)
-                        showLog.log(tag, "좌표 저장 요청. ${mapState.cameraPositionState.position.target}")
+                        showLog.d(tag, "좌표 저장 요청. ${mapState.cameraPositionState.position.target}")
                     }
                 }else{
-                    showLog.log(tag, "좌표 저장 안함. isMapLoaded is false : ${mapState.cameraPositionState.position.target}")
+                    showLog.d(tag, "좌표 저장 안함. isMapLoaded is false : ${mapState.cameraPositionState.position.target}")
                 }
             }
         }
     })
 }
 
-fun Boolean.log(tag : String, message : String) {
+private fun BoxScope.Marer() {
+    TODO("Not yet implemented")
+}
+
+@Composable
+@GoogleMapComposable
+private fun SelectedMarker(
+    showLog : Boolean = false,
+    selectedMarker : StateFlow<MarkerData?>
+) {
+    val tag = "__SelectedMarker"
+    //TODO::select marker 표시 방법
+    val coroutineScope : CoroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var selectedMakrer1 : MarkerData? by remember { mutableStateOf(null) }
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            selectedMarker.collect {
+                showLog.d(tag, "selectedMarker changed : $selectedMarker")
+                selectedMakrer1 = it
+            }
+        }
+    }
+
+    selectedMakrer1?.let {
+        Marker( state   = it.markState(),
+            snippet = it.snippet,
+            onClick = { false },
+            tag     = it.id,
+            icon    = it.icon(
+                context     = context,
+                title       = it.title,
+                rating      = it.rating,
+                isSelected  = true,
+                price       = it.price))
+    }
+}
+
+private fun Boolean.w(tag: String, msg: String) {
+    if (this)
+        Log.w(tag, msg)
+}
+
+fun Boolean.d(tag : String, message : String) {
     if(this) Log.d(tag, message)
 }

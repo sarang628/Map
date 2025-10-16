@@ -41,8 +41,10 @@ fun MapScreenSingleRestaurantMarker(mapViewModel         : MapViewModel = hiltVi
     val uiState = mapViewModel.uiState
     //TODO:: restaurantId를 조회하여 마커 표시하기
 
-    LaunchedEffect(selectedMarker != null && isMapLoaded) {
-        mapState.cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(selectedMarker?.lat ?:0.0, selectedMarker?.lon ?: 0.0 ), zoom), durationMs = 300)
+    LaunchedEffect(isMapLoaded) {
+        selectedMarker.collect {
+            mapState.cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(it?.lat ?:0.0, it?.lon ?: 0.0 ), zoom), durationMs = 300)
+        }
     }
 
     if(restaurantId > 0) {
