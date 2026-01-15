@@ -52,6 +52,7 @@ import com.example.screen_map.data.testMarkArrayList
 import com.example.screen_map.viewmodels.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
+import com.sarang.torang.data.Filter
 import com.sarang.torang.data.RestaurantWithFiveImages
 import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
@@ -60,8 +61,10 @@ import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -164,7 +167,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { boundary = 3000.0 }, label = { Text(text = "3000M") })
                     Spacer(Modifier.width(3.dp))
-                    AssistChip(onClick = { coroutineScope.launch { findRepository.search(FilterApiModel()) }}, label = {Text(text = "filter")})
+                    AssistChip(onClick = { coroutineScope.launch { findRepository.search(Filter()) }}, label = {Text(text = "filter")})
                     Spacer(Modifier.width(3.dp))
                     AssistChip(onClick = { coroutineScope.launch { findRepository.findThisArea() }}, label = {Text(text = "bound")})
                     Spacer(Modifier.width(3.dp))
@@ -224,8 +227,14 @@ fun RestaurantList(
 ){
     val tag = "__RestaurantList"
     val coroutineScope      : CoroutineScope                    = rememberCoroutineScope()
-    val restaurants         : List<RestaurantWithFiveImages>    = findRepository.restaurants.collectAsState().value
-
+    var restaurants         : List<RestaurantWithFiveImages>    by remember { mutableStateOf(listOf()) }
+    LaunchedEffect(Unit) {
+        findRepository.restaurants.stateIn(scope = coroutineScope,
+                                           started = SharingStarted.Eagerly,
+                                           initialValue = listOf()).collect {
+            restaurants = it
+        }
+    }
     Log.w(tag, "recomposition")
 
     LazyColumn(modifier = Modifier
@@ -235,13 +244,12 @@ fun RestaurantList(
         items(restaurants.size)
         {
             TextButton(
-                onClick =
-                    {
+                onClick = {
                         coroutineScope.launch {
-                                findRepository.selectRestaurant(restaurants[it].restaurant.restaurantId)
-                            }
-                    }
-                 )
+                            findRepository.selectRestaurant(restaurants[it].restaurant.restaurantId)
+                                              }
+                          }
+                      )
             {
                 Text(restaurants[it].restaurant.restaurantName.toString())
             }
