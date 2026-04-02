@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.screen_map.compose.d
+import com.example.screen_map.compose.MapUIState
 import com.example.screen_map.data.MarkerData
 import com.example.screen_map.usecase.FindRestaurantUseCase
 import com.example.screen_map.usecase.GetMarkerListFlowUseCase
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MapViewModel @Inject constructor(
+open class MapViewModel @Inject constructor(
     private val saveMapPositionUseCase : SavePositionUseCase,
     private val getMarkerListFlowUseCase : GetMarkerListFlowUseCase,
     private val getSelectedMarkUseCase : GetSelectedMarkUseCase,
@@ -69,7 +69,6 @@ class MapViewModel @Inject constructor(
     fun onMark(restaurantId: Int) {
         markerList.firstOrNull { it.id == restaurantId }?.let {
             viewModelScope.launch {
-                showLog.d(tag, "select marker : $restaurantId")
                 _selectedMarker.emit(it)
             }
         } ?: run {
@@ -78,9 +77,3 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch { setSelectMarkerUseCase.invoke(restaurantId) }
     }
 }
-
-data class MapUIState(
-    val list: List<MarkerData> = listOf(),
-    val isMapLoaded: Boolean = false,
-    val currentPosition: Int = 0,
-)

@@ -33,11 +33,9 @@ class MapState(
     }
 }
 
+private const val tag : String = "__rememberMapState"
 @Composable
-fun rememberMapState(
-    tag : String = "__rememberMapState",
-    showLog : Boolean = false
-) : MapState{
+fun rememberMapState() : MapState{
 
     val cameraPositionState = rememberCameraPositionState()
     var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
@@ -49,7 +47,6 @@ fun rememberMapState(
             .distinctUntilChanged()
             .collect {
             if (!cameraPositionState.isMoving) {
-                showLog.d(tag, "zoomLevel changed: $zoomLevel")
                 //zoomLevel = cameraPositionState.position.zoom
             }
         }
