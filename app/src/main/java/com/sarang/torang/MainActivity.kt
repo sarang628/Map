@@ -40,29 +40,32 @@ class MainActivity : ComponentActivity() {
             val mapViewModel    : MapViewModel  = hiltViewModel()
 
             TorangTheme {
-                Surface(Modifier.Companion.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
 
                     MoveCamera(findRepository, mapState)
 
-                    Navigation(findRepository = findRepository,
-                        mapState = mapState,
-                        mapScreen = { MapScreen(mapViewModel = mapViewModel, mapState = mapState) },
-                        mapScreenForFindingWithPermission = {
-                           MapScreenForFindingWithPermission {
-                           MapScreenForFinding(mapViewModel = mapViewModel, mapState = mapState)
-                        }},
-                        mapScreenForRestaurant = {
-                            val viewModel : BestPracticeViewModel = hiltViewModel()
-                            val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-                            TestContainer(findRepository){ restairantId, restaurantName ->
+                    TestContainer(findRepository){ restairantId, restaurantName ->
+
+                        mapViewModel.onMark(restairantId)
+
+                        Navigation(findRepository = findRepository,
+                            mapState = mapState,
+                            mapScreen = { MapScreen(mapViewModel = mapViewModel, mapState = mapState) },
+                            mapScreenForFindingWithPermission = {
+                               MapScreenForFindingWithPermission {
+                               MapScreenForFinding(mapViewModel = mapViewModel, mapState = mapState)
+                            }},
+                            mapScreenForRestaurant = {
+                                val viewModel : BestPracticeViewModel = hiltViewModel()
+                                val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
                                 MapScreenForFindingWithPermission(viewModel = viewModel) {
                                     MapScreenSingleRestaurantMarker(restaurantId = restairantId,
                                                                     requestPermission = { viewModel.request() },
                                                                     hasPermission = permissionState.status.isGranted)
                                 }
-                            }
-                        },
-                    )
+                            },
+                        )
+                    }
                 }
             }
         }

@@ -29,7 +29,13 @@ data class MarkerData(
     fun getLatLng(): LatLng = LatLng(lat, lon)
 }
 
-fun MarkerData.icon(context: Context, title: String, rating: String, isSelected : Boolean = false, price : String = "", visibleTitle : Boolean = true, visiblePriceAndRating : Boolean = true) =
+fun MarkerData.icon(context                 : Context,
+                    title                   : String,
+                    rating                  : String,
+                    isSelected              : Boolean = false,
+                    price                   : String = "",
+                    visibleTitle            : Boolean = false,
+                    visiblePriceAndRating   : Boolean = false) =
         if (this.foodType.lowercase() == "kr") createCustomMarker(context = context, iconRes = R.drawable.ic_korea, isSelected = isSelected, title = title, rating = rating, price = price, visibleTitle = visibleTitle, visiblePriceAndRating = visiblePriceAndRating)
         else if (this.foodType.lowercase() == "jp")createCustomMarker(context = context, iconRes = R.drawable.ic_japan, isSelected = isSelected, title = title, rating = rating, price = price, visibleTitle = visibleTitle, visiblePriceAndRating = visiblePriceAndRating)
         else if (this.foodType.lowercase() == "am") createCustomMarker(context = context, iconRes = R.drawable.ic_us, isSelected = isSelected, title = title, rating = rating, price = price, visibleTitle = visibleTitle, visiblePriceAndRating = visiblePriceAndRating)
@@ -54,7 +60,14 @@ fun testMarkArrayList(): List<MarkerData> {
     }
 }
 
-fun createCustomMarker(context: Context, iconRes : Int? = null, isSelected: Boolean, title: String, rating: String, price : String = "", visibleTitle : Boolean = true, visiblePriceAndRating : Boolean = true): BitmapDescriptor {
+fun createCustomMarker(context      : Context,
+                       iconRes      : Int? = null,
+                       isSelected   : Boolean,
+                       title        : String,
+                       rating       : String,
+                       price        : String = "",
+                       visibleTitle : Boolean = true,
+                       visiblePriceAndRating : Boolean = true): BitmapDescriptor {
     val markerView = LayoutInflater.from(context).inflate(if(isSelected)R.layout.view_selected_custom_marker else R.layout.view_custom_marker, null)
 
     val icon = markerView.findViewById<ImageView>(R.id.markerIcon)

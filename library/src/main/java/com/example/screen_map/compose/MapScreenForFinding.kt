@@ -92,7 +92,7 @@ fun MapForFinding_(
     }
 
     Map(
-        isMapLoaded                 = uiState.isMapLoaded,
+        showProgress                 = uiState.isMapLoaded,
         mapScreenCallback           = MapScreenCallback(
         onSaveCameraPosition        = onSaveCameraPosition,
         onMapClick                  = onMapClick,
@@ -110,12 +110,12 @@ fun MapForFinding_(
                 onClick = { onMark(Integer.parseInt(it.tag.toString()))
                             false },
                 icon    = data.icon(context                 = context,
-                    title                   = data.title,
-                    rating                  = data.rating,
-                    isSelected              = false,
-                    price                   = data.price,
-                    visibleTitle            = false,
-                    visiblePriceAndRating   = false)
+                                    title                   = data.title,
+                                    rating                  = data.rating,
+                                    isSelected              = false,
+                                    price                   = data.price,
+                                    visibleTitle            = false,
+                                    visiblePriceAndRating   = false)
             )
         }
 

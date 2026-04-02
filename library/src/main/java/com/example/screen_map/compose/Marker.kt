@@ -7,19 +7,30 @@ import com.example.screen_map.data.icon
 import com.google.maps.android.compose.Marker
 
 @Composable
-fun Marker(it : MarkerData){
+fun Marker(markData       : MarkerData,
+           onMark         : (Int) -> Unit   = {},
+           visibleInfo    : Boolean         = false){
     val context = LocalContext.current
     Marker(
-        state = it.markState(),
-        snippet = it.snippet,
-        onClick = { false },
-        tag = it.id,
-        icon = it.icon(
-            context = context,
-            title = it.title,
-            rating = it.rating,
-            isSelected = true,
-            price = it.price
-        )
+        state   = markData.markState(),
+        snippet = markData.snippet,
+        onClick = { onMark.invoke(markData.id); false },
+        tag     = markData.id,
+        icon    = markData.icon(context    = context,
+                                title      = markData.title,
+                                rating     = markData.rating,
+                                isSelected = true,
+                                price      = markData.price,
+                                visibleTitle = visibleInfo,
+                                visiblePriceAndRating = visibleInfo)
     )
+}
+
+@Composable
+fun Markers(list            : List<MarkerData>,
+            onMark          : (Int) -> Unit = {},
+            visibleInfo     : Boolean = false){
+    list.forEach {
+        Marker(it, onMark, visibleInfo)
+    }
 }

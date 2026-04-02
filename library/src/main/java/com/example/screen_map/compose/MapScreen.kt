@@ -1,5 +1,6 @@
 package com.example.screen_map.compose
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -7,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -21,6 +23,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 private const val tag : String = "__MapScreen"
@@ -28,8 +31,6 @@ private const val tag : String = "__MapScreen"
 /**
  * @param mapViewModel map 뷰모델
  * @param onMark map 마커 클릭 이벤트
- * @param cameraPositionState map 카메라 위치 상태 객체
- * @param selectedMarkerData 선택된 마커. 외부에서 마커로 위치시키고 싶을 때 사용
  * @param onMapClick 맵 클릭 이벤트
  */
 @Composable
@@ -44,33 +45,28 @@ fun MapScreen(
     content                   : @Composable @GoogleMapComposable () -> Unit   = { }
 ) {
     val uiState = mapViewModel.uiState
+    var zoom by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { mapState.cameraPositionState.position.zoom.toInt() }
+            .distinctUntilChanged()
+            .collect {
+                zoom = it
+            }
+    }
+
     Map(
-        isMapLoaded                 = uiState.isMapLoaded,
+        showProgress                = uiState.isMapLoaded,
         logoBottomPadding           = logoBottomPadding,
         mapState                    = mapState,
         uiSettings                  = uiSettings,
         mapScreenCallback           = MapScreenCallback(
-        onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
-        onMapClick                  = onMapClick,
-        onMapLoaded                 = { onMapLoaded(); mapViewModel.onMapLoaded() },
-        onMark                      = { mapViewModel.onMark(it) },),
+            onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
+            onMapClick                  = onMapClick,
+            onMapLoaded                 = { onMapLoaded(); mapViewModel.onMapLoaded() },
+            onMark                      = { mapViewModel.onMark(it) })
     ){
-        val context = LocalContext.current
-        uiState.list.forEach { data ->
-            Marker(tag     = data.id,
-                   state   = data.markState(),
-                   snippet = data.snippet,
-                   onClick = { onMark(Integer.parseInt(it.tag.toString()))
-                               false },
-                   icon    = data.icon(context                 = context,
-                                       title                   = data.title,
-                                       rating                  = data.rating,
-                                       isSelected              = false,
-                                       price                   = data.price,
-                                       visibleTitle            = false,
-                                       visiblePriceAndRating   = false)
-            )
-        }
+        Markers(uiState.list, onMark, visibleInfo = zoom  >= 17)
         content()
         SelectedMarker(mapViewModel.selectedMarker)
     }
@@ -99,11 +95,12 @@ internal fun SelectedMarker(
             snippet = it.snippet,
             onClick = { false },
             tag     = it.id,
-            icon    = it.icon(
-                context     = context,
-                title       = it.title,
-                rating      = it.rating,
-                isSelected  = true,
-                price       = it.price))
+            icon    = it.icon(context     = context,
+                              title       = it.title,
+                              rating      = it.rating,
+                              isSelected  = true,
+                              price       = it.price,
+                              visibleTitle = true,
+                              visiblePriceAndRating = true))
     }
 }

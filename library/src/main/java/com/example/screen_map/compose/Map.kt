@@ -1,8 +1,5 @@
 package com.example.screen_map.compose
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -11,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,14 +28,16 @@ import com.sarang.torang.R
 @Composable
 fun Map(
     mapState                  : MapState                                    = rememberMapState(),
-    isMapLoaded               : Boolean                                     = false,
+    showProgress              : Boolean                                     = false,
     logoBottomPadding         : Dp                                          = 0.dp,
     myLocationButtonEnabled   : Boolean                                     = false,
-    uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = myLocationButtonEnabled, compassEnabled = true),
-    mapScreenCallback         : MapScreenCallback                           = MapScreenCallback(),
     isMyLocationEnabled       : Boolean                                     = false,
-    mapProperties             : MapProperties = MapProperties(isMyLocationEnabled = isMyLocationEnabled,
-                                                              mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
+    mapScreenCallback         : MapScreenCallback                           = MapScreenCallback(),
+    uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = true,
+                                                                                            myLocationButtonEnabled = myLocationButtonEnabled,
+                                                                                            compassEnabled = true),
+    mapProperties             : MapProperties                               = MapProperties(isMyLocationEnabled = isMyLocationEnabled,
+                                                                                            mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
     content                   : @Composable @GoogleMapComposable () -> Unit = { }
 ){
 
@@ -56,7 +52,7 @@ fun Map(
         {
             content.invoke()
         }
-        if (!isMapLoaded) {
+        if (!showProgress) {
             Box(Modifier
                 .fillMaxSize()
                 .clickable(enabled = false) { }
@@ -67,10 +63,10 @@ fun Map(
     }
 
     // save location after point out finger
-    LaunchedEffect(key1 = isMapLoaded, block = {
+    LaunchedEffect(key1 = showProgress, block = {
         snapshotFlow { mapState.cameraPositionState.isMoving }.collect {
             if (!mapState.cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                if (isMapLoaded) { //마지막으로 움직인 지점 저장하기
+                if (showProgress) { //마지막으로 움직인 지점 저장하기
                     if(mapState.cameraPositionState.position.target.latitude != 0.0) // TODO::0.0 안나오게 하기
                     {
                         mapScreenCallback.onSaveCameraPosition(mapState.cameraPositionState)

@@ -69,7 +69,7 @@ open class MapViewModel @Inject constructor(
     fun onMark(restaurantId: Int) {
         markerList.firstOrNull { it.id == restaurantId }?.let {
             viewModelScope.launch {
-                _selectedMarker.emit(it)
+                _selectedMarker.value = it
             }
         } ?: run {
             Log.e(tag, "failed selected marker. not found in markerList restaurantId: ${restaurantId}")
