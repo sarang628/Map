@@ -116,7 +116,7 @@ fun TestContainer(findRepository: FindRepository,
 
         FloatingActionButton(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
+                .align(Alignment.BottomStart)
                 .padding(bottom = 24.dp, end = 12.dp),
             onClick = {
                 scope.launch {

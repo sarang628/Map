@@ -36,13 +36,14 @@ fun Map(
     mapState                  : MapState                                    = rememberMapState(),
     isMapLoaded               : Boolean                                     = false,
     logoBottomPadding         : Dp                                          = 0.dp,
-    uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false),
+    myLocationButtonEnabled   : Boolean                                     = false,
+    uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = myLocationButtonEnabled, compassEnabled = true),
     mapScreenCallback         : MapScreenCallback                           = MapScreenCallback(),
+    isMyLocationEnabled       : Boolean                                     = false,
+    mapProperties             : MapProperties = MapProperties(isMyLocationEnabled = isMyLocationEnabled,
+                                                              mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
     content                   : @Composable @GoogleMapComposable () -> Unit = { }
 ){
-    val context             : Context       = LocalContext.current
-    val isMyLocationEnabled : Boolean       = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    val mapProperties       : MapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = isMyLocationEnabled, mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.hide_all_type))) }
 
     Box {
         GoogleMap(modifier            = Modifier.fillMaxSize(),

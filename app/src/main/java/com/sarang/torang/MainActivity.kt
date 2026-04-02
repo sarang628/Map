@@ -1,5 +1,6 @@
 package com.sarang.torang
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,8 +15,12 @@ import com.example.screen_map.compose.MapScreenSingleRestaurantMarker
 import com.example.screen_map.compose.MapState
 import com.example.screen_map.compose.rememberMapState
 import com.example.screen_map.viewmodels.MapViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.FindRepositoryImpl
+import com.sryang.library.compose.workflow.BestPracticeViewModel
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -25,6 +30,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var findRepository : FindRepositoryImpl
 
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,8 +52,14 @@ class MainActivity : ComponentActivity() {
                            MapScreenForFinding(mapViewModel = mapViewModel, mapState = mapState)
                         }},
                         mapScreenForRestaurant = {
+                            val viewModel : BestPracticeViewModel = hiltViewModel()
+                            val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
                             TestContainer(findRepository){ restairantId, restaurantName ->
-                                MapScreenSingleRestaurantMarker(restaurantId = restairantId)
+                                MapScreenForFindingWithPermission(viewModel = viewModel) {
+                                    MapScreenSingleRestaurantMarker(restaurantId = restairantId,
+                                                                    requestPermission = { viewModel.request() },
+                                                                    hasPermission = permissionState.status.isGranted)
+                                }
                             }
                         },
                     )

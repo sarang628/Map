@@ -62,23 +62,25 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
     ScrollLazyList(findRepository, state)
     MoveCamera(findRepository, mapState)
 
-    Scaffold {
-        Box(Modifier.padding(it)){
-            NavHost(navController = navHostController, startDestination = "menu") {
-                composable("menu") { Menu(navHostController) }
-                composable("MapScreen") { mapScreen() }
-                composable("MapScreenForFindingWithPermission") { mapScreenForFindingWithPermission() }
-                composable("MapScreenForRestaurant"){ mapScreenForRestaurant() }
-            }
+    NavHost(navController = navHostController, startDestination = "menu") {
+        composable("menu") { Menu(navHostController) }
+        composable("MapScreen") {
+            mapScreen()
             TopActionButtons(mapState, findRepository, navHostController)
         }
-    }}
+        composable("MapScreenForFindingWithPermission") {
+            mapScreenForFindingWithPermission()
+            TopActionButtons(mapState, findRepository, navHostController)
+        }
+        composable("MapScreenForRestaurant"){ mapScreenForRestaurant() }
+    }
+
+}
 
 
 @Composable
 fun Menu(navHostController : NavHostController){
     Column {
-        Spacer(modifier = Modifier.height(400.dp))
         Button({navHostController.navigate("MapScreen")}) {
             Text("MapScreen")
         }
