@@ -47,7 +47,8 @@ fun Map(
                   properties          = mapProperties,
                   onMapClick          = mapScreenCallback.onMapClick,
                   uiSettings          = uiSettings,
-                  onMapLoaded         = mapScreenCallback.onMapLoaded,
+                  onMapLoaded         = { mapScreenCallback.onMapLoaded()
+                                          mapState.setOnMapLoaded() },
                   contentPadding      = PaddingValues(bottom = logoBottomPadding))
         {
             content.invoke()

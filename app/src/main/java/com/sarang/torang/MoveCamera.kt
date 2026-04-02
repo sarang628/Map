@@ -16,6 +16,7 @@ internal fun MoveCamera(
     val tag = "__MoveCamera"
     LaunchedEffect(state.onMapLoaded) { //Unit 으로 하면 state.onMapLoaded를 false에서 true 바뀌었을 때 인식 못함.
         repository.selectedRestaurant.collect {
+            Log.d(tag, "restaurant changed : ${it}")
             if(state.onMapLoaded) { //TODO:: state 안으로 넣기
                 state.cameraPositionState.animate(CameraUpdateFactory.newLatLng(LatLng(it.restaurant.lat, it.restaurant.lon)))
             }

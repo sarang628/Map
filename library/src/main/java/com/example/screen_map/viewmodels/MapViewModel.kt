@@ -46,6 +46,7 @@ open class MapViewModel @Inject constructor(
             }
             launch {
                 getSelectedMarkUseCase.invoke(viewModelScope).collect {
+                    Log.d(tag, "selected restaurant : ${it.id}")
                     _selectedMarker.emit(if(it.id == -1) null else it)
                 }
             }
