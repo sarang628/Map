@@ -21,16 +21,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val tag = "__MapViewModel"
 @HiltViewModel
 open class MapViewModel @Inject constructor(
     private val saveMapPositionUseCase : SavePositionUseCase,
     private val getMarkerListFlowUseCase : GetMarkerListFlowUseCase,
     private val getSelectedMarkUseCase : GetSelectedMarkUseCase,
     private val setSelectMarkerUseCase : SetSelectedMarkUseCase,
-    private val findRestaurantUseCase : FindRestaurantUseCase
 ) : ViewModel() {
-    var showLog : Boolean = false
-    val tag = "__MapViewModel"
     private var markerList : List<MarkerData> = listOf()
     var uiState: MapUIState by mutableStateOf(MapUIState(list = listOf())); private set
     private var _selectedMarker : MutableStateFlow<MarkerData?> = MutableStateFlow(null); private set
@@ -39,24 +37,19 @@ open class MapViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
+                // 마커 리스트(검색된 음식점)
                 getMarkerListFlowUseCase.invoke(viewModelScope).collect {
                     markerList = it
                     uiState = uiState.copy(list = it)
                 }
             }
             launch {
+                // 선택된 마커(음식점)
                 getSelectedMarkUseCase.invoke(viewModelScope).collect {
                     Log.d(tag, "selected restaurant : ${it.id}")
                     _selectedMarker.emit(if(it.id == -1) null else it)
                 }
             }
-        }
-    }
-
-    fun findRestaurant(restaurantId: Int){
-        viewModelScope.launch {
-            val result = findRestaurantUseCase.invoke(restaurantId)
-            _selectedMarker.emit(result)
         }
     }
 

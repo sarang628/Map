@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,7 +46,7 @@ fun MapScreen(
     content                   : @Composable @GoogleMapComposable () -> Unit   = { }
 ) {
     val uiState = mapViewModel.uiState
-    var zoom by remember { mutableStateOf(0) }
+    var zoom by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         snapshotFlow { mapState.cameraPositionState.position.zoom.toInt() }
@@ -56,15 +57,15 @@ fun MapScreen(
     }
 
     Map(
-        showProgress                = uiState.isMapLoaded,
-        logoBottomPadding           = logoBottomPadding,
-        mapState                    = mapState,
-        uiSettings                  = uiSettings,
-        mapScreenCallback           = MapScreenCallback(
-            onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
-            onMapClick                  = onMapClick,
-            onMapLoaded                 = { onMapLoaded(); mapViewModel.onMapLoaded() },
-            onMark                      = { mapViewModel.onMark(it) })
+        showProgress      = uiState.isMapLoaded,
+        logoBottomPadding = logoBottomPadding,
+        mapState          = mapState,
+        uiSettings        = uiSettings,
+        mapScreenCallback = MapScreenCallback(
+            onSaveCameraPosition  = { mapViewModel.saveCameraPosition(it) },
+            onMapClick            = onMapClick,
+            onMapLoaded           = { onMapLoaded(); mapViewModel.onMapLoaded() },
+            onMark                = { mapViewModel.onMark(it) })
     ){
         Markers(uiState.list, onMark, visibleInfo = zoom  >= 17)
         content()
