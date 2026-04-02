@@ -17,29 +17,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapSingleMarkerViewModel @Inject constructor(
-    private val saveMapPositionUseCase : SavePositionUseCase,
-    private val getMarkerListFlowUseCase : GetMarkerListFlowUseCase,
-    private val getSelectedMarkUseCase : GetSelectedMarkUseCase,
-    private val setSelectMarkerUseCase : SetSelectedMarkUseCase,
     private val findRestaurantUseCase : FindRestaurantUseCase
 ) : ViewModel() {
-    var uiState: MapSingleMarkerUIState by mutableStateOf(MapSingleMarkerUIState(list = listOf())); private set
-
-    init {
-        viewModelScope.launch {
-            launch {
-                getMarkerListFlowUseCase.invoke(viewModelScope).collect {
-                    uiState = uiState.copy(list = it)
-                }
-            }
-        }
-    }
+    var uiState: MapSingleMarkerUIState by mutableStateOf(MapSingleMarkerUIState()); private set
 
     fun selectRestaurant(restaurantId: Int) {
-        uiState = uiState.copy(restaurantId = restaurantId,
-                                 selectedMarker = uiState.list.firstOrNull{
-                                      it.id == restaurantId
-                                 })
+        viewModelScope.launch {
+            val result = findRestaurantUseCase.invoke(restaurantId)
+
+            uiState = uiState.copy(restaurantId = restaurantId,
+                selectedMarker = result)
+        }
     }
 
     fun onMapLoaded() {
@@ -48,7 +36,6 @@ class MapSingleMarkerViewModel @Inject constructor(
 }
 
 data class MapSingleMarkerUIState(
-    val list: List<MarkerData> = listOf(),
     val isMapLoaded: Boolean = false,
     val currentPosition: Int = 0,
     val restaurantId: Int = -1,

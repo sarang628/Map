@@ -35,17 +35,18 @@ fun MapScreenSingleRestaurantMarker(mapViewModel         : MapSingleMarkerViewMo
     val uiState = mapViewModel.uiState
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.selectedMarker) {
+    LaunchedEffect(uiState.selectedMarker, uiState.isMapLoaded) {
         uiState.selectedMarker?.let {
-            mapState.cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(LatLng(it.lat,
-                                                                 it.lon), zoom),
-                durationMs = 300)
+            if(uiState.isMapLoaded)
+                mapState.cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngZoom(LatLng(it.lat,
+                                                                     it.lon), zoom),
+                    durationMs = 300)
         }
     }
 
 
-    LaunchedEffect(restaurantId) {
+    LaunchedEffect(restaurantId, uiState.isMapLoaded) {
         mapViewModel.selectRestaurant(restaurantId)
     }
 
@@ -55,9 +56,7 @@ fun MapScreenSingleRestaurantMarker(mapViewModel         : MapSingleMarkerViewMo
             uiSettings = mapUiSettings,
             logoBottomPadding = logoBottomPadding,
             mapScreenCallback = MapScreenCallback(
-                onMapLoaded = { mapViewModel.onMapLoaded()
-                                mapViewModel.selectRestaurant(restaurantId)
-                              },
+                onMapLoaded = { mapViewModel.onMapLoaded() },
                 onMapClick = onMapClick
             )
         ){
