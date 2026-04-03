@@ -7,5 +7,4 @@ data class MapScreenCallback(
     val onSaveCameraPosition      : (CameraPositionState) -> Unit               = {},
     val onMapClick                : (LatLng) -> Unit                            = {},
     val onMapLoaded               : () -> Unit                                  = {},
-    val onMark                    : (Int) -> Unit                               = {},
 )

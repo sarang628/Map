@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.screen_map.compose.MapUIState
 import com.example.screen_map.data.MarkerData
-import com.example.screen_map.usecase.FindRestaurantUseCase
+import com.example.screen_map.usecase.CameraMoveUseCase
 import com.example.screen_map.usecase.GetMarkerListFlowUseCase
 import com.example.screen_map.usecase.GetSelectedMarkUseCase
 import com.example.screen_map.usecase.SavePositionUseCase
@@ -28,26 +28,33 @@ open class MapViewModel @Inject constructor(
     private val getMarkerListFlowUseCase : GetMarkerListFlowUseCase,
     private val getSelectedMarkUseCase : GetSelectedMarkUseCase,
     private val setSelectMarkerUseCase : SetSelectedMarkUseCase,
+    private val cameraMoveUseCase      : CameraMoveUseCase
 ) : ViewModel() {
-    private var markerList : List<MarkerData> = listOf()
     var uiState: MapUIState by mutableStateOf(MapUIState(list = listOf())); private set
-    private var _selectedMarker : MutableStateFlow<MarkerData?> = MutableStateFlow(null); private set
-    var selectedMarker : StateFlow<MarkerData?> = _selectedMarker
-
     init {
         viewModelScope.launch {
             launch {
                 // 마커 리스트(검색된 음식점)
                 getMarkerListFlowUseCase.invoke(viewModelScope).collect {
-                    markerList = it
                     uiState = uiState.copy(list = it)
                 }
             }
             launch {
                 // 선택된 마커(음식점)
                 getSelectedMarkUseCase.invoke(viewModelScope).collect {
-                    Log.d(tag, "selected restaurant : ${it.id}")
-                    _selectedMarker.emit(if(it.id == -1) null else it)
+
+                    if(uiState.selectedMarker?.id != it.id) {
+                        Log.d(tag, "selected restaurant : ${it.id}")
+                        uiState = uiState.copy(selectedMarker = if (it.id == -1) null else it)
+                    }else{
+                        Log.d(tag, "already selected. marker doesn't move")
+                    }
+                }
+            }
+            launch {
+                cameraMoveUseCase.invoke().collect {
+                    Log.d(tag, "카메라 이동 요청 $it")
+                    uiState = uiState.copy(cameraPosition = it)
                 }
             }
         }
@@ -61,10 +68,9 @@ open class MapViewModel @Inject constructor(
     fun getLastZoom(): Float { return saveMapPositionUseCase.load().zoom }
     fun onMapLoaded() { uiState = uiState.copy(isMapLoaded = true) }
     fun onMark(restaurantId: Int) {
-        markerList.firstOrNull { it.id == restaurantId }?.let {
-            viewModelScope.launch {
-                _selectedMarker.value = it
-            }
+        uiState.list.firstOrNull { it.id == restaurantId }?.let {
+            Log.d(tag, "onMark: $it")
+            uiState = uiState.copy(selectedMarker = it)
         } ?: run {
             Log.e(tag, "failed selected marker. not found in markerList restaurantId: ${restaurantId}")
         }

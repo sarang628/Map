@@ -96,7 +96,6 @@ fun MapForFinding_(
         mapScreenCallback           = MapScreenCallback(
         onSaveCameraPosition        = onSaveCameraPosition,
         onMapClick                  = onMapClick,
-        onMark                      = onMark,
         onMapLoaded                 = onMapLoaded),
         logoBottomPadding           = logoBottomPadding,
         uiSettings                  = uiSettings

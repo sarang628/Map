@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.compose.MapScreen
@@ -18,6 +19,7 @@ import com.example.screen_map.viewmodels.MapViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.sarang.torang.api.ApiFilter
 import com.sarang.torang.di.map_di.MapScreenForFindingWithPermission
 import com.sarang.torang.di.repository.FindRepositoryImpl
 import com.sryang.library.compose.workflow.BestPracticeViewModel
@@ -29,13 +31,13 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject lateinit var findRepository : FindRepositoryImpl
+    @Inject lateinit var apiFilter: ApiFilter
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-
             val mapState        : MapState      = rememberMapState()
             val mapViewModel    : MapViewModel  = hiltViewModel()
 
@@ -46,24 +48,23 @@ class MainActivity : ComponentActivity() {
 
                     TestContainer(findRepository){ restairantId, restaurantName ->
 
-                        mapViewModel.onMark(restairantId)
+                        //mapViewModel.onMark(restairantId)
 
                         Navigation(findRepository = findRepository,
-                            mapState = mapState,
-                            mapScreen = { MapScreen(mapViewModel = mapViewModel, mapState = mapState) },
-                            mapScreenForFindingWithPermission = {
-                               MapScreenForFindingWithPermission {
-                               MapScreenForFinding(mapViewModel = mapViewModel, mapState = mapState)
-                            }},
-                            mapScreenForRestaurant = {
-                                val viewModel : BestPracticeViewModel = hiltViewModel()
-                                val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-                                MapScreenForFindingWithPermission(viewModel = viewModel) {
-                                    MapScreenSingleRestaurantMarker(restaurantId = restairantId,
-                                                                    requestPermission = { viewModel.request() },
-                                                                    hasPermission = permissionState.status.isGranted)
-                                }
-                            },
+                                   apiFilter      = apiFilter,
+                                   mapState                            = mapState,
+                                   mapScreen                           = { MapScreen(mapViewModel   = mapViewModel,
+                                                                                     mapState       = mapState) },
+                                   mapScreenForFindingWithPermission   = { MapScreenForFindingWithPermission {
+                                                                           MapScreenForFinding(mapViewModel = mapViewModel, mapState = mapState) }},
+                                   mapScreenForRestaurant              = { val viewModel : BestPracticeViewModel = hiltViewModel()
+                                                                           val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+                                                                           MapScreenForFindingWithPermission(viewModel = viewModel) {
+                                                                               MapScreenSingleRestaurantMarker(restaurantId = restairantId,
+                                                                                                               requestPermission = { viewModel.request() },
+                                                                                                               hasPermission = permissionState.status.isGranted)
+                                                                           }
+                                   },
                         )
                     }
                 }
