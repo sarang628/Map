@@ -53,11 +53,14 @@ open class MapViewModel @Inject constructor(
             }
             launch {
                 cameraMoveUseCase.invoke().collect {
-                    Log.d(tag, "카메라 이동 요청 $it")
-                    uiState = uiState.copy(cameraPosition = it)
+                    setCameraPosition(position = it)
                 }
             }
         }
+    }
+
+    fun setCameraPosition(position : Pair<LatLng, Float>?){
+        uiState = uiState.copy(cameraPosition = position)
     }
 
     fun saveCameraPosition(state: CameraPositionState) {
