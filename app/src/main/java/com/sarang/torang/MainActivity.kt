@@ -10,6 +10,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.compose.MapScreen
 import com.example.screen_map.compose.MapScreenForFinding
 import com.example.screen_map.compose.MapScreenSingleRestaurantMarker
@@ -38,8 +40,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val mapState        : MapState      = rememberMapState()
-            val mapViewModel    : MapViewModel  = hiltViewModel()
+            val mapState            : MapState      = rememberMapState()
+            val mapViewModel        : MapViewModel  = hiltViewModel()
+            val navHostController   : NavHostController = rememberNavController()
 
             TorangTheme {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -51,18 +54,21 @@ class MainActivity : ComponentActivity() {
                         //mapViewModel.onMark(restairantId)
 
                         Navigation(findRepository = findRepository,
+                                   navHostController = navHostController,
                                    apiFilter      = apiFilter,
                                    mapState                            = mapState,
                                    mapScreen                           = { MapScreen(mapViewModel   = mapViewModel,
                                                                                      mapState       = mapState) },
                                    mapScreenForFindingWithPermission   = { MapScreenForFindingWithPermission {
-                                                                           MapScreenForFinding(mapViewModel = mapViewModel, mapState = mapState) }},
+                                                                           MapScreenForFinding(mapViewModel = mapViewModel,
+                                                                                               mapState = mapState) }},
                                    mapScreenForRestaurant              = { val viewModel : BestPracticeViewModel = hiltViewModel()
                                                                            val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
                                                                            MapScreenForFindingWithPermission(viewModel = viewModel) {
                                                                                MapScreenSingleRestaurantMarker(restaurantId = restairantId,
                                                                                                                requestPermission = { viewModel.request() },
-                                                                                                               hasPermission = permissionState.status.isGranted)
+                                                                                                               hasPermission = permissionState.status.isGranted,
+                                                                                                               onBack = { navHostController.popBackStack() })
                                                                            }
                                    },
                         )

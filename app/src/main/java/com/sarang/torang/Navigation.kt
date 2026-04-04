@@ -55,7 +55,8 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                         mapScreenForRestaurant : @Composable () -> Unit = {},
                         mapScreenForFindingWithPermission : @Composable () -> Unit = {},
                         mapScreen : @Composable () -> Unit = {},
-                        mapState : MapState
+                        mapState : MapState,
+                        navHostController : NavHostController = rememberNavController()
                   ){
     val tag = "__MapTest"
 
@@ -64,7 +65,6 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
     var isMyLocationEnabled : Boolean                           by remember { mutableStateOf(false) }
     var myLocation          : LatLng?                           by remember { mutableStateOf(null) }
     var cities              : List<CityApiModel>                by remember { mutableStateOf(emptyList()) }
-    val navHostController   : NavHostController                 = rememberNavController()
 
     val state               : LazyListState                     = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -90,9 +90,10 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
         composable("MapScreenForFindingWithPermission") {
             mapScreenForFindingWithPermission()
             TopActionButtons(mapState = mapState,
-                             cities = emptyList(),
+                             cities = cities,
                              onRestaurant = {navHostController.navigate("restaurant")},
                              onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
+                             onSelectCity = { findRepository.setCameraPosition(Pair(LatLng(it.latitude, it.longitude), it.zoom)) },
                              onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } })
         }
         composable("MapScreenForRestaurant"){ mapScreenForRestaurant() }

@@ -74,10 +74,7 @@ fun MapScreen(mapState                  : MapState                              
             onMapLoaded           = { onMapLoaded(); mapViewModel.onMapLoaded() })
     ){
         Markers(list        = uiState.list,
-                onMark      = {
-                    Log.d(tag, "onMark : $it")
-                    mapViewModel.onMark(it)
-                              },
+                onMark      = { mapViewModel.onMark(it) },
                 visibleInfo = zoom  >= 17)
         content()
         SelectedMarker(uiState.selectedMarker)
