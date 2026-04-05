@@ -96,7 +96,7 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
     LaunchedEffect(uiState.cameraPosition) {
         uiState.cameraPosition?.let {
             mapState.cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(it.first, it.second),
+                update = CameraUpdateFactory.newLatLngZoom(LatLng(it.first, it.second),  it.third),
                 durationMs = 300,
             )
         }

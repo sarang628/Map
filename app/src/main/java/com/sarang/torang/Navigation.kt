@@ -85,7 +85,7 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                              onRestaurant = {navHostController.navigate("restaurant")},
                              onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
                              onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } },
-                             onSelectCity = { findRepository.setCameraPosition(Pair(LatLng(it.latitude, it.longitude), it.zoom)) })
+                             onSelectCity = { findRepository.setCameraPosition(Triple(it.latitude, it.longitude, it.zoom)) })
         }
         composable("MapScreenForFindingWithPermission") {
             mapScreenForFindingWithPermission()
@@ -93,7 +93,7 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                              cities = cities,
                              onRestaurant = {navHostController.navigate("restaurant")},
                              onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
-                             onSelectCity = { findRepository.setCameraPosition(Pair(LatLng(it.latitude, it.longitude), it.zoom)) },
+                             onSelectCity = { findRepository.setCameraPosition(Triple(it.latitude, it.longitude, it.zoom)) },
                              onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } })
         }
         composable("MapScreenForRestaurant"){ mapScreenForRestaurant() }
