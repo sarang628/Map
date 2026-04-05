@@ -54,6 +54,7 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
                         myLocation         : LatLng?               = null,
                         boundary           : Double?               = null,
                         logoBottomPadding  : Dp                    = 0.dp,
+                        markerTitleVisibleZoomLevel   : Float                 = 17f,
                         onMark             : (Int) -> Unit         = {},
                         mapProperties      : MapProperties         = MapProperties(isMyLocationEnabled = true,
                                                                                    mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
@@ -91,6 +92,7 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
         logoBottomPadding           = logoBottomPadding,
         uiSettings                  = uiSettings,
         onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
+        markerTitleVisibleZoomLevel = markerTitleVisibleZoomLevel,
         onMark                      = { mapViewModel.onMark(it) },
         onMapLoaded                 = {
             coroutine.launch {
@@ -119,6 +121,7 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
                    onMark                      : (Int) -> Unit         = {},
                    onMapLoaded                 : () -> Unit            = {},
                    onSaveCameraPosition        : (CameraPositionState) -> Unit = {},
+                   markerTitleVisibleZoomLevel   : Float                 = 17f,
                    uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false,
                                                                                        myLocationButtonEnabled = false,
                                                                                        compassEnabled = false), ){
@@ -152,7 +155,7 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
         uiSettings        = uiSettings){
         Markers(list        = uiState.markers,
                 onMark      = { onMark.invoke(it) },
-                visibleInfo = zoom  >= 17)
+                visibleInfo = zoom  >= markerTitleVisibleZoomLevel)
 
         myLocation?.let { latlng ->
             boundary?.let {
