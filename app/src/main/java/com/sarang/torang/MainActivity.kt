@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.screen_map.compose.MapScreen
@@ -71,6 +72,9 @@ class MainActivity : ComponentActivity() {
                                                                                                                onBack = { navHostController.popBackStack() })
                                                                            }
                                    },
+                                   onFindMyLocation = {
+                                       mapViewModel.findMyLocation()
+                                   }
                         )
                     }
                 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,6 +21,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,7 +58,8 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                         mapScreenForFindingWithPermission : @Composable () -> Unit = {},
                         mapScreen : @Composable () -> Unit = {},
                         mapState : MapState,
-                        navHostController : NavHostController = rememberNavController()
+                        navHostController : NavHostController = rememberNavController(),
+                        onFindMyLocation : ()->Unit = {}
                   ){
     val tag = "__MapTest"
 
@@ -79,13 +82,18 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
     NavHost(navController = navHostController, startDestination = "menu") {
         composable("menu") { Menu(navHostController) }
         composable("MapScreen") {
-            mapScreen()
-            TopActionButtons(mapState = mapState,
-                             cities = cities,
-                             onRestaurant = {navHostController.navigate("restaurant")},
-                             onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
-                             onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } },
-                             onSelectCity = { findRepository.setCameraPosition(Triple(it.latitude, it.longitude, it.zoom)) })
+            Scaffold() {
+                Box(Modifier.padding(it)){
+                    mapScreen()
+                    TopActionButtons(mapState = mapState,
+                                     cities = cities,
+                                     onRestaurant = {navHostController.navigate("restaurant")},
+                                     onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
+                                     onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } },
+                                     onSelectCity = { findRepository.setCameraPosition(Triple(it.latitude, it.longitude, it.zoom)) },
+                                     onFindMyLocation = onFindMyLocation)
+                }
+            }
         }
         composable("MapScreenForFindingWithPermission") {
             mapScreenForFindingWithPermission()
@@ -94,7 +102,8 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                              onRestaurant = {navHostController.navigate("restaurant")},
                              onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
                              onSelectCity = { findRepository.setCameraPosition(Triple(it.latitude, it.longitude, it.zoom)) },
-                             onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } })
+                             onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } },
+                             onFindMyLocation = onFindMyLocation)
         }
         composable("MapScreenForRestaurant"){ mapScreenForRestaurant() }
     }
@@ -104,15 +113,17 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
 
 @Composable
 fun Menu(navHostController : NavHostController){
-    Column {
-        Button({navHostController.navigate("MapScreen")}) {
-            Text("MapScreen")
-        }
-        Button({navHostController.navigate("MapScreenForFindingWithPermission")}) {
-            Text("MapScreenForFindingWithPermission")
-        }
-        Button({navHostController.navigate("MapScreenForRestaurant")}) {
-            Text("MapScreenForRestaurant")
+    Scaffold {
+        Column(Modifier.padding(it)) {
+            Button({navHostController.navigate("MapScreen")}) {
+                Text("MapScreen")
+            }
+            Button({navHostController.navigate("MapScreenForFindingWithPermission")}) {
+                Text("MapScreenForFindingWithPermission")
+            }
+            Button({navHostController.navigate("MapScreenForRestaurant")}) {
+                Text("MapScreenForRestaurant")
+            }
         }
     }
 }
@@ -124,27 +135,31 @@ fun TopActionButtons(mapState: MapState = rememberMapState(),
                      onRestaurant : ()->Unit = {},
                      onSearch : ()->Unit = {},
                      onFindThisArea : ()->Unit = {},
-                     onSelectCity : (CityApiModel)->Unit = {}
+                     onSelectCity : (CityApiModel)->Unit = {},
+                     onFindMyLocation : ()->Unit = {}
                      ){
     val coroutineScope      : CoroutineScope                    = rememberCoroutineScope()
     var boundary            : Double                            by remember { mutableStateOf(0.0) }
-    var selectedCity        : String                            by remember { mutableStateOf("") }
+    var selectedCity        : String                            by remember { mutableStateOf("city") }
     var expanded by remember { mutableStateOf(false) }
+    var expandedBoundary by remember { mutableStateOf(false) }
     Column {
         FlowRow(Modifier.scrollable(rememberScrollState(), orientation = Orientation.Horizontal)) {
             AssistChip(onClick = { coroutineScope.launch { mapState.cameraPositionState.animate(CameraUpdateFactory.zoomIn()) } }, label = { Text(text = "+") })
             AssistChip(onClick = { coroutineScope.launch { mapState.cameraPositionState.animate(CameraUpdateFactory.zoomOut()) } }, label = {Text(text = "-") })
             AssistChip(onClick = onRestaurant, label = { Text(text = "move") })
             Spacer(Modifier.width(3.dp))
-            AssistChip(onClick = { boundary = 100.0 }, label = { Text(text = "100M") })
-            Spacer(Modifier.width(3.dp))
-            AssistChip(onClick = { boundary = 200.0 }, label = { Text(text = "200M") })
-            Spacer(Modifier.width(3.dp))
-            AssistChip(onClick = { boundary = 500.0 }, label = { Text(text = "500M") })
-            Spacer(Modifier.width(3.dp))
-            AssistChip(onClick = { boundary = 1000.0 }, label = { Text(text = "1000M") })
-            Spacer(Modifier.width(3.dp))
-            AssistChip(onClick = { boundary = 3000.0 }, label = { Text(text = "3000M") })
+            Box {
+                AssistChip(onClick = { expandedBoundary = true }, label = { Text(text = "boundary : $boundary") })
+                DropdownMenu(expanded = expandedBoundary,
+                             onDismissRequest = {expandedBoundary = false}) {
+                    DropdownMenuItem(onClick = { boundary = 100.0; expandedBoundary = false }, text = { Text(text = "100M") })
+                    DropdownMenuItem(onClick = { boundary = 200.0; expandedBoundary = false }, text = { Text(text = "200M") })
+                    DropdownMenuItem(onClick = { boundary = 500.0; expandedBoundary = false }, text = { Text(text = "500M") })
+                    DropdownMenuItem(onClick = { boundary = 1000.0; expandedBoundary = false }, text = { Text(text = "1000M") })
+                    DropdownMenuItem(onClick = { boundary = 3000.0; expandedBoundary = false }, text = { Text(text = "3000M") })
+                }
+            }
             Spacer(Modifier.width(3.dp))
             AssistChip(onClick = { onSearch() }, label = {Text(text = "filter")})
             Spacer(Modifier.width(3.dp))
@@ -152,9 +167,8 @@ fun TopActionButtons(mapState: MapState = rememberMapState(),
             Spacer(Modifier.width(3.dp))
             Box {
                 AssistChip(onClick = { expanded = true }, label = {Text(text = selectedCity)})
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = {}) {
+                DropdownMenu(expanded = expanded,
+                             onDismissRequest = {expanded = false}) {
                     cities.forEach {
                         DropdownMenuItem(
                             text = { Text(it.name) },
@@ -166,6 +180,8 @@ fun TopActionButtons(mapState: MapState = rememberMapState(),
                     }
                 }
             }
+            Spacer(Modifier.width(3.dp))
+            AssistChip(onClick = onFindMyLocation, label = { Text("myLocation") })
         }
         //RestaurantList(findRepository, state)
     }

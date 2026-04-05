@@ -18,15 +18,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 class MapState(
     val cameraPositionState: CameraPositionState,
-    val zoomLevel : Float,
-    val selectedMarker : MarkerState
 ) {
     var onMapLoaded by mutableStateOf(false)
         private set
-
-    fun setSelectMarker(data: MarkerData) {
-        selectedMarker.position = LatLng(data.lat, data.lon)
-    }
 
     fun setOnMapLoaded(){
         onMapLoaded = true
@@ -38,33 +32,8 @@ private const val tag : String = "__rememberMapState"
 fun rememberMapState() : MapState{
 
     val cameraPositionState = rememberCameraPositionState()
-    var zoomLevel by remember { mutableFloatStateOf(cameraPositionState.position.zoom) } // 카메라의 줌 레벨을 추적
-    val selectedMarker      : MarkerState   = rememberMarkerState().apply { showInfoWindow() }
-
-    // save zoom level
-    LaunchedEffect("") {
-        snapshotFlow { cameraPositionState.position.zoom }
-            .distinctUntilChanged()
-            .collect {
-            if (!cameraPositionState.isMoving) {
-                //zoomLevel = cameraPositionState.position.zoom
-            }
-        }
-    }
-
-    /*LaunchedEffect(key1 = uiState.selectedMarker) {
-        if (!uiState.isMapLoaded) return@LaunchedEffect
-
-        uiState.selectedMarker?.let { //카드가 포커스된 음식점에 맞춰 지도 이동시키기
-            if (selectedMarker.position != it.getLatLng()) {
-                mapState.cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(it.getLatLng()), durationMs = 300)
-            }
-        }
-    }*/
 
     return MapState(
         cameraPositionState = cameraPositionState,
-        zoomLevel = zoomLevel,
-        selectedMarker = selectedMarker
     )
 }

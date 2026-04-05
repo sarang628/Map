@@ -1,6 +1,5 @@
 package com.example.screen_map.compose
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -82,7 +81,7 @@ fun MapScreenSingleRestaurantMarker(mapViewModel         : MapSingleMarkerViewMo
         Box(Modifier.padding(it)){
             if(restaurantId > 0) {
                 Map(mapState    = mapState,
-                    showProgress = uiState.isMapLoaded,
+                    loadingProgress = uiState.isMapLoaded,
                     myLocationButtonEnabled = hasPermission, //  이 두 파라미터가 true로 설정되어야 지도 내위치 버튼 활성화
                     isMyLocationEnabled = hasPermission,     //  이 두 파라미터가 true로 설정되어야 지도 내위치 버튼 활성화
                     logoBottomPadding = logoBottomPadding,

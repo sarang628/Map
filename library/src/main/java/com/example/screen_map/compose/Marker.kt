@@ -19,7 +19,7 @@ fun Marker(markData       : MarkerData,
         icon    = markData.icon(context    = context,
                                 title      = markData.title,
                                 rating     = markData.rating,
-                                isSelected = true,
+                                isSelected = false,
                                 price      = markData.price,
                                 visibleTitle = visibleInfo,
                                 visiblePriceAndRating = visibleInfo)

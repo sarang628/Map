@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.screen_map.compose.MapUIState
-import com.example.screen_map.data.MarkerData
+import com.example.screen_map.compose.markers
 import com.example.screen_map.usecase.CameraMoveUseCase
 import com.example.screen_map.usecase.GetMarkerListFlowUseCase
 import com.example.screen_map.usecase.GetSelectedMarkUseCase
@@ -16,8 +16,6 @@ import com.example.screen_map.usecase.SetSelectedMarkUseCase
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -71,12 +69,20 @@ open class MapViewModel @Inject constructor(
     fun getLastZoom(): Float { return saveMapPositionUseCase.load().zoom }
     fun onMapLoaded() { uiState = uiState.copy(isMapLoaded = true) }
     fun onMark(restaurantId: Int) {
-        uiState.list.firstOrNull { it.id == restaurantId }?.let {
+        uiState.markers.firstOrNull { it.id == restaurantId }?.let {
             Log.d(tag, "onMark: $it")
             uiState = uiState.copy(selectedMarker = it)
         } ?: run {
             Log.e(tag, "failed selected marker. not found in markerList restaurantId: ${restaurantId}")
         }
         viewModelScope.launch { setSelectMarkerUseCase.invoke(restaurantId) }
+    }
+
+    fun findMyLocation(){
+        uiState  = uiState.copy(findMyLocation = true)
+    }
+
+    fun onFindMyLocation() {
+        uiState  = uiState.copy(findMyLocation = false)
     }
 }

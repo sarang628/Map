@@ -28,10 +28,11 @@ import com.sarang.torang.R
 @Composable
 fun Map(
     mapState                  : MapState                                    = rememberMapState(),
+    loadingProgress           : Boolean                                     = false,
     showProgress              : Boolean                                     = false,
     logoBottomPadding         : Dp                                          = 0.dp,
     myLocationButtonEnabled   : Boolean                                     = false,
-    isMyLocationEnabled       : Boolean                                     = false,
+    isMyLocationEnabled       : Boolean                                     = true,
     mapScreenCallback         : MapScreenCallback                           = MapScreenCallback(),
     uiSettings                : MapUiSettings                               = MapUiSettings(zoomControlsEnabled = true,
                                                                                             myLocationButtonEnabled = myLocationButtonEnabled,
@@ -40,7 +41,6 @@ fun Map(
                                                                                             mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
     content                   : @Composable @GoogleMapComposable () -> Unit = { }
 ){
-
     Box {
         GoogleMap(modifier            = Modifier.fillMaxSize(),
                   cameraPositionState = mapState.cameraPositionState,
@@ -53,21 +53,21 @@ fun Map(
         {
             content.invoke()
         }
-        if (!showProgress) {
+        if (!loadingProgress || showProgress) {
             Box(Modifier
                 .fillMaxSize()
-                .clickable(enabled = false) { }
-                .background(Color(0x33000000))) {
+                .clickable(enabled = if(showProgress) true else false) { }
+                .background( if(!loadingProgress) Color(0x33000000) else Color.Transparent)) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
         }
     }
 
     // save location after point out finger
-    LaunchedEffect(key1 = showProgress, block = {
+    LaunchedEffect(key1 = loadingProgress, block = {
         snapshotFlow { mapState.cameraPositionState.isMoving }.collect {
             if (!mapState.cameraPositionState.isMoving) { // 맵이 로드될 때 0,0 좌표를 저장하는 이벤트 발생하여 방어로직추가
-                if (showProgress) { //마지막으로 움직인 지점 저장하기
+                if (loadingProgress) { //마지막으로 움직인 지점 저장하기
                     if(mapState.cameraPositionState.position.target.latitude != 0.0) // TODO::0.0 안나오게 하기
                     {
                         mapScreenCallback.onSaveCameraPosition(mapState.cameraPositionState)

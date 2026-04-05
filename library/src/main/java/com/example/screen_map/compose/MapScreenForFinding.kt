@@ -1,5 +1,8 @@
 package com.example.screen_map.compose
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,20 +12,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.screen_map.data.MapScreenCallback
 import com.example.screen_map.viewmodels.MapViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.sarang.torang.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 private const val tag : String = "__MapScreenForFinding"
 
@@ -43,15 +55,39 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
                         boundary           : Double?               = null,
                         logoBottomPadding  : Dp                    = 0.dp,
                         onMark             : (Int) -> Unit         = {},
+                        mapProperties      : MapProperties         = MapProperties(isMyLocationEnabled = true,
+                                                                                   mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
                         uiSettings         : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), ) {
+    val uiState = mapViewModel.uiState
     val coroutine = rememberCoroutineScope()
+    val context = LocalContext.current
+    val locationClient : FusedLocationProviderClient   = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    LaunchedEffect(uiState.findMyLocation) {
+        if(uiState.findMyLocation){
+            val grant = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+            if(grant == PackageManager.PERMISSION_GRANTED){
+                val result : Location? = locationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,
+                    CancellationTokenSource().token,)
+                    .await()
+                result?.let {
+                    mapState.cameraPositionState.animate(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+                }
+                mapViewModel.onFindMyLocation()
+            }
+            else{
+                mapViewModel.onFindMyLocation()
+            }
+        }
+    }
 
     MapForFinding_(
-        uiState                     = mapViewModel.uiState,
+        uiState                     = uiState,
         mapState                    = mapState,
         onMapClick                  = onMapClick,
         myLocation                  = myLocation,
         boundary                    = boundary,
+        mapProperties               = mapProperties,
         logoBottomPadding           = logoBottomPadding,
         uiSettings                  = uiSettings,
         onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
@@ -59,7 +95,7 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
         onMapLoaded                 = {
             coroutine.launch {
                 mapViewModel.onMapLoaded()
-                if (!mapViewModel.uiState.isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
+                if (!uiState.isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
                     mapState.cameraPositionState.animate(update = CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(),
                                                                                                     mapViewModel.getLastZoom()),
                                                          durationMs = 1000)
@@ -78,6 +114,8 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
                    myLocation                  : LatLng?               = null,
                    boundary                    : Double?               = null,
                    logoBottomPadding           : Dp                    = 0.dp,
+                   mapProperties               : MapProperties         = MapProperties(isMyLocationEnabled = true,
+                                                                                       mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
                    onMark                      : (Int) -> Unit         = {},
                    onMapLoaded                 : () -> Unit            = {},
                    onSaveCameraPosition        : (CameraPositionState) -> Unit = {},
@@ -102,15 +140,17 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
         }
     }
 
-    Map(showProgress      = uiState.isMapLoaded,
-        mapState          = mapState,
+    Map(loadingProgress      = uiState.isMapLoaded,
+        showProgress         = uiState.findMyLocation,
+        mapState             = mapState,
         mapScreenCallback = MapScreenCallback(
             onSaveCameraPosition = onSaveCameraPosition,
             onMapClick           = onMapClick,
             onMapLoaded          = onMapLoaded),
         logoBottomPadding = logoBottomPadding,
+        mapProperties = mapProperties,
         uiSettings        = uiSettings){
-        Markers(list        = uiState.list,
+        Markers(list        = uiState.markers,
                 onMark      = { onMark.invoke(it) },
                 visibleInfo = zoom  >= 17)
 
