@@ -1,5 +1,7 @@
 package com.example.screen_map.compose
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -41,10 +43,11 @@ fun Map(
                                                                                             mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
     content                   : @Composable @GoogleMapComposable () -> Unit = { }
 ){
+    val context = LocalContext.current
     Box {
         GoogleMap(modifier            = Modifier.fillMaxSize(),
                   cameraPositionState = mapState.cameraPositionState,
-                  properties          = mapProperties,
+                  properties          = mapProperties.copy(isMyLocationEnabled = if(context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) mapProperties.isMyLocationEnabled else false ),
                   onMapClick          = mapScreenCallback.onMapClick,
                   uiSettings          = uiSettings,
                   onMapLoaded         = { mapScreenCallback.onMapLoaded()
