@@ -1,13 +1,13 @@
 package com.example.screen_map.compose
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -57,10 +57,10 @@ fun MapScreen(mapState                      : MapState              = rememberMa
               content                       : @Composable
                                               @GoogleMapComposable
                                               () -> Unit            = { }) {
-    val uiState = mapViewModel.uiState
-    var zoom by remember { mutableIntStateOf(0) }
-    val context = LocalContext.current
-    val locationClient : FusedLocationProviderClient   = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val uiState : MapUIState    = mapViewModel.uiState
+    var zoom    : Int           by remember { mutableIntStateOf(0) }
+    val context : Context       = LocalContext.current
+    val locationClient : FusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     LaunchedEffect(Unit) {
         snapshotFlow { mapState.cameraPositionState.position.zoom.toInt() }
@@ -84,10 +84,11 @@ fun MapScreen(mapState                      : MapState              = rememberMa
             val grant = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
             if(grant == PackageManager.PERMISSION_GRANTED){
                 val result : Location? = locationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,
-                    CancellationTokenSource().token,)
-                    .await()
+                                                                           CancellationTokenSource().token,)
+                                                       .await()
                 result?.let {
-                    mapState.cameraPositionState.animate(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+                    mapState.cameraPositionState
+                            .animate(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
                 }
                 mapViewModel.onFindMyLocation()
             }

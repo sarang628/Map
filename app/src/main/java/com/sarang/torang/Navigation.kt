@@ -59,18 +59,11 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                         mapScreen : @Composable () -> Unit = {},
                         mapState : MapState,
                         navHostController : NavHostController = rememberNavController(),
-                        onFindMyLocation : ()->Unit = {}
-                  ){
-    val tag = "__MapTest"
-
-    val list                : List<MarkerData>                  = testMarkArrayList()
-    var location            : Location?                         by remember { mutableStateOf(null) }
-    var isMyLocationEnabled : Boolean                           by remember { mutableStateOf(false) }
-    var myLocation          : LatLng?                           by remember { mutableStateOf(null) }
-    var cities              : List<CityApiModel>                by remember { mutableStateOf(emptyList()) }
-
-    val state               : LazyListState                     = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+                        onFindMyLocation : ()->Unit = {},
+                        onBoundary         : (Double)->Unit        = {}){
+    var cities              : List<CityApiModel> by remember { mutableStateOf(emptyList()) }
+    val state               : LazyListState      = rememberLazyListState()
+    val coroutineScope      : CoroutineScope     = rememberCoroutineScope()
 
     ScrollLazyList(findRepository, state)
     MoveCamera(findRepository, mapState)
@@ -91,7 +84,8 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                                      onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
                                      onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } },
                                      onSelectCity = { findRepository.setCameraPosition(Triple(it.latitude, it.longitude, it.zoom)) },
-                                     onFindMyLocation = onFindMyLocation)
+                                     onFindMyLocation = onFindMyLocation,
+                                     onBoundary = onBoundary)
                 }
             }
         }
@@ -103,7 +97,8 @@ internal fun Navigation(findRepository: FindRepositoryImpl,
                              onSearch = {coroutineScope.launch { findRepository.search(Filter()) }},
                              onSelectCity = { findRepository.setCameraPosition(Triple(it.latitude, it.longitude, it.zoom)) },
                              onFindThisArea = { coroutineScope.launch { findRepository.findThisArea() } },
-                             onFindMyLocation = onFindMyLocation)
+                             onFindMyLocation = onFindMyLocation,
+                             onBoundary = onBoundary)
         }
         composable("MapScreenForRestaurant"){ mapScreenForRestaurant() }
     }
@@ -131,12 +126,13 @@ fun Menu(navHostController : NavHostController){
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TopActionButtons(mapState: MapState = rememberMapState(),
-                     cities : List<CityApiModel> = emptyList(),
-                     onRestaurant : ()->Unit = {},
-                     onSearch : ()->Unit = {},
-                     onFindThisArea : ()->Unit = {},
-                     onSelectCity : (CityApiModel)->Unit = {},
-                     onFindMyLocation : ()->Unit = {}
+                     cities             : List<CityApiModel>    = emptyList(),
+                     onRestaurant       : ()->Unit              = {},
+                     onSearch           : ()->Unit              = {},
+                     onFindThisArea     : ()->Unit              = {},
+                     onSelectCity       : (CityApiModel)->Unit  = {},
+                     onFindMyLocation   : ()->Unit              = {},
+                     onBoundary         : (Double)->Unit        = {}
                      ){
     val coroutineScope      : CoroutineScope                    = rememberCoroutineScope()
     var boundary            : Double                            by remember { mutableStateOf(0.0) }
@@ -153,11 +149,11 @@ fun TopActionButtons(mapState: MapState = rememberMapState(),
                 AssistChip(onClick = { expandedBoundary = true }, label = { Text(text = "boundary : $boundary") })
                 DropdownMenu(expanded = expandedBoundary,
                              onDismissRequest = {expandedBoundary = false}) {
-                    DropdownMenuItem(onClick = { boundary = 100.0; expandedBoundary = false }, text = { Text(text = "100M") })
-                    DropdownMenuItem(onClick = { boundary = 200.0; expandedBoundary = false }, text = { Text(text = "200M") })
-                    DropdownMenuItem(onClick = { boundary = 500.0; expandedBoundary = false }, text = { Text(text = "500M") })
-                    DropdownMenuItem(onClick = { boundary = 1000.0; expandedBoundary = false }, text = { Text(text = "1000M") })
-                    DropdownMenuItem(onClick = { boundary = 3000.0; expandedBoundary = false }, text = { Text(text = "3000M") })
+                    DropdownMenuItem(onClick = { boundary = 100.0; onBoundary.invoke(100.0); expandedBoundary = false }, text = { Text(text = "100M") })
+                    DropdownMenuItem(onClick = { boundary = 200.0; onBoundary.invoke(200.0); expandedBoundary = false }, text = { Text(text = "200M") })
+                    DropdownMenuItem(onClick = { boundary = 500.0; onBoundary.invoke(500.0); expandedBoundary = false }, text = { Text(text = "500M") })
+                    DropdownMenuItem(onClick = { boundary = 1000.0; onBoundary.invoke(1000.0); expandedBoundary = false }, text = { Text(text = "1000M") })
+                    DropdownMenuItem(onClick = { boundary = 3000.0; onBoundary.invoke(3000.0); expandedBoundary = false }, text = { Text(text = "3000M") })
                 }
             }
             Spacer(Modifier.width(3.dp))
@@ -190,7 +186,7 @@ fun TopActionButtons(mapState: MapState = rememberMapState(),
 @Preview
 @Composable
 fun PreviewTopActionBar(){
-    TopActionButtons {
+    TopActionButtons {/*Preview*/
 
     }
 }

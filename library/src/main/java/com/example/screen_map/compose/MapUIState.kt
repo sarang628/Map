@@ -8,7 +8,8 @@ data class MapUIState(
     val currentPosition: Int = 0,
     val selectedMarker : MarkerData? = null,
     val cameraPosition : Triple<Double, Double, Float>? = null,
-    val findMyLocation : Boolean = false
+    val findMyLocation : Boolean = false,
+    val boundary       : Double? = null
 )
 
 val MapUIState.markers : List<MarkerData> get() {

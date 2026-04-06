@@ -1,6 +1,7 @@
 package com.example.screen_map.compose
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.compose.material3.MaterialTheme
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -31,6 +33,7 @@ import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.sarang.torang.R
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -44,35 +47,36 @@ private const val tag : String = "__MapScreenForFinding"
  * @param cameraSpeed map 카메라 이동 속도 설정
  * @param onMapClick 맵 클릭 이벤트
  * @param myLocation 내 위치로 이동
- * @param boundary 내 위치 반경 표시
  */
 @Composable
 fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewModel(),
                         cameraSpeed        : Int                   = 300,
                         mapState           : MapState              = rememberMapState(),
                         onMapClick         : (LatLng) -> Unit      = {},
-                        myLocation         : LatLng?               = null,
-                        boundary           : Double?               = null,
                         logoBottomPadding  : Dp                    = 0.dp,
-                        markerTitleVisibleZoomLevel   : Float                 = 17f,
+                        markerTitleVisibleZoomLevel   : Float      = 17f,
                         onMark             : (Int) -> Unit         = {},
                         mapProperties      : MapProperties         = MapProperties(isMyLocationEnabled = true,
                                                                                    mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
-                        uiSettings         : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false), ) {
-    val uiState = mapViewModel.uiState
-    val coroutine = rememberCoroutineScope()
-    val context = LocalContext.current
-    val locationClient : FusedLocationProviderClient   = remember { LocationServices.getFusedLocationProviderClient(context) }
+                        uiSettings         : MapUiSettings         = MapUiSettings(zoomControlsEnabled      = false,
+                                                                                   myLocationButtonEnabled  = false,
+                                                                                   compassEnabled           = false)) {
+    val uiState     : MapUIState        = mapViewModel.uiState
+    val coroutine   : CoroutineScope    = rememberCoroutineScope()
+    val context     : Context           = LocalContext.current
+    var myLocation  : LatLng? by remember { mutableStateOf(null) }
+    val locationClient : FusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     LaunchedEffect(uiState.findMyLocation) {
         if(uiState.findMyLocation){
             val grant = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
             if(grant == PackageManager.PERMISSION_GRANTED){
                 val result : Location? = locationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,
-                    CancellationTokenSource().token,)
-                    .await()
+                                                                           CancellationTokenSource().token,)
+                                                       .await()
                 result?.let {
                     mapState.cameraPositionState.animate(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+                    myLocation = LatLng(it.latitude, it.longitude)
                 }
                 mapViewModel.onFindMyLocation()
             }
@@ -81,50 +85,6 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
             }
         }
     }
-
-    MapForFinding_(
-        uiState                     = uiState,
-        mapState                    = mapState,
-        onMapClick                  = onMapClick,
-        myLocation                  = myLocation,
-        boundary                    = boundary,
-        mapProperties               = mapProperties,
-        logoBottomPadding           = logoBottomPadding,
-        uiSettings                  = uiSettings,
-        onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
-        markerTitleVisibleZoomLevel = markerTitleVisibleZoomLevel,
-        onMark                      = { mapViewModel.onMark(it) },
-        onMapLoaded                 = {
-            coroutine.launch {
-                mapViewModel.onMapLoaded()
-                if (!uiState.isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
-                    mapState.cameraPositionState.animate(update = CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(),
-                                                                                                    mapViewModel.getLastZoom()),
-                                                         durationMs = 1000)
-                    delay(1000) //카메라 이동 전까지 플래그 비활성화
-                }
-            }
-        }
-    )
-}
-
-@Preview
-@Composable
-fun MapForFinding_(uiState                     : MapUIState            = MapUIState(),
-                   mapState                    : MapState              = rememberMapState(),
-                   onMapClick                  : (LatLng) -> Unit      = {},
-                   myLocation                  : LatLng?               = null,
-                   boundary                    : Double?               = null,
-                   logoBottomPadding           : Dp                    = 0.dp,
-                   mapProperties               : MapProperties         = MapProperties(isMyLocationEnabled = true,
-                                                                                       mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
-                   onMark                      : (Int) -> Unit         = {},
-                   onMapLoaded                 : () -> Unit            = {},
-                   onSaveCameraPosition        : (CameraPositionState) -> Unit = {},
-                   markerTitleVisibleZoomLevel   : Float                 = 17f,
-                   uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false,
-                                                                                       myLocationButtonEnabled = false,
-                                                                                       compassEnabled = false), ){
 
     var zoom by remember { mutableIntStateOf(0) }
 
@@ -143,23 +103,70 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
         }
     }
 
+    MapForFinding_(uiState                     = uiState,
+                   mapState                    = mapState,
+                   onMapClick                  = onMapClick,
+                   myLocation                  = myLocation,
+                   mapProperties               = mapProperties,
+                   logoBottomPadding           = logoBottomPadding,
+                   uiSettings                  = uiSettings,
+                   onSaveCameraPosition        = { mapViewModel.saveCameraPosition(it) },
+                   markerTitleVisibleZoomLevel = markerTitleVisibleZoomLevel,
+                   onMark                      = { mapViewModel.onMark(it) },
+                   zoom                        = zoom,
+                   onMapLoaded                 = {
+                        coroutine.launch {
+                            mapViewModel.onMapLoaded()
+                            if (!uiState.isMapLoaded) { // 플래그 처리 안하면 지도화면으로 이동할때마다 이벤트 발생 처음에 한번만 동작하면 됨
+                                mapState.cameraPositionState.animate(update = CameraUpdateFactory.newLatLngZoom(mapViewModel.getLastPosition(),
+                                                                                                                mapViewModel.getLastZoom()),
+                                                                     durationMs = 1000)
+                                delay(1000) //카메라 이동 전까지 플래그 비활성화
+                            }
+                        }
+                   }
+    )
+}
+
+@Preview
+@Composable
+fun MapForFinding_(uiState                     : MapUIState            = MapUIState(),
+                   mapState                    : MapState              = rememberMapState(),
+                   onMapClick                  : (LatLng) -> Unit      = {},
+                   myLocation                  : LatLng?               = null,
+                   logoBottomPadding           : Dp                    = 0.dp,
+                   mapProperties               : MapProperties         = MapProperties(isMyLocationEnabled = true,
+                                                                                       mapStyleOptions     = MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.hide_all_type)),
+                   onMark                      : (Int) -> Unit         = {},
+                   onMapLoaded                 : () -> Unit            = {},
+                   onSaveCameraPosition        : (CameraPositionState) -> Unit = {},
+                   markerTitleVisibleZoomLevel : Float                 = 17f,
+                   zoom                        : Int                   = 0,
+                   uiSettings                  : MapUiSettings         = MapUiSettings(zoomControlsEnabled = false,
+                                                                                       myLocationButtonEnabled = false,
+                                                                                       compassEnabled = false), ){
+
+
+
     Map(loadingProgress      = uiState.isMapLoaded,
         showProgress         = uiState.findMyLocation,
         mapState             = mapState,
-        mapScreenCallback = MapScreenCallback(
-            onSaveCameraPosition = onSaveCameraPosition,
-            onMapClick           = onMapClick,
-            onMapLoaded          = onMapLoaded),
-        logoBottomPadding = logoBottomPadding,
-        mapProperties = mapProperties,
-        uiSettings        = uiSettings){
+        mapScreenCallback    = MapScreenCallback(onSaveCameraPosition = onSaveCameraPosition,
+                                                 onMapClick           = onMapClick,
+                                                 onMapLoaded          = onMapLoaded),
+        logoBottomPadding    = logoBottomPadding,
+        mapProperties        = mapProperties,
+        uiSettings           = uiSettings){
         Markers(list        = uiState.markers,
                 onMark      = { onMark.invoke(it) },
                 visibleInfo = zoom  >= markerTitleVisibleZoomLevel)
 
         myLocation?.let { latlng ->
-            boundary?.let {
-                Circle(center = latlng, radius = boundary, strokeWidth = 5f, strokeColor = MaterialTheme.colorScheme.primary)
+            uiState.boundary?.let {
+                Circle(center       = latlng,
+                       radius       = uiState.boundary,
+                       strokeWidth  = 5f,
+                       strokeColor  = MaterialTheme.colorScheme.primary)
             }
         }
 
@@ -170,6 +177,6 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
 @Preview
 @Composable
 fun test(){
-    MapForFinding_(
+    MapForFinding_(/*Preview*/
     )
 }

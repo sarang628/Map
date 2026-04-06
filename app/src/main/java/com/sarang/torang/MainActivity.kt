@@ -54,27 +54,26 @@ class MainActivity : ComponentActivity() {
 
                         //mapViewModel.onMark(restairantId)
 
-                        Navigation(findRepository = findRepository,
-                                   navHostController = navHostController,
-                                   apiFilter      = apiFilter,
-                                   mapState                            = mapState,
-                                   mapScreen                           = { MapScreen(mapViewModel   = mapViewModel,
-                                                                                     mapState       = mapState) },
-                                   mapScreenForFindingWithPermission   = { MapScreenForFindingWithPermission {
-                                                                           MapScreenForFinding(mapViewModel = mapViewModel,
-                                                                                               mapState = mapState) }},
-                                   mapScreenForRestaurant              = { val viewModel : BestPracticeViewModel = hiltViewModel()
-                                                                           val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-                                                                           MapScreenForFindingWithPermission(viewModel = viewModel) {
+                        Navigation(findRepository                       = findRepository,
+                                   navHostController                    = navHostController,
+                                   apiFilter                            = apiFilter,
+                                   mapState                             = mapState,
+                                   mapScreen                            = { MapScreen(mapViewModel   = mapViewModel,
+                                                                                      mapState       = mapState) },
+                                   mapScreenForFindingWithPermission    = { MapScreenForFindingWithPermission {
+                                                                            MapScreenForFinding(mapViewModel = mapViewModel,
+                                                                                                mapState = mapState) } },
+                                   mapScreenForRestaurant               = { val viewModel : BestPracticeViewModel = hiltViewModel()
+                                                                            val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+                                                                            MapScreenForFindingWithPermission(viewModel = viewModel) {
                                                                                MapScreenSingleRestaurantMarker(restaurantId = restairantId,
                                                                                                                requestPermission = { viewModel.request() },
                                                                                                                hasPermission = permissionState.status.isGranted,
                                                                                                                onBack = { navHostController.popBackStack() })
                                                                            }
                                    },
-                                   onFindMyLocation = {
-                                       mapViewModel.findMyLocation()
-                                   }
+                                   onFindMyLocation                     = { mapViewModel.findMyLocation() },
+                                   onBoundary                           = { mapViewModel.setBoundary(it)}
                         )
                     }
                 }

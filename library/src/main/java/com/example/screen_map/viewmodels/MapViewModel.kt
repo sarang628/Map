@@ -85,4 +85,8 @@ open class MapViewModel @Inject constructor(
     fun onFindMyLocation() {
         uiState  = uiState.copy(findMyLocation = false)
     }
+
+    fun setBoundary(d: Double) {
+        uiState = uiState.copy(boundary = d)
+    }
 }
