@@ -47,6 +47,7 @@ fun Map(
     Box {
         GoogleMap(modifier            = Modifier.fillMaxSize(),
                   cameraPositionState = mapState.cameraPositionState,
+                  // 권한 없이 isMyLocationEnabled true하면 crash 발생
                   properties          = mapProperties.copy(isMyLocationEnabled = if(context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) mapProperties.isMyLocationEnabled else false ),
                   onMapClick          = mapScreenCallback.onMapClick,
                   uiSettings          = uiSettings,
