@@ -45,7 +45,7 @@ open class MapViewModel @Inject constructor(
                         Log.d(tag, "selected restaurant : ${it.id}")
                         uiState = uiState.copy(selectedMarker = if (it.id == -1) null else it)
                     }else{
-                        Log.d(tag, "already selected. marker doesn't move")
+                        Log.d(tag, "already selected. map doesn't move")
                     }
                 }
             }

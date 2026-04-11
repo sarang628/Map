@@ -93,22 +93,6 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
             .collect { zoom = it }
     }
 
-    LaunchedEffect(uiState.cameraPosition) {
-        uiState.cameraPosition?.let {
-            mapState.cameraPositionState.animate(
-                update = if(it.third != null) {
-                    CameraUpdateFactory.newLatLngZoom(LatLng(it.first,
-                        it.second),
-                        it.third!!)
-                }
-                else{
-                    CameraUpdateFactory.newLatLng(LatLng(it.first, it.second))
-                },
-                durationMs = 300,
-            )
-        }
-    }
-
     MapForFinding_(uiState                     = uiState,
                    mapState                    = mapState,
                    onMapClick                  = onMapClick,
@@ -152,7 +136,21 @@ fun MapForFinding_(uiState                     : MapUIState            = MapUISt
                                                                                        myLocationButtonEnabled = false,
                                                                                        compassEnabled = false), ){
 
-
+    LaunchedEffect(uiState.cameraPosition) {
+        uiState.cameraPosition?.let {
+            mapState.cameraPositionState.animate(
+                update = if(it.third != null) {
+                    CameraUpdateFactory.newLatLngZoom(LatLng(it.first,
+                        it.second),
+                        it.third!!)
+                }
+                else{
+                    CameraUpdateFactory.newLatLng(LatLng(it.first, it.second))
+                },
+                durationMs = 300,
+            )
+        }
+    }
 
     Map(loadingProgress      = uiState.isMapLoaded,
         showProgress         = uiState.findMyLocation,
