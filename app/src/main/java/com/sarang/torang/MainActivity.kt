@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
                     TestContainer(findRepository){ restairantId, restaurantName ->
 
-                        //mapViewModel.onMark(restairantId)
+                        findRepository.setCameraPosition(restairantId)
 
                         Navigation(findRepository                       = findRepository,
                                    navHostController                    = navHostController,

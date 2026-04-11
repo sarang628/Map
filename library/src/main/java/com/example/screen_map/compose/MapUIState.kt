@@ -7,7 +7,7 @@ data class MapUIState(
     val isMapLoaded: Boolean = false,
     val currentPosition: Int = 0,
     val selectedMarker : MarkerData? = null,
-    val cameraPosition : Triple<Double, Double, Float>? = null,
+    val cameraPosition : Triple<Double, Double, Float?>? = null,
     val findMyLocation : Boolean = false,
     val boundary       : Double? = null
 )

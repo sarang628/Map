@@ -57,7 +57,7 @@ open class MapViewModel @Inject constructor(
         }
     }
 
-    fun setCameraPosition(position : Triple<Double, Double, Float>?){
+    fun setCameraPosition(position : Triple<Double, Double, Float?>?){
         uiState = uiState.copy(cameraPosition = position)
     }
 

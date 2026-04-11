@@ -46,7 +46,6 @@ private const val tag : String = "__MapScreenForFinding"
  * @param onMark map 마커 클릭 이벤트
  * @param cameraSpeed map 카메라 이동 속도 설정
  * @param onMapClick 맵 클릭 이벤트
- * @param myLocation 내 위치로 이동
  */
 @Composable
 fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewModel(),
@@ -97,7 +96,10 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
     LaunchedEffect(uiState.cameraPosition) {
         uiState.cameraPosition?.let {
             mapState.cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(LatLng(it.first, it.second),  it.third),
+                update = if(it.third != null) CameraUpdateFactory.newLatLngZoom(LatLng(it.first,
+                                                                                     it.second),
+                                                                                        it.third!!)
+                else CameraUpdateFactory.newLatLng(LatLng(it.first, it.second)),
                 durationMs = 300,
             )
         }

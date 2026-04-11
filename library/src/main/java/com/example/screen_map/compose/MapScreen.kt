@@ -71,9 +71,10 @@ fun MapScreen(mapState                      : MapState              = rememberMa
     LaunchedEffect(uiState.cameraPosition) {
         uiState.cameraPosition?.let {
             mapState.cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(LatLng(it.first,
-                                                                  it.second),
-                                                           it.third),
+                update = if(it.third != null) CameraUpdateFactory.newLatLngZoom(LatLng(it.first,
+                                                                                      it.second),
+                                                                                         it.third!!)
+                         else CameraUpdateFactory.newLatLng(LatLng(it.first, it.second)),
                 durationMs = 300,
             )
         }
