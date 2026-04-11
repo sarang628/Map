@@ -8,6 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,6 +33,8 @@ import com.sarang.torang.di.repository.FindRepositoryImpl
 import com.sryang.library.compose.workflow.BestPracticeViewModel
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,18 +48,26 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val mapState            : MapState      = rememberMapState()
-            val mapViewModel        : MapViewModel  = hiltViewModel()
+            val mapState            : MapState          = rememberMapState()
+            val mapViewModel        : MapViewModel      = hiltViewModel()
             val navHostController   : NavHostController = rememberNavController()
+            val coroutine           : CoroutineScope    = rememberCoroutineScope()
+            var restaurantId : Int by remember { mutableStateOf(-1) }
+
+            LaunchedEffect(restaurantId) {
+                if(restaurantId > 0){
+                    findRepository.selectRestaurantFromSwipe(restaurantId)
+                }
+            }
 
             TorangTheme {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
 
                     MoveCamera(findRepository, mapState)
 
-                    TestContainer(findRepository){ restairantId, restaurantName ->
+                    TestContainer(findRepository){ id, restaurantName ->
 
-                        findRepository.setCameraPosition(restairantId)
+                        restaurantId = id
 
                         Navigation(findRepository                       = findRepository,
                                    navHostController                    = navHostController,
@@ -66,7 +81,7 @@ class MainActivity : ComponentActivity() {
                                    mapScreenForRestaurant               = { val viewModel : BestPracticeViewModel = hiltViewModel()
                                                                             val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
                                                                             MapScreenForFindingWithPermission(viewModel = viewModel) {
-                                                                               MapScreenSingleRestaurantMarker(restaurantId = restairantId,
+                                                                               MapScreenSingleRestaurantMarker(restaurantId = id,
                                                                                                                requestPermission = { viewModel.request() },
                                                                                                                hasPermission = permissionState.status.isGranted,
                                                                                                                onBack = { navHostController.popBackStack() })

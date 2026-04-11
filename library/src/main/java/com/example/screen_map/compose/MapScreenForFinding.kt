@@ -96,10 +96,14 @@ fun MapScreenForFinding(mapViewModel       : MapViewModel          = hiltViewMod
     LaunchedEffect(uiState.cameraPosition) {
         uiState.cameraPosition?.let {
             mapState.cameraPositionState.animate(
-                update = if(it.third != null) CameraUpdateFactory.newLatLngZoom(LatLng(it.first,
-                                                                                     it.second),
-                                                                                        it.third!!)
-                else CameraUpdateFactory.newLatLng(LatLng(it.first, it.second)),
+                update = if(it.third != null) {
+                    CameraUpdateFactory.newLatLngZoom(LatLng(it.first,
+                        it.second),
+                        it.third!!)
+                }
+                else{
+                    CameraUpdateFactory.newLatLng(LatLng(it.first, it.second))
+                },
                 durationMs = 300,
             )
         }
